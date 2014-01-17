@@ -1,0 +1,81 @@
+record(waveform,"$(P)POSITIONS") {
+    field(DESC, "Available positions")
+	field(DTYP,"Positions")
+	field(FTVL,"STRING")
+	field(NELM,$(NP))
+	field(PINI,"YES")
+}
+record(stringin, "$(P)POSN:SP:RBV")
+{
+	field(DESC, "Current target")
+	field(DTYP,"PosnSpRbv")
+	field(PINI,"YES")
+}
+record(stringout, "$(P)POSN:SP")
+{
+	field(DESC, "Set target")
+	field(DTYP,"PosnSp")
+	field(FLNK, "$(P)INT:POSN:SP")
+}
+record(fanout, "$(P)INT:POSN:SP")
+{
+	field(DESC, "Propagate set")
+	field(LNK1, "$(P)POSN:SP:RBV")
+	field(LNK2, "$(P)COORD1")
+}
+record(stringin, "$(P)POSN")
+{
+	field(DESC, "Current position")
+	field(DTYP,"PosnSpRbv")
+	field(PINI,"YES")
+}
+record(ai, "$(P)DONE")
+{
+    field(DESC, "Is sample in position")
+	field(SCAN, "1 second")
+	field(INP, "$(TARGET_DONE)")
+}
+record(ai, "$(P)COORD1")
+{
+	field(DESC, "Target position 1")
+	field(DTYP,"Coord")
+	field(FLNK, "$(P)INT:WRITE1")
+}
+record(dfanout, "$(P)INT:WRITE1")
+{
+	field(DESC, "Pushes COORD1 to motor")
+	field(DOL, "$(P)COORD1")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(TARGET_PV1)")
+	field(SELM, "Mask")
+	field(SELN, "1")
+}
+record(ao, "$(P)COORD1:RBV")
+{
+	field(DESC, "Current motor position")
+	field(DTYP,"CoordRbv")
+	field(FLNK, "$(P)POSN")
+}
+record(dfanout, "$(P)INT:READ1")
+{
+	field(DESC, "Updates COORD1:RBV")
+	field(SCAN, "1 second")
+	field(DOL, "$(TARGET_RBV1)")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(P)COORD1:RBV")
+	field(SELM, "Mask")
+	field(SELN, "1")
+	field(FLNK, "$(P)COORD1:RBV")
+}
+record(ai, "$(P)RESET")
+{
+	field(DESC, "Reread the lookup file")
+	field(DTYP,"Reset")
+	field(FLNK, "$(P)INT:RESET")
+}
+record(fanout, "$(P)INT:RESET")
+{
+	field(DESC, "Propagate reset")
+	field(LNK1, "$(P)POSITIONS")
+	field(LNK2, "$(P)POSN")
+}

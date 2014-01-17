@@ -1,0 +1,6 @@
+device(ai,CONSTANT,devAiReset,"Reset")
+device(stringout,CONSTANT,devSoPosnSp,"PosnSp")
+device(ai,CONSTANT,devAiCoord,"Coord")
+device(ao,CONSTANT,devAoCoordRbv,"CoordRbv")
+device(stringin,CONSTANT,devSiPosnSpRbv,"PosnSpRbv")
+device(waveform,CONSTANT,devWfPositions,"Positions")

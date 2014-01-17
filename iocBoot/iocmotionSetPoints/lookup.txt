@@ -1,0 +1,7 @@
+# This is a lookup file
+Posn1 10
+Posn2 20
+Posn3 30
+Posn4 45
+Posn5 60
+Posn6 70
