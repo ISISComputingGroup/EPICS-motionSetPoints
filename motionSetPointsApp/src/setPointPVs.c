@@ -46,7 +46,7 @@ static long reset_read_ai(aiRecord *pao)
 	return 0;
 };
 
-/* PosnSp */
+/* SoSetPoint */
 static long posnSp_write_stringout(stringoutRecord *pao);
 
 struct {
@@ -57,7 +57,7 @@ struct {
   DEVSUPFUN  get_ioint_info;
   DEVSUPFUN  write_stringout;
   DEVSUPFUN  special_linconv;
-} devSoPosnSp = {
+} devSoSetPoint = {
   6, /* space for 6 functions */
   NULL,
   NULL,
@@ -66,23 +66,29 @@ struct {
   posnSp_write_stringout,
   NULL
 };
-epicsExportAddress(dset,devSoPosnSp);
+epicsExportAddress(dset,devSoSetPoint);
 
 static long posnSp_write_stringout(stringoutRecord *pao)
 {
 	int status;
 	
-	checkLoadFile();
+	if ( strstr(pao->name, "POSN:SP")!=NULL ) {
+		checkLoadFile();
 	
 #ifdef LKU_DEBUG
-	printf("Looking up %s\n", pao->val);
+		printf("Looking up %s\n", pao->val);
 #endif	
 	
-	status = name2posn(pao->val, &gXSP, &gYSP, &gRowRBV);
+		status = name2posn(pao->val, &gXSP, &gYSP, &gRowRBV);
 	
 #ifdef LKU_DEBUG
-	printf("Got %f %f\n", gXSP, gYSP, gRowCurr);
+		printf("Got %f %f\n", gXSP, gYSP, gRowCurr);
 #endif
+	}
+	else {
+		status = setFilter(pao->name, pao->val);
+	}
+	
 	return status;
 }
 
@@ -162,8 +168,8 @@ static long coordRbv_write_ao(aoRecord *pao)
 	return status;
 };
 
-/* PosnSpRbv */
-static long posnSpRbv_read_stringin(stringinRecord *pao);
+/* SiSetPoint */
+static long setPoint_read_stringin(stringinRecord *pao);
 
 struct {
   long num;
@@ -173,23 +179,29 @@ struct {
   DEVSUPFUN  get_ioint_info;
   DEVSUPFUN  read_stringin;
   DEVSUPFUN  special_linconv;
-} devSiPosnSpRbv = {
+} devSiSetPoint = {
   6, /* space for 6 functions */
   NULL,
   NULL,
   NULL,
   NULL,
-  posnSpRbv_read_stringin,
+  setPoint_read_stringin,
   NULL
 };
-epicsExportAddress(dset,devSiPosnSpRbv);
+epicsExportAddress(dset,devSiSetPoint);
 
-static long posnSpRbv_read_stringin(stringinRecord *pao)
+static long setPoint_read_stringin(stringinRecord *pao)
 {
 	int row;
 	
 	checkLoadFile();
 	
+	if (strstr(pao->name, "FILTER:OUT")!=NULL ) {
+		if ( gRowRBV>=0 ) {
+			strcpy(pao->val, gpRows[gRowRBV].filter);
+		}
+		return 0;
+	}
 	if (strstr(pao->name, ":RBV")!=NULL ) {
 		row = gRowRBV;
 	}
@@ -239,14 +251,21 @@ static long positions_read_wf(waveformRecord *pao)
 	
 	checkLoadFile();
 
-	entries = gNumRows;
-	if ( gNumRows>pao->nelm ) {
-		fprintf(stderr, "Too many positions for POSITIONS PV (%d). Increase $(NP) (%d)\n", gNumRows, pao->nelm);
-		entries = pao->nelm;
-	}
-	
-	for ( i=0 ; i<entries ; i++ ) {
-		strcpy((char *)pao->bptr + MAX_STRING_SIZE*i, gpRows[i].name);
+	entries = 0;
+	for ( i=0 ; i<gNumRows ; i++ ) {
+		if ( checkFilters(gpRows[i].name)==0 ) {
+			if ( entries>pao->nelm ) {
+				fprintf(stderr, "Too many positions for POSITIONS PV (%d). Increase $(NP) (%d)\n", 
+									gNumRows, pao->nelm);
+				break;
+			}
+			/*printf("Accepted %s\n", gpRows[i].name);*/
+			strcpy((char *)pao->bptr + MAX_STRING_SIZE*entries, gpRows[i].name);
+			entries++;
+		}
+		else {
+			/*printf("Rejected %s\n", gpRows[i].name);*/
+		}
 	}
 	
 #ifdef LKU_DEBUG

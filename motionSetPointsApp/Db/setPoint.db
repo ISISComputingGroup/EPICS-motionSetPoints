@@ -8,13 +8,14 @@ record(waveform,"$(P)POSITIONS") {
 record(stringin, "$(P)POSN:SP:RBV")
 {
 	field(DESC, "Current target")
-	field(DTYP,"PosnSpRbv")
+	field(DTYP,"SiSetPoint")
 	field(PINI,"YES")
+	field(FLNK, "$(P)FILTER:OUT")
 }
 record(stringout, "$(P)POSN:SP")
 {
 	field(DESC, "Set target")
-	field(DTYP,"PosnSp")
+	field(DTYP,"SoSetPoint")
 	field(FLNK, "$(P)INT:POSN:SP")
 }
 record(fanout, "$(P)INT:POSN:SP")
@@ -26,7 +27,7 @@ record(fanout, "$(P)INT:POSN:SP")
 record(stringin, "$(P)POSN")
 {
 	field(DESC, "Current position")
-	field(DTYP,"PosnSpRbv")
+	field(DTYP,"SiSetPoint")
 	field(PINI,"YES")
 }
 record(ai, "$(P)DONE")
@@ -78,4 +79,21 @@ record(fanout, "$(P)INT:RESET")
 	field(DESC, "Propagate reset")
 	field(LNK1, "$(P)POSITIONS")
 	field(LNK2, "$(P)POSN")
+}
+record(stringout, "$(P)FILTER1")
+{
+	field(DESC, "Filter targets")
+	field(DTYP,"SoSetPoint")
+	field(FLNK, "$(P)INT:RESET")
+}
+record(stringout, "$(P)FILTER2")
+{
+	field(DESC, "Filter targets")
+	field(DTYP,"SoSetPoint")
+	field(FLNK, "$(P)INT:RESET")
+}
+record(stringin, "$(P)FILTER:OUT")
+{
+	field(DESC, "Filter other axis")
+	field(DTYP,"SiSetPoint")
 }

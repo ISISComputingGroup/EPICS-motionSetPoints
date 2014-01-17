@@ -1,0 +1,3 @@
+# Lookup file for monitor 3
+In 0
+Out 10

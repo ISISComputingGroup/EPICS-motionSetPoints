@@ -11,8 +11,15 @@
 #include "epicsThread.h"
 #include "iocsh.h"
 
+extern "C" {
+#include "setPoint.h"
+}
+
 int main(int argc,char *argv[])
 {
+	gFilter1[0] = '\0';
+	gFilter2[0] = '\0';
+	
     if(argc>=2) {    
         iocsh(argv[1]);
         epicsThreadSleep(.2);
