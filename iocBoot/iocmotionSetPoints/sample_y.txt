@@ -1,3 +1,3 @@
 # Lookup file for sample y position
 Top 5 0 Rack1|Rack2
-Bottom 12 Rack3|Rack4
+Bottom 12 0 Rack3|Rack4
