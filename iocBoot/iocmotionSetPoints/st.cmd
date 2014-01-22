@@ -14,7 +14,7 @@ dbLoadDatabase "dbd/motionSetPoints.dbd"
 motionSetPoints_registerRecordDeviceDriver pdbbase
 
 ## Load record instances
-dbLoadRecords("db/setPoint.db","P=$(MYPVPREFIX)LOOKUP1:,NP=40,TARGET_PV1=$(MYPVPREFIX)MTR01,TARGET_RBV1=$(MYPVPREFIX)MTR01.RBV,TARGET_DONE=$(MYPVPREFIX)MTR01.DMOV")
+dbLoadRecords("db/setPoint.db","P=$(MYPVPREFIX)LOOKUP1:,NP=100,TARGET_PV1=$(MYPVPREFIX)MTR01,TARGET_RBV1=$(MYPVPREFIX)MTR01.RBV,TARGET_DONE=$(MYPVPREFIX)MTR01.DMOV")
 
 cd ${TOP}/iocBoot/${IOC}
 iocInit

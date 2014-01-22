@@ -86,6 +86,7 @@ static long posnSp_write_stringout(stringoutRecord *pao)
 #endif
 	}
 	else {
+		/*printf("Setting %s to %s\n", pao->name, pao->val);*/
 		status = setFilter(pao->name, pao->val);
 	}
 	
@@ -120,16 +121,16 @@ static long coord_read_ai(aiRecord *pao)
 
 	i = strlen(pao->name);
 	if ( pao->name[i-1]=='1' ) {
-		pao->rval = gXSP;
+		pao->val = gXSP;
 	}
 	else {
-		pao->rval = gYSP;
+		pao->val = gYSP;
 	}
 
 #ifdef LKU_DEBUG
-	printf("Returning y %f\n", pao->rval);
+	printf("Returning y %f\n", pao->val);
 #endif
-	return 0;
+	return 2;
 };
 
 /* CoordRbv */
@@ -271,6 +272,12 @@ static long positions_read_wf(waveformRecord *pao)
 #ifdef LKU_DEBUG
 	printf("Copied %d bptr=%x val=%x\n", entries, pao->bptr, pao->val);
 #endif
+	
+	if ( entries<pao->nelm ) {
+		/* The gateway is not passing NORD, so need to add an end marker */
+		strcpy((char *)pao->bptr + MAX_STRING_SIZE*entries, "END");
+		entries++;
+	}
 	
 	pao->nord = entries;
 	

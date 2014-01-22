@@ -30,17 +30,21 @@ record(stringin, "$(P)POSN")
 	field(DTYP,"SiSetPoint")
 	field(PINI,"YES")
 }
-record(ai, "$(P)DONE")
+record(ai, "$(P)STATIONARY")
 {
     field(DESC, "Is sample in position")
 	field(SCAN, "1 second")
 	field(INP, "$(TARGET_DONE)")
+	field(FLNK, "$(P)POSITIONED")
 }
 record(ai, "$(P)COORD1")
 {
 	field(DESC, "Target position 1")
 	field(DTYP,"Coord")
 	field(FLNK, "$(P)INT:WRITE1")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
 }
 record(dfanout, "$(P)INT:WRITE1")
 {
@@ -56,6 +60,8 @@ record(ao, "$(P)COORD1:RBV")
 	field(DESC, "Current motor position")
 	field(DTYP,"CoordRbv")
 	field(FLNK, "$(P)POSN")
+	field(EGU,"mm")
+	field(PREC,"1")
 }
 record(dfanout, "$(P)INT:READ1")
 {
@@ -96,4 +102,17 @@ record(stringin, "$(P)FILTER:OUT")
 {
 	field(DESC, "Filter other axis")
 	field(DTYP,"SiSetPoint")
+}
+record(ai, "$(P)TOLERENCE")
+{
+	field(VAL, "$(TOL,1)")
+}
+record(calc, "$(P)POSITIONED") 
+{
+	field(SCAN, "1 second")
+	field(INPA, "$(TARGET_DONE)")
+	field(INPB, "$(P)COORD1")
+	field(INPC, "$(P)COORD1:RBV")
+	field(INPD, "$(P)COORD1:RBV")
+	field(CALC, "A&&ABS(B-C)<D")
 }
