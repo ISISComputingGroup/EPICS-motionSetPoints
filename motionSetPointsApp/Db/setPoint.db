@@ -113,6 +113,6 @@ record(calc, "$(P)POSITIONED")
 	field(INPA, "$(TARGET_DONE)")
 	field(INPB, "$(P)COORD1")
 	field(INPC, "$(P)COORD1:RBV")
-	field(INPD, "$(P)COORD1:RBV")
+	field(INPD, "$(P)TOLERENCE")
 	field(CALC, "A&&ABS(B-C)<D")
 }
