@@ -1,0 +1,5 @@
+A_A_A 1 0 X
+A_B_B 2 0 X
+B_A_A 3 0 X
+B_B_A 4 0 X
+B_C_B 5 0 X
