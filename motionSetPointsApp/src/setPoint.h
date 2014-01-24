@@ -2,7 +2,6 @@
 #define SETPOINT_H 1
 
 #define NAME_LEN 40
-#define ENV_FNAME "LOOKUP_FILE_NAME"
 
 typedef struct LookupRow {
 	char name[NAME_LEN];
@@ -22,8 +21,8 @@ extern int gRowCurr;
 extern char gFilter1[NAME_LEN];
 extern char gFilter2[NAME_LEN];
 
-void checkLoadFile();
-void loadDefFile();
+void checkLoadFile(const char* env_fname);
+void loadDefFile(const char* env_fname);
 void loadFile(const char *fname);
 int name2posn(const char *name, double *pX, double *pY, int *row);
 int posn2name(int *pRow, double x, double tol);

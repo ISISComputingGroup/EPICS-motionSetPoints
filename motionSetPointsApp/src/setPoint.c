@@ -20,17 +20,17 @@ char gFilter1[NAME_LEN];
 char gFilter2[NAME_LEN];
 
 /* Load the lookup file if it is not already loaded */
-void checkLoadFile() {
+void checkLoadFile(const char* env_fname) {
 	if ( gNumRows==0 ) {
-		loadDefFile();
+		loadDefFile(env_fname);
 	}
 }
 
 /* Load the lookup file named by the environment variable */
-void loadDefFile() {
-	char *fname = getenv(ENV_FNAME);
+void loadDefFile(const char* env_fname) {
+	char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
-		fprintf(stderr, "Environment variable %s not set\n", ENV_FNAME);
+		fprintf(stderr, "Environment variable %s not set\n", env_fname);
 		exit(1);
 	}
 	loadFile(fname);

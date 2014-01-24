@@ -4,6 +4,7 @@ record(waveform,"$(P)POSITIONS") {
 	field(FTVL,"STRING")
 	field(NELM,$(NP))
 	field(PINI,"YES")
+	field(INP,"@$(LOOKUP)")
 }
 record(stringin, "$(P)POSN:SP:RBV")
 {
@@ -11,12 +12,14 @@ record(stringin, "$(P)POSN:SP:RBV")
 	field(DTYP,"SiSetPoint")
 	field(PINI,"YES")
 	field(FLNK, "$(P)FILTER:OUT")
+	field(INP,"@$(LOOKUP)")
 }
 record(stringout, "$(P)POSN:SP")
 {
 	field(DESC, "Set target")
 	field(DTYP,"SoSetPoint")
 	field(FLNK, "$(P)INT:POSN:SP")
+	field(OUT,"@$(LOOKUP)")
 }
 record(fanout, "$(P)INT:POSN:SP")
 {
@@ -29,6 +32,7 @@ record(stringin, "$(P)POSN")
 	field(DESC, "Current position")
 	field(DTYP,"SiSetPoint")
 	field(PINI,"YES")
+	field(INP,"@$(LOOKUP)")
 }
 record(ai, "$(P)STATIONARY")
 {
@@ -45,6 +49,7 @@ record(ai, "$(P)COORD1")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
+	field(INP,"@$(LOOKUP)")
 }
 record(dfanout, "$(P)INT:WRITE1")
 {
@@ -62,6 +67,7 @@ record(ao, "$(P)COORD1:RBV")
 	field(FLNK, "$(P)POSN")
 	field(EGU,"mm")
 	field(PREC,"1")
+	field(OUT,"@$(LOOKUP)")
 }
 record(dfanout, "$(P)INT:READ1")
 {
@@ -79,6 +85,7 @@ record(ai, "$(P)RESET")
 	field(DESC, "Reread the lookup file")
 	field(DTYP,"Reset")
 	field(FLNK, "$(P)INT:RESET")
+	field(INP,"@$(LOOKUP)")
 }
 record(fanout, "$(P)INT:RESET")
 {
@@ -91,17 +98,20 @@ record(stringout, "$(P)FILTER1")
 	field(DESC, "Filter targets")
 	field(DTYP,"SoSetPoint")
 	field(FLNK, "$(P)INT:RESET")
+	field(OUT,"@$(LOOKUP)")
 }
 record(stringout, "$(P)FILTER2")
 {
 	field(DESC, "Filter targets")
 	field(DTYP,"SoSetPoint")
 	field(FLNK, "$(P)INT:RESET")
+	field(OUT,"@$(LOOKUP)")
 }
 record(stringin, "$(P)FILTER:OUT")
 {
 	field(DESC, "Filter other axis")
 	field(DTYP,"SiSetPoint")
+	field(INP,"@$(LOOKUP)")
 }
 record(ai, "$(P)TOLERENCE")
 {
