@@ -1,4 +1,6 @@
 /* Setpoint lookup PVs */
+#include "setPoint.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,8 +14,6 @@
 #include <stringoutRecord.h>
 #include <stringinRecord.h>
 #include <waveformRecord.h>
-
-#include "setPoint.h"
 
 /* Reset */
 static long reset_read_ai(aiRecord *pai);
@@ -75,19 +75,13 @@ static long posnSp_write_stringout(stringoutRecord *pso)
 	if ( strstr(pso->name, "POSN:SP")!=NULL ) {
 		checkLoadFile(pso->out.value.instio.string);
 	
-#ifdef LKU_DEBUG
-		printf("Looking up %s\n", pao->val);
-#endif	
+		//printf("Looking up %s\n", pso->val);
 	
-		status = name2posn(pso->val, &gXSP, &gYSP, &gRowRBV);
-	
-#ifdef LKU_DEBUG
-		printf("Got %f %f\n", gXSP, gYSP, gRowCurr);
-#endif
+		status = name2posn(pso->val, pso->out.value.instio.string);
 	}
 	else {
 		/*printf("Setting %s to %s\n", pao->name, pao->val);*/
-		status = setFilter(pso->name, pso->val);
+		status = setFilter(pso->name, pso->val, pso->out.value.instio.string);
 	}
 	
 	return status;
@@ -120,12 +114,7 @@ static long coord_read_ai(aiRecord *pai)
 	size_t i;
 
 	i = strlen(pai->name);
-	if ( pai->name[i-1]=='1' ) {
-		pai->val = gXSP;
-	}
-	else {
-		pai->val = gYSP;
-	}
+	pai->val = currentPosn(pai->name[i-1]=='1', pai->inp.value.instio.string);
 
 #ifdef LKU_DEBUG
 	printf("Returning y %f\n", pai->val);
@@ -161,11 +150,8 @@ static long coordRbv_write_ao(aoRecord *pao)
 	
 	checkLoadFile(pao->out.value.instio.string);
 	
-	status = posn2name(&gRowCurr, pao->val, 1e10);
+	status = posn2name(pao->val, 1e10, pao->out.value.instio.string);
 	
-#ifdef LKU_DEBUG
-	printf("Got %d\n", gRowCurr);
-#endif	
 	return status;
 };
 
@@ -193,34 +179,14 @@ epicsExportAddress(dset,devSiSetPoint);
 
 static long setPoint_read_stringin(stringinRecord *psi)
 {
-	int row;
-	
 	checkLoadFile(psi->inp.value.instio.string);
 	
 	if (strstr(psi->name, "FILTER:OUT")!=NULL ) {
-		if ( gRowRBV>=0 ) {
-			strcpy(psi->val, gpRows[gRowRBV].filter);
-		}
-		return 0;
-	}
-	if (strstr(psi->name, ":RBV")!=NULL ) {
-		row = gRowRBV;
+		return getFilterOut(psi->val, psi->inp.value.instio.string);
 	}
 	else {
-		row = gRowCurr;
+		return getPosnName(psi->val, strstr(psi->name, ":RBV")!=NULL, psi->inp.value.instio.string);
 	}
-	
-#ifdef LKU_DEBUG
-	printf("gRowRBV=%d gRowCurr=%d getting=%d\n", gRowRBV, gRowCurr, row);
-#endif
-	if ( row<0 ) {
-		strcpy(psi->val, "Unknown");
-	}
-	else {
-		strcpy(psi->val, gpRows[row].name);
-	}
-	
-	return 0;
 }
 
 /* Positions */
@@ -247,39 +213,9 @@ epicsExportAddress(dset,devWfPositions);
 
 static long positions_read_wf(waveformRecord *pwf)
 {
-	int i;
-	int entries;
-	
 	checkLoadFile(pwf->inp.value.instio.string);
 
-	entries = 0;
-	for ( i=0 ; i<gNumRows ; i++ ) {
-		if ( checkFilters(gpRows[i].name)==0 ) {
-			if ( entries > pwf->nelm ) {
-				fprintf(stderr, "Too many positions for POSITIONS PV (%d). Increase $(NP) (%d)\n", 
-									gNumRows, pwf->nelm);
-				break;
-			}
-			/*printf("Accepted %s\n", gpRows[i].name);*/
-			strcpy((char *)pwf->bptr + MAX_STRING_SIZE*entries, gpRows[i].name);
-			entries++;
-		}
-		else {
-			/*printf("Rejected %s\n", gpRows[i].name);*/
-		}
-	}
-	
-#ifdef LKU_DEBUG
-	printf("Copied %d bptr=%x val=%x\n", entries, pwf->bptr, pwf->val);
-#endif
-	
-	if ( entries<pwf->nelm ) {
-		/* The gateway is not passing NORD, so need to add an end marker */
-		strcpy((char *)pwf->bptr + MAX_STRING_SIZE*entries, "END");
-		entries++;
-	}
-	
-	pwf->nord = entries;
+	pwf->nord = getPositions((char *)pwf->bptr, MAX_STRING_SIZE, pwf->inp.value.instio.string);
 	
 	return 0;
 }

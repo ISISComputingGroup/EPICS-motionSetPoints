@@ -23,7 +23,7 @@ motionSetPoints_DBD += setPoint.dbd
 
 # motionSetPoints_registerRecordDeviceDriver.cpp derives from motionSetPoints.dbd
 motionSetPoints_SRCS += motionSetPoints_registerRecordDeviceDriver.cpp
-motionSetPoints_SRCS += setPoint.c
+motionSetPoints_SRCS += setPoint.cpp
 motionSetPoints_SRCS += setPointPVs.c
 
 # Build the main IOC entry point on workstation OSs.

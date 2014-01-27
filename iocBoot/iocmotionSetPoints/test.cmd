@@ -5,7 +5,7 @@
 
 < envPaths
 
-epicsEnvSet "LOOKUPFILE1" "sample_x.txt"
+epicsEnvSet "LOOKUP_FILE_NAME" "test.txt"
 
 cd ${TOP}
 
@@ -14,7 +14,7 @@ dbLoadDatabase "dbd/motionSetPoints.dbd"
 motionSetPoints_registerRecordDeviceDriver pdbbase
 
 ## Load record instances
-dbLoadRecords("db/setPoint.db","P=$(MYPVPREFIX)LKUP:SAMPX:,NP=100,TARGET_PV1=$(MYPVPREFIX)MTR03,TARGET_RBV1=$(MYPVPREFIX)MTR03.RBV,TARGET_DONE=$(MYPVPREFIX)MTR03.DMOV,FILTER_SRC=$(MYPVPREFIX)LKUP:SAMPY:FILTER:OUT,TOL=1,LOOKUP=LOOKUPFILE1")
+dbLoadRecords("db/setPoint.db","P=$(MYPVPREFIX)LKUP:TEST:,NP=10,TARGET_PV1=$(MYPVPREFIX)MTR01,TARGET_RBV1=$(MYPVPREFIX)MTR01.RBV,TARGET_DONE=$(MYPVPREFIX)MTR01.DMOV,TOL=1,LOOKUP=LOOKUP_FILE_NAME")
 
 cd ${TOP}/iocBoot/${IOC}
 iocInit

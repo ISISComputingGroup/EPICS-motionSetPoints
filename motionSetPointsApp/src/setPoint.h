@@ -1,33 +1,16 @@
 #ifndef SETPOINT_H
 #define SETPOINT_H 1
-
-#define NAME_LEN 40
-
-typedef struct LookupRow {
-	char name[NAME_LEN];
-	double x;
-	double y;
-	char filter[NAME_LEN];
-} LookupRow;
-
-extern int gNumRows;
-extern LookupRow *gpRows;
-
-extern double gXSP;
-extern double gYSP;
-extern int gRowRBV;
-extern int gRowCurr;
-
-extern char gFilter1[NAME_LEN];
-extern char gFilter2[NAME_LEN];
+/* C functions for motion setpoint lookup */
 
 void checkLoadFile(const char* env_fname);
 void loadDefFile(const char* env_fname);
-void loadFile(const char *fname);
-int name2posn(const char *name, double *pX, double *pY, int *row);
-int posn2name(int *pRow, double x, double tol);
-int setFilter(const char *name, const char *value);
-int checkFilters(const char *name);
+int name2posn(const char *name, const char* env_fname);
+int posn2name(double x, double tol, const char* env_fname);
+int setFilter(const char *name, const char *value, const char* env_fname);
 int checkFilter(const char *name, const char *filter);
+double currentPosn(int bFirst, const char* env_fname);
+int getFilterOut(char *target, const char *name);
+int getPosnName(char *target, int isRBV, const char* env_fname);
+int getPositions(char *target, int elem_size, const char* env_fname);
 
 #endif
