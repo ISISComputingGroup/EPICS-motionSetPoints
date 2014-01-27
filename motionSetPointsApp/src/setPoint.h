@@ -11,6 +11,6 @@ int checkFilter(const char *name, const char *filter);
 double currentPosn(int bFirst, const char* env_fname);
 int getFilterOut(char *target, const char *name);
 int getPosnName(char *target, int isRBV, const char* env_fname);
-int getPositions(char *target, int elem_size, const char* env_fname);
+int getPositions(char *target, int elem_size, int max_count, const char* env_fname);
 
 #endif

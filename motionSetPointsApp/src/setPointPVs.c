@@ -15,7 +15,7 @@
 #include <stringinRecord.h>
 #include <waveformRecord.h>
 
-/* Reset */
+/* Reset - use by RESET PV */
 static long reset_read_ai(aiRecord *pai);
 
 struct {
@@ -37,6 +37,7 @@ struct {
 };
 epicsExportAddress(dset,devAiReset);
 
+/* Perform a reset - ie reload the lookup table and recalculate where we are */
 static long reset_read_ai(aiRecord *pai)
 {
 	loadDefFile(pai->inp.value.instio.string);
@@ -46,7 +47,7 @@ static long reset_read_ai(aiRecord *pai)
 	return 0;
 };
 
-/* SoSetPoint */
+/* SoSetPoint - Used by FILTER1, FILTER2 and POSN:SP PVs */
 static long posnSp_write_stringout(stringoutRecord *pso);
 
 struct {
@@ -73,13 +74,14 @@ static long posnSp_write_stringout(stringoutRecord *pso)
 	int status;
 	
 	if ( strstr(pso->name, "POSN:SP")!=NULL ) {
+		/* Set the new position */
 		checkLoadFile(pso->out.value.instio.string);
 	
-		//printf("Looking up %s\n", pso->val);
-	
+		/*printf("Looking up %s\n", pso->val);*/
 		status = name2posn(pso->val, pso->out.value.instio.string);
 	}
 	else {
+		/* FILTER1 or FILTER2 */
 		/*printf("Setting %s to %s\n", pao->name, pao->val);*/
 		status = setFilter(pso->name, pso->val, pso->out.value.instio.string);
 	}
@@ -87,7 +89,7 @@ static long posnSp_write_stringout(stringoutRecord *pso)
 	return status;
 }
 
-/* Coord */
+/* Coord - Used for COORD1 - ie to return the coordinate for the requested position name */
 static long coord_read_ai(aiRecord *pai);
 
 struct {
@@ -122,7 +124,7 @@ static long coord_read_ai(aiRecord *pai)
 	return 2;
 };
 
-/* CoordRbv */
+/* CoordRbv - Used for COORD1:RBV - ie the current position of the motor */
 static long coordRbv_write_ao(aoRecord *pao);
 
 struct {
@@ -155,7 +157,7 @@ static long coordRbv_write_ao(aoRecord *pao)
 	return status;
 };
 
-/* SiSetPoint */
+/* SiSetPoint - used for POSN, POSN:SP:RBV and FILTER:OUT */
 static long setPoint_read_stringin(stringinRecord *psi);
 
 struct {
@@ -182,14 +184,16 @@ static long setPoint_read_stringin(stringinRecord *psi)
 	checkLoadFile(psi->inp.value.instio.string);
 	
 	if (strstr(psi->name, "FILTER:OUT")!=NULL ) {
+		/* Return the output filter for the requested position */
 		return getFilterOut(psi->val, psi->inp.value.instio.string);
 	}
 	else {
+		/* Return the name of the requested (POSN:SP:RBV) or current position (POSN) */
 		return getPosnName(psi->val, strstr(psi->name, ":RBV")!=NULL, psi->inp.value.instio.string);
 	}
 }
 
-/* Positions */
+/* Positions - used for POSITIONS - ie a list of available position names, given the current filters */
 static long positions_read_wf(waveformRecord *pwf);
 
 struct {
@@ -215,7 +219,7 @@ static long positions_read_wf(waveformRecord *pwf)
 {
 	checkLoadFile(pwf->inp.value.instio.string);
 
-	pwf->nord = getPositions((char *)pwf->bptr, MAX_STRING_SIZE, pwf->inp.value.instio.string);
+	pwf->nord = getPositions((char *)pwf->bptr, MAX_STRING_SIZE, pwf->nelm, pwf->inp.value.instio.string);
 	
 	return 0;
 }

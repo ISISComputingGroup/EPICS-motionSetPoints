@@ -11,6 +11,7 @@
 
 #define ROW_LEN 200
 
+// Global map of lookup tables, keyed by their environment vars
 std::map<const std::string, LookupTable> gTables;
 
 /* Load the lookup file if it is not already loaded */
@@ -31,7 +32,20 @@ void loadDefFile(const char* env_fname) {
 	loadFile(fname, env_fname);
 }
 
-/* Load a lookup file */
+// Find the table structure for a key
+LookupTable &getTable(const char *env_fname) {
+	std::string key(env_fname);
+	LookupTable &table = gTables[key];
+	if ( table.rows.size()==0 ) {
+		printf("Table %s is empty\n", env_fname);
+	}
+	return table;
+}
+
+// Load a lookup file
+// Arguments
+//   const char *fname     [in] File to load
+//   const char *env_fname [in] Key to identify file
 void loadFile(const char *fname, const char *env_fname) {
 	FILE *fptr = fopen(fname, "r");
 	int rowCount = 0;
@@ -42,9 +56,7 @@ void loadFile(const char *fname, const char *env_fname) {
 	}
 	
 	//printf("Creating table: %s[%s]\n", env_fname, fname);
-	
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
+	LookupTable &table = getTable(env_fname);
 	table.rows.clear();
 	
 	while ( fgets(buff, ROW_LEN, fptr) ) {
@@ -59,35 +71,29 @@ void loadFile(const char *fname, const char *env_fname) {
 			//printf("Row: %s\n", buff);
 		}
 	}
-	//printf("size %d\n", table.rows.size());
+
 	if ( table.rows.size()==0 ) {
 		fprintf(stderr, "Lookup file %s contains no rows\n", fname);
 		exit(1);
 	}
+	printf("Table %s, %d rows\n", env_fname, table.rows.size());
 	
 	fclose(fptr);
 }
 
-
-
 /* Get the position for a name 
  * Arguments:
- *   const char   *name [in]  Name to look up
- *         double *pX   [out] X coord
- *         double *pY   [out] Y coord
- *		   double *row  [out] Selected row. Unchanged if not found
+//   const char *name      [in] Name to look up
+//   const char *env_fname [in] Key to identify file
  * Return:
  *   int - 0=OK, 1=Name not found
  */
 int name2posn(const char *name, const char* env_fname) {
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
-	//printf("Posn %s, Table %s, rows %d\n", name, env_fname, table.rows.size());
+	LookupTable &table = getTable(env_fname);
+
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		//printf("name %s cf row %s cmp=%d\n", name, it->name, strcmp(name, it->name));
 		if ( table.checkFilters(name)==0 && strcmp(name, it->name)==0 ) {
 			table.pRowRBV = &(*it);
-			//printf("Set rbv %s %ld %s\n", it->name, table.pRowRBV, table.pRowRBV->name);
 			return 0;
 		}
 	}
@@ -96,16 +102,13 @@ int name2posn(const char *name, const char* env_fname) {
 
 /* Get the name that best corresponds to the current position 
  * Arguments:
- *   int    *pRow [out] Nearest row (or -1 if no match)
  *   double  x    [in]  Coord
  *   double  tol  [in]  Tolerence for match
+//   const char *env_fname [in] Key to identify file
  */
 int posn2name(double x, double tol, const char* env_fname) {
 	double best = tol;
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
-
-	//printf("Reverse lookup %f (%f) %s\n", x, tol, env_fname);
+	LookupTable &table = getTable(env_fname);
 
 	table.pRowCurr = NULL;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
@@ -121,9 +124,14 @@ int posn2name(double x, double tol, const char* env_fname) {
 	return 0;
 }
 
+// Set a filter
+// Arguments:
+//   const char *name      [in] The name of the filter (FILTER1 or FILTER2)
+//   const char *value     [in] The value to set
+//   const char *env_fname [in] Key to identify file
+//
 int setFilter(const char *name, const char *value, const char* env_fname) {
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
+	LookupTable &table = getTable(env_fname);
 	std::string &filter = strstr(name, "FILTER1") ? table.filter1 : table.filter2;
 
 	if ( strlen(value)==0 || value[0]=='*' ) {
@@ -136,8 +144,13 @@ int setFilter(const char *name, const char *value, const char* env_fname) {
 	return 0;
 }
 
+// Check a position name against a filter
+// Arguments:
+//   const char  *name   [in] Position name to check
+//   std::string  filter [in] The filter
+// Return:
+//   0 if matches. 1 if not
 int checkFilter(const char *name, std::string filter) {
-	//printf("Filter=(%s) cf %s\n", filter, name);
 	if ( filter.length()==0 ) {
 		/* No filter */
 		//printf("No filter 0\n");
@@ -177,18 +190,23 @@ int checkFilter(const char *name, std::string filter) {
 }
 
 // Check whether name passes the filters
-// Ret 0=passes
+// Arguments:
+//   const char  *name   [in] Position name to check
+// Return:
+//   0=passes
 int LookupTable::checkFilters(const char *name) {
-	int ret = checkFilter(name, filter1) || checkFilter(name, filter2);
-	//printf("%s 1=%s 2=%s R=%d\n", name, filter1, filter2, ret);
-	return ret;
+	return checkFilter(name, filter1) || checkFilter(name, filter2);
 }
 
 // Return the requested coordinate
-// If bFirst, return x
+// Arguments:
+//         int   bFirst    [in] Whether to return the 1st coord (x)
+//   const char *env_fname [in] Key to identify file
+// Return:
+//   double - the coordinate (or 0)
 double currentPosn(int bFirst, const char* env_fname) {
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
+	LookupTable &table = getTable(env_fname);
+
 	if ( table.pRowRBV==NULL ) {
 		//printf("Coord %s %d None\n", env_fname, bFirst);
 		return 0;
@@ -200,9 +218,13 @@ double currentPosn(int bFirst, const char* env_fname) {
 }
 
 // Return the output filter
+// Arguments:
+//         char *target    [out] Char array to which to write
+//   const char *env_fname [in]  Key to identify file
+// Return 0
 int getFilterOut(char *target, const char *env_fname) {
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
+	LookupTable &table = getTable(env_fname);
+
 	if ( table.pRowRBV==NULL ) {
 		target[0] = '\0';
 	}
@@ -213,38 +235,51 @@ int getFilterOut(char *target, const char *env_fname) {
 }
 
 // Return the position name
+// Arguments:
+//         char *target    [out] Char array to which to write
+//         int   isRBV     [in]  Whether to return readback (or current)
+//   const char *env_fname [in]  Key to identify file
+// Return: 0
 int getPosnName(char *target, int isRBV, const char* env_fname) {
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
-	//printf("Get posn name %s, %d %ld %ld\n", env_fname, isRBV, table.pRowRBV, table.pRowCurr);
+	LookupTable &table = getTable(env_fname);
+
 	LookupRow *pRow = isRBV ? table.pRowRBV : table.pRowCurr;
 	if ( pRow==NULL ) {
 		strcpy(target, "Unknown");
 	}
 	else {
-		//if ( isRBV==1 ) printf("Got %d %s\n", isRBV, pRow->name);
 		strncpy(target, pRow->name, NAME_LEN);
 	}
 	return 0;
 }
 
 // Return a list of available positions
-int getPositions(char *target, int elem_size, const char* env_fname) {
-	//printf("Positions for %s\n", env_fname);
-	std::string key(env_fname);
-	LookupTable &table = gTables[key];
+// Arguments:
+//         char *target    [out] Char array to which to write
+//         int   elem_size [in]  target is treated as a 2D array with each string of length elem_size
+//   const char *env_fname [in]  Key to identify file
+// Return: 0
+int getPositions(char *target, int elem_size, int max_count, const char* env_fname) {
+	LookupTable &table = getTable(env_fname);
 	
 	int count = 0;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		//printf("%s\n", it->name);
+		if ( count==max_count ) {
+			fprintf(stderr, "Unable to return all positions\n");
+			break;
+		}
 		if ( table.checkFilters(it->name)==0 ) {
 			strncpy(target + elem_size*count, it->name, NAME_LEN);
-			//printf("Posn %d\n", count);
 			count++;
 		}
 	}
-	strcpy(target + elem_size*count, "END");
-	count++;
+	
+	if ( count<max_count ) {
+		// Need to append an end marker because NORD is not being passed by the gateway
+		strcpy(target + elem_size*count, "END");
+		// Have to include END in the count, or it is lost
+		count++;
+	}
 	
 	return count;
 }

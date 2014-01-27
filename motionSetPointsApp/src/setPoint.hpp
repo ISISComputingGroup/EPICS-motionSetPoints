@@ -10,23 +10,22 @@ extern "C" {
 
 #define NAME_LEN 40
 
+// A row in the lookup file
 typedef struct LookupRow {
-	char name[NAME_LEN];
-	double x;
-	double y;
-	char filter[NAME_LEN];
+	char name[NAME_LEN];	// Position name
+	double x;				// Coordinate
+	double y;				// y coord - optional, not used yet
+	char filter[NAME_LEN];	// Output filter, optional
 } LookupRow;
 
+// A lookup table
 typedef struct LookupTable {
-	//int numRows;
-	std::vector<LookupRow> rows;
+	std::vector<LookupRow> rows;	// The rows
 
-	//double xSP;
-	//double ySP;
-	LookupRow *pRowRBV;
-	LookupRow *pRowCurr;
+	LookupRow *pRowRBV;		// The requested row
+	LookupRow *pRowCurr;	// The current row
 
-	std::string filter1;
+	std::string filter1;	// Filters applied to position names
 	std::string filter2;
 	
 	int checkFilters(const char *name);
@@ -35,5 +34,6 @@ typedef struct LookupTable {
 } LookupTable;
 
 void loadFile(const char *fname, const char *env_fname);
+LookupTable &getTable(const char *env_fname);
 
 #endif
