@@ -48,10 +48,10 @@ class testLarmorMSP(unittest.TestCase):
 		posnXsp.put('Rack1_Rct_3')
 		posnYsp.put('Bottom')
 		time.sleep(self.DELAY)
-		rbv3 = PV(PVPREFIX + 'MON3:COORD1')
-		rbv4 = PV(PVPREFIX + 'MON4:COORD1')
-		rbvX = PV(PVPREFIX + 'SAMPX:COORD1')
-		rbvY = PV(PVPREFIX + 'SAMPY:COORD1')
+		rbv3 = PV(PVPREFIX + 'MON3:COORD1:RBV')
+		rbv4 = PV(PVPREFIX + 'MON4:COORD1:RBV')
+		rbvX = PV(PVPREFIX + 'SAMPX:COORD1:RBV')
+		rbvY = PV(PVPREFIX + 'SAMPY:COORD1:RBV')
 		
 		pvStationary = PV(PVPREFIX + 'SAMPX:STATIONARY')
 		for i in range(20):
@@ -62,6 +62,7 @@ class testLarmorMSP(unittest.TestCase):
 			print('3=' + str(rbv3.get()) + ' 4=' + str(rbv4.get()) + ' X=' + str(rbvX.get()) + ' Y=' + str(rbvY.get()))
 			time.sleep(self.DELAY)
 
+		time.sleep(self.DELAY)
 		self.assertEqual(posn3.get(), 'Out')
 		self.assertEqual(posn4.get(), 'In')
 		self.assertEqual(posnX.get(), 'Rack1_Rct_3')
