@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <epicsExport.h>
 #include <dbAccess.h>
 #include <devSup.h>
 #include <recGbl.h>
@@ -16,6 +15,8 @@
 #include <waveformRecord.h>
 #include <callback.h>
 #include <recSup.h>
+
+#include <epicsExport.h>
 
 /* Reset - use by RESET PV */
 static long reset_read_ai(aiRecord *pai);

@@ -1,4 +1,4 @@
-/* motionSetPointsMain.cpp */
+/* motionSetPointsTestMain.cpp */
 /* Author:  Marty Kraimer Date:    17MAR2000 */
 
 #include <stddef.h>
@@ -10,10 +10,6 @@
 #include "epicsExit.h"
 #include "epicsThread.h"
 #include "iocsh.h"
-
-extern "C" {
-#include "setPoint.h"
-}
 
 int main(int argc,char *argv[])
 {
