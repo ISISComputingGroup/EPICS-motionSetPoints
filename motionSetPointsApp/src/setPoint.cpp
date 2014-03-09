@@ -26,8 +26,8 @@ void checkLoadFile(const char* env_fname) {
 void loadDefFile(const char* env_fname) {
 	char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
-		fprintf(stderr, "Environment variable %s not set\n", env_fname);
-		exit(1);
+		fprintf(stderr, "motionSetPoints: Environment variable %s not set\n", env_fname);
+		return;
 	}
 	loadFile(fname, env_fname);
 }
@@ -37,7 +37,7 @@ LookupTable &getTable(const char *env_fname) {
 	std::string key(env_fname);
 	LookupTable &table = gTables[key];
 	if ( table.rows.size()==0 ) {
-		printf("Table %s is empty\n", env_fname);
+		printf("motionSetPoints: Table %s is empty\n", env_fname);
 	}
 	return table;
 }
@@ -51,8 +51,8 @@ void loadFile(const char *fname, const char *env_fname) {
 	int rowCount = 0;
 	char buff[ROW_LEN];
 	if ( fptr==NULL ) {
-		fprintf(stderr, "Unable to open lookup file %s\n", fname);
-		exit(1);
+		fprintf(stderr, "motionSetPoints: Unable to open lookup file %s\n", fname);
+		return;
 	}
 	
 	//printf("Creating table: %s[%s]\n", env_fname, fname);
@@ -64,8 +64,8 @@ void loadFile(const char *fname, const char *env_fname) {
 			LookupRow row;
 			int count = sscanf(buff, "%39s %lf %lf %s39", row.name, &row.x, &row.y, row.filter);
 			if ( count<2 ) {
-				fprintf(stderr, "Error parsing %s line %d\n", fname, table.rows.size()+1);
-				exit(1);
+				fprintf(stderr, "motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
+				return;
 			}
 			table.rows.push_back(row);
 			//printf("Row: %s\n", buff);
@@ -73,8 +73,8 @@ void loadFile(const char *fname, const char *env_fname) {
 	}
 
 	if ( table.rows.size()==0 ) {
-		fprintf(stderr, "Lookup file %s contains no rows\n", fname);
-		exit(1);
+		fprintf(stderr, "motionSetPoints: Lookup file %s contains no rows\n", fname);
+		return;
 	}
 	printf("Table %s, %d rows\n", env_fname, table.rows.size());
 	
