@@ -11,7 +11,7 @@ include $(TOP)/configure/CONFIG
 LIBRARY_IOC = motionSetPoints
 
 # motionSetPoints.dbd will be created and installed
-DBD += motionSetPoints.dbd
+DBD += motionSetPointsInclude.dbd
 
 # Add all the support libraries needed by this IOC
 #motionSetPoints_LIBS += xxx
