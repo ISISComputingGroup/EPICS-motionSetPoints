@@ -9,6 +9,8 @@
 
 #include "setPoint.hpp"
 
+#include <errlog.h>
+
 #define ROW_LEN 200
 
 // Global map of lookup tables, keyed by their environment vars
@@ -26,7 +28,7 @@ void checkLoadFile(const char* env_fname) {
 void loadDefFile(const char* env_fname) {
 	char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
-		fprintf(stderr, "motionSetPoints: Environment variable %s not set\n", env_fname);
+		errlogPrintf("motionSetPoints: Environment variable \"%s\" not set\n", env_fname);
 		return;
 	}
 	loadFile(fname, env_fname);
@@ -51,7 +53,7 @@ void loadFile(const char *fname, const char *env_fname) {
 	int rowCount = 0;
 	char buff[ROW_LEN];
 	if ( fptr==NULL ) {
-		fprintf(stderr, "motionSetPoints: Unable to open lookup file %s\n", fname);
+		errlogPrintf("motionSetPoints: Unable to open lookup file \"%s\"\n", fname);
 		return;
 	}
 	
@@ -64,7 +66,7 @@ void loadFile(const char *fname, const char *env_fname) {
 			LookupRow row;
 			int count = sscanf(buff, "%39s %lf %lf %s39", row.name, &row.x, &row.y, row.filter);
 			if ( count<2 ) {
-				fprintf(stderr, "motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
+				errlogPrintf("motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
 				return;
 			}
 			table.rows.push_back(row);
@@ -73,10 +75,10 @@ void loadFile(const char *fname, const char *env_fname) {
 	}
 
 	if ( table.rows.size()==0 ) {
-		fprintf(stderr, "motionSetPoints: Lookup file %s contains no rows\n", fname);
+		errlogPrintf("motionSetPoints: Lookup file %s contains no rows\n", fname);
 		return;
 	}
-	printf("Table %s, %d rows\n", env_fname, table.rows.size());
+	printf("motionSetPoints: Table %s, %d rows\n", env_fname, table.rows.size());
 	
 	fclose(fptr);
 }
@@ -171,7 +173,7 @@ int checkFilter(const char *name, std::string filter) {
 	
 		copy = strdup(filter.c_str());
 		if ( copy==NULL ) {
-			fprintf(stderr, "Out of memory\n");
+			errlogPrintf("motionSetPoints: Out of memory\n");
 			exit(1);
 		}
 		p1 = copy;
@@ -265,7 +267,7 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	int count = 0;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
 		if ( count==max_count ) {
-			fprintf(stderr, "Unable to return all positions\n");
+			errlogPrintf("motionSetPoints: Unable to return all positions\n");
 			break;
 		}
 		if ( table.checkFilters(it->name)==0 ) {
