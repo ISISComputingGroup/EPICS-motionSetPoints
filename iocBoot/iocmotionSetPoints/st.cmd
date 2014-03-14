@@ -5,7 +5,7 @@
 
 < envPaths
 
-epicsEnvSet "SETTINGS" "$(ICPCONFIGDIR)/$(ICPCONFIGHOST)/motionSetPoints"
+epicsEnvSet "SETTINGS" "$(ICPSETTINGSDIR)/$(ICPCONFIGHOST)/motionSetPoints"
 
 #epicsEnvSet "LOOKUPFILE1" "monitor3.txt"
 #epicsEnvSet "LOOKUPFILE2" "monitor4.txt"

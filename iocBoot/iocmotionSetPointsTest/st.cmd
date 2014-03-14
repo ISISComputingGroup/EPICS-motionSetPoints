@@ -7,6 +7,8 @@
 
 cd ${TOP}
 
+epicsEnvSet "SETTINGS" "$(ICPSETTINGSDIR)/$(ICPCONFIGHOST)/motionSetPoints"
+
 ## Register all support components
 dbLoadDatabase "dbd/motionSetPointsTest.dbd"
 motionSetPointsTest_registerRecordDeviceDriver pdbbase
@@ -21,6 +23,8 @@ motionSetPointsTest_registerRecordDeviceDriver pdbbase
 
 ## Load our record instances
 #dbLoadRecords("db/xxx.db","user=faa59Host")
+
+< $(SETTINGS)/local.cmd
 
 ##ISIS## Stuff that needs to be done after all records are loaded but before iocInit is called 
 < $(IOCSTARTUP)/preiocinit.cmd
