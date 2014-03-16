@@ -20,7 +20,7 @@ $(APPNAME)_DBD += base.dbd
 $(APPNAME)_DBD += motionSetPoints.dbd
 
 # Add all the support libraries needed by this IOC
-$(APPNAME)_LIBS += motionSetPoints
+$(APPNAME)_LIBS += motionSetPoints asubFunctions asyn
 
 # motionSetPointsTest_registerRecordDeviceDriver.cpp derives from motionSetPointsTest.dbd
 $(APPNAME)_SRCS += $(APPNAME)_registerRecordDeviceDriver.cpp

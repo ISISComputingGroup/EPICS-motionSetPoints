@@ -1,7 +1,4 @@
 include "base.dbd"
-device(ai,INST_IO,devAiReset,"Reset")
-device(stringout,INST_IO,devSoSetPoint,"SoSetPoint")
-device(ai,INST_IO,devAiCoord,"Coord")
-device(ao,INST_IO,devAoCoordRbv,"CoordRbv")
-device(stringin,INST_IO,devSiSetPoint,"SiSetPoint")
-device(waveform,INST_IO,devWfPositions,"Positions")
+include "asyn.dbd"
+include "asubFunctions.dbd"
+registrar(motionSetPointsRegister)

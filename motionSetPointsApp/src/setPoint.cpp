@@ -7,14 +7,19 @@
 #include <map>
 #include <string>
 
-#include "setPoint.hpp"
-
 #include <errlog.h>
+#include <epicsMutex.h>
+#include <epicsGuard.h>
+
+#include <epicsExport.h>
+
+#include "setPoint.hpp"
 
 #define ROW_LEN 200
 
 // Global map of lookup tables, keyed by their environment vars
-std::map<const std::string, LookupTable> gTables;
+static std::map<const std::string, LookupTable> gTables;
+static epicsMutex g_lock;
 
 /* Load the lookup file if it is not already loaded */
 void checkLoadFile(const char* env_fname) {
@@ -26,7 +31,7 @@ void checkLoadFile(const char* env_fname) {
 
 /* Load the lookup file named by the environment variable */
 void loadDefFile(const char* env_fname) {
-	char *fname = getenv(env_fname);
+	const char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
 		errlogPrintf("motionSetPoints: Environment variable \"%s\" not set\n", env_fname);
 		return;
@@ -35,9 +40,10 @@ void loadDefFile(const char* env_fname) {
 }
 
 // Find the table structure for a key
-LookupTable &getTable(const char *env_fname) {
+LookupTable& getTable(const char *env_fname) {
 	std::string key(env_fname);
-	LookupTable &table = gTables[key];
+    epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry	
+	LookupTable& table = gTables[key];
 	if ( table.rows.size()==0 ) {
 		printf("motionSetPoints: Table %s is empty\n", env_fname);
 	}
@@ -49,16 +55,16 @@ LookupTable &getTable(const char *env_fname) {
 //   const char *fname     [in] File to load
 //   const char *env_fname [in] Key to identify file
 void loadFile(const char *fname, const char *env_fname) {
-	FILE *fptr = fopen(fname, "r");
+	FILE *fptr = fopen(fname, "rt");
 	int rowCount = 0;
 	char buff[ROW_LEN];
 	if ( fptr==NULL ) {
 		errlogPrintf("motionSetPoints: Unable to open lookup file \"%s\"\n", fname);
 		return;
 	}
-	
 	//printf("Creating table: %s[%s]\n", env_fname, fname);
-	LookupTable &table = getTable(env_fname);
+	LookupTable& table = getTable(env_fname);
+    epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
 	
 	while ( fgets(buff, ROW_LEN, fptr) ) {
@@ -152,7 +158,7 @@ int setFilter(const char *name, const char *value, const char* env_fname) {
 //   std::string  filter [in] The filter
 // Return:
 //   0 if matches. 1 if not
-int checkFilter(const char *name, std::string filter) {
+int checkFilter(const char *name, const std::string& filter) {
 	if ( filter.length()==0 ) {
 		/* No filter */
 		//printf("No filter 0\n");

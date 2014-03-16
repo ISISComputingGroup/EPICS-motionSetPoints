@@ -23,6 +23,8 @@ TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
 # If using the sequencer, point SNCSEQ at its top directory:
 #SNCSEQ=$(EPICS_BASE)/../modules/soft/seq
+ASYN=$(SUPPORT)/asyn/4-22
+ASUBFUNCTIONS=$(SUPPORT)/asubFunctions
 
 # EPICS_BASE usually appears last so other apps can override stuff:
 EPICS_BASE=C:/ISISEPICS/base/3-14-12-2
@@ -30,4 +32,5 @@ EPICS_BASE=C:/ISISEPICS/base/3-14-12-2
 # Set RULES here if you want to take build rules from somewhere
 # other than EPICS_BASE:
 #RULES=/path/to/epics/support/module/rules/x-y
+
 include $(TOP)/../../ISIS_CONFIG.$(EPICS_HOST_ARCH)

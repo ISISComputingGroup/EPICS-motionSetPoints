@@ -14,9 +14,9 @@ LIBRARY_IOC = motionSetPoints
 DBD += motionSetPoints.dbd
 
 # Add all the support libraries needed by this IOC
-#motionSetPoints_LIBS += xxx
+motionSetPoints_LIBS += asubFunctions asyn
 
-motionSetPoints_SRCS += setPoint.cpp setPointPVs.c
+motionSetPoints_SRCS += setPoint.cpp motionSetPoints.cpp
 
 # Add support from base/src/vxWorks if needed
 #motionSetPoints_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
