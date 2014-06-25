@@ -4,10 +4,6 @@
 #include <string>
 #include <vector>
 
-extern "C" {
-#include "setPoint.h"
-}
-
 #define NAME_LEN 40
 
 // A row in the lookup file
@@ -35,5 +31,15 @@ typedef struct LookupTable {
 
 void loadFile(const char *fname, const char *env_fname);
 LookupTable &getTable(const char *env_fname);
+
+void checkLoadFile(const char* env_fname);
+void loadDefFile(const char* env_fname);
+int name2posn(const char *name, const char* env_fname);
+int posn2name(double x, double tol, const char* env_fname);
+int setFilter(const char *name, const char *value, const char* env_fname);
+double currentPosn(int bFirst, const char* env_fname);
+int getFilterOut(char *target, const char *name);
+int getPosnName(char *target, int isRBV, const char* env_fname);
+int getPositions(char *target, int elem_size, int max_count, const char* env_fname);
 
 #endif
