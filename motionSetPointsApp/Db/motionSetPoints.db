@@ -25,6 +25,7 @@ record(fanout, "$(P)INT:POSN:SP")
 record(stringin, "$(P)POSN")
 {
 	field(DESC, "Current position")
+	field(SCAN, "1 second")
 	field(DTYP,"asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0,0)POSN")
 }
