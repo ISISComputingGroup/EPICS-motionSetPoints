@@ -5,6 +5,7 @@ record(stringin, "$(P)POSN:SP:RBV")
 	field(DTYP,"asynOctetRead")
 	field(FLNK, "$(P)FILTER:OUT")
 	field(INP,"@asyn($(LOOKUP),0,0)POSNSPRBV")
+    info(INTEREST, "HIGH")
 }
 
 record(stringout, "$(P)POSN:SP")
@@ -28,6 +29,7 @@ record(stringin, "$(P)POSN")
 	field(SCAN, "1 second")
 	field(DTYP,"asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0,0)POSN")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)STATIONARY")
@@ -36,6 +38,7 @@ record(ai, "$(P)STATIONARY")
 	field(SCAN, "1 second")
 	field(INP, "$(TARGET_DONE)")
 	field(FLNK, "$(P)POSITIONED")
+    info(INTEREST, "HIGH")
 }
 
 record(ai, "$(P)COORD1")
@@ -47,6 +50,7 @@ record(ai, "$(P)COORD1")
 	field(PREC,"1")
 	field(VAL,"0")
 	field(INP,"@asyn($(LOOKUP),0,0)COORD1")
+    info(INTEREST, "HIGH")
 }
 
 record(dfanout, "$(P)INT:WRITE1")
@@ -68,6 +72,7 @@ record(ao, "$(P)COORD1:RBV")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD1RBV")
+    info(INTEREST, "HIGH")
 }
 
 record(dfanout, "$(P)INT:READ1")

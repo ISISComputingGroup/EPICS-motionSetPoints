@@ -27,6 +27,7 @@ private:
 #define FIRST_MSP_PARAM P_positions
 #define LAST_MSP_PARAM P_filterout    
 
+	void updatePositions();
 };
 
 #define NUM_MSP_PARAMS (&LAST_MSP_PARAM - &FIRST_MSP_PARAM + 1)

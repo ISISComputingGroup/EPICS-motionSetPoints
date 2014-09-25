@@ -270,6 +270,9 @@ int getPosnName(char *target, int isRBV, const char* env_fname) {
 int getPositions(char *target, int elem_size, int max_count, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 	
+	// Initialise to spaces because nulls confuse caget and python
+	memset(target, ' ', elem_size*max_count);
+	
 	int count = 0;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
 		if ( count==max_count ) {
@@ -277,7 +280,11 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 			break;
 		}
 		if ( table.checkFilters(it->name)==0 ) {
-			strncpy(target + elem_size*count, it->name, NAME_LEN);
+			int len = strlen(it->name);
+			if ( len>elem_size ) {
+				len = elem_size;
+			}
+			memcpy(target + elem_size*count, it->name, len);
 			count++;
 		}
 	}
@@ -285,6 +292,7 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	if ( count<max_count ) {
 		// Need to append an end marker because NORD is not being passed by the gateway
 		strcpy(target + elem_size*count, "END");
+
 		// Have to include END in the count, or it is lost
 		count++;
 	}

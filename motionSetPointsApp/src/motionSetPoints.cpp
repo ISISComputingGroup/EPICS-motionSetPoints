@@ -59,9 +59,18 @@ asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
     return writeFloat64(pasynUser, value);
 }
 
-asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
+void motionSetPoints::updatePositions() 
 {
     const int buffer_size = 4096;
+	char* buffer = new char[buffer_size];
+	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
+	setStringParam(P_positions, buffer);  
+		printf("positions: %s\n", buffer);
+	delete[] buffer;
+}
+
+asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
+{
     int function = pasynUser->reason;
     const char* functionName = "writeFloat64";
     asynStatus status = asynSuccess;
@@ -77,11 +86,7 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 	else if (function == P_reset)
 	{
     	loadDefFile(m_fileName.c_str());
-        char* buffer = new char[buffer_size];
-        getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
-        setStringParam(P_positions, buffer);  
-//		printf("positions: %s\n", buffer);
-        delete[] buffer;
+		updatePositions();
 	}
 	else
 	{
@@ -120,6 +125,7 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
 	else if (function == P_filter1)
 	{
         setFilter("FILTER1", value, m_fileName.c_str());
+		updatePositions();
         getFilterOut(buffer, m_fileName.c_str());
         setStringParam(P_filterout, buffer);
 		*nActual = strlen(value);
@@ -128,6 +134,7 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
 	else if (function == P_filter2)
 	{
         setFilter("FILTER2", value, m_fileName.c_str());
+		updatePositions();
         getFilterOut(buffer, m_fileName.c_str());
         setStringParam(P_filterout, buffer);
 		*nActual = strlen(value);
