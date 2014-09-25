@@ -65,7 +65,6 @@ void motionSetPoints::updatePositions()
 	char* buffer = new char[buffer_size];
 	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
 	setStringParam(P_positions, buffer);  
-		printf("positions: %s\n", buffer);
 	delete[] buffer;
 }
 
