@@ -1,0 +1,32 @@
+record(motor,"$(D)THETA") 
+{ 
+    field(DTYP,"Soft Channel") 
+    field(OUT, "$(D)_convertDriveValue.A  PP MS") 
+    field(RDBL,"$(D)_convertReadbackValue.VAL  NPP MS") 
+    field(URIP,"Yes") 
+    field(STOO,"$(M).STOP  PP MS") 
+    field(DINP,"$(M).DMOV  NPP MS") 
+    field(MRES,"0.001") 
+    field(RRES,"1.000") 
+    field(PREC,"3") 
+    field(DHLM,"45") 
+    field(DLLM,"-45") 
+    field(TWV, "5") 
+    field(RTRY,"0") 
+    field(EGU, "deg.") 
+    info(INTEREST, "HIGH")
+	field(DESC,"Angle for $(M)")
+    field(NTM, "NO")
+}
+record(calcout,"$(D)_convertDriveValue") 
+{ 
+    field(DESC,"Convert rotary to linear for $(M)") 
+    field(CALC,"TAN(A / 57.296) * $(H)") 
+    field(OUT,"$(M).DVAL  PP MS") 
+}
+record(calcout,"$(D)_convertReadbackValue") 
+{ 
+    field(DESC,"Convert linear to rotary for $(M)") 
+    field(CALC,"ATAN(A / $(H)) * 57.296") 
+    field(INPA,"$(M).DRBV  CP MS") 
+}
