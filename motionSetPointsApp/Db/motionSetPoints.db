@@ -38,6 +38,7 @@ record(ai, "$(P)STATIONARY")
 	field(SCAN, "1 second")
 	field(INP, "$(TARGET_DONE)")
 	field(FLNK, "$(P)POSITIONED")
+	field(EGU, "")
     info(INTEREST, "HIGH")
 }
 

@@ -17,6 +17,7 @@ record(motor,"$(D)THETA")
     info(INTEREST, "HIGH")
 	field(DESC,"Angle for $(M)")
     field(NTM, "NO")
+	field(EGU, "")
 }
 record(calcout,"$(D)_convertDriveValue") 
 { 
