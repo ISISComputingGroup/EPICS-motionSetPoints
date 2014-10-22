@@ -16,7 +16,7 @@ DBD += sampleChanger.dbd
 # Add all the support libraries needed by this IOC
 sampleChanger_LIBS += asubFunctions asyn TinyXML
 
-sampleChanger_SRCS += setPoint.cpp sampleChanger.cpp
+sampleChanger_SRCS += converter.cpp sampleChanger.cpp
 
 # Add support from base/src/vxWorks if needed
 #motionSetPoints_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
