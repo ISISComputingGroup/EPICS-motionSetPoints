@@ -1,0 +1,23 @@
+record(stringout, "$(P)RECALC") {
+	field(DTYP,"asynOctetWrite")
+	field(OUT,"@asyn($(LOOKUP),0,0)RECALC")
+	field(DESC, "Update the sample positions")
+	field(FLNK, "$(P)_OUTVAL")
+}
+record(ai, "$(P)_OUTVAL") {
+	field(DESC, "Filter other axis")
+	field(DTYP,"asynFloat64")
+	field(INP,"@asyn($(LOOKUP),0,0)OUTVAL")
+	field(PINI, "YES")
+	field(FLNK, "$(P)_FORWARD")
+}
+record(dfanout, "$(P)_FORWARD") {
+	field(DESC, "Tell the lookup to reload")
+	field(OMSL, "closed_loop")
+	field(DOL, "$(P)_OUTVAL")
+	field(OUTA, "$(TARGET_PV1)")
+	field(SELM, "Mask")
+	field(SELN, "1")
+	field(FLNK, "$(TARGET_PV1)")
+}
+
