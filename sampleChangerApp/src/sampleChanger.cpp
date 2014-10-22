@@ -17,8 +17,6 @@
 
 #include "sampleChanger.h"
 
-#include "setPoint.hpp"
-
 #include <macLib.h>
 #include <epicsGuard.h>
 
