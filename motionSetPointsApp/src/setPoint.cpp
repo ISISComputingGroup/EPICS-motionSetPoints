@@ -143,6 +143,26 @@ int posn2name(double x, double tol, const char* env_fname) {
 	return 0;
 }
 
+int posn2name(double x, double y, double tol, const char* env_fname) {
+	double best = tol*tol;
+	LookupTable &table = getTable(env_fname);
+
+	table.pRowCurr = NULL;
+	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
+		if ( table.checkFilters(it->name)==0 ) {
+			double diff1 = fabs(x - it->x);
+			double diff2 = fabs(y - it->y);
+			double diff = diff1*diff1+diff2*diff2;
+			if ( diff<best ) {
+				best = diff;
+				table.pRowCurr = &(*it);
+				//printf("Set c %s\n", table.pRowCurr->name);
+			}
+		}
+	}
+	return 0;
+}
+
 // Set a filter
 // Arguments:
 //   const char *name      [in] The name of the filter (FILTER1 or FILTER2)
@@ -311,6 +331,9 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	return count;
 }
 
+// Return the number of coordinates in the current lookup
+// Arguments:
+//   const char *env_fname [in]  Key to identify file
 int getNumCoords(const char *env_fname) {
                 std::string key(env_fname);
                 epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
@@ -320,6 +343,11 @@ int getNumCoords(const char *env_fname) {
                 }
                 return numCoords;
 }
+
+// Set the number of coordinates in the current lookup
+// Arguments:
+//   const char *env_fname [in]  Key to identify file
+//         int   numCoords [in]  Number of coordinates
 void setNumCoords(const char *env_fname, int numCoords) {
                 std::string key(env_fname);
                 epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             

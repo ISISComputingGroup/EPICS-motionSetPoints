@@ -42,6 +42,15 @@ record(ai, "$(P)STATIONARY")
 	field(EGU, "")
     info(INTEREST, "HIGH")
 }
+record(ai, "$(P)STATIONARY2")
+{
+    field(DESC, "Is sample in position")
+	field(SCAN, "1 second")
+	field(INP, "$(TARGET_DONE2)")
+	field(FLNK, "$(P)POSITIONED")
+	field(EGU, "")
+    info(INTEREST, "HIGH")
+}
 
 record(ai, "$(P)COORD1")
 {

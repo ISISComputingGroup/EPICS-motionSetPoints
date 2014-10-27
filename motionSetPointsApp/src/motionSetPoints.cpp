@@ -60,11 +60,13 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
 }
 
+// Write int32 - not used?
 asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
     return writeFloat64(pasynUser, value);
 }
 
+// Update the list of available setpoint names
 void motionSetPoints::updatePositions() 
 {
     const int buffer_size = 4096;
@@ -74,6 +76,7 @@ void motionSetPoints::updatePositions()
 	delete[] buffer;
 }
 
+// Write a double to the "hardware" ie EPICS is sending a value to this program
 asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 {
     int function = pasynUser->reason;
@@ -83,20 +86,17 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 	getParamName(function, &paramName);
     if (function == P_coord1RBV)
 	{
-//		printf("value: %f\n", value);
-        posn2name(value, 1e10, m_fileName.c_str());
-        setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
-//		printf("coord1: %f\n", currentPosn(1, m_fileName.c_str()));
+		// Motor 1 has moved
+		updateCurrPosn(value, m_coord2);
 	}
     else if (function == P_coord2RBV)
 	{
-//		printf("value: %f\n", value);
-        posn2name(value, 1e10, m_fileName.c_str());
-        setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
-//		printf("coord1: %f\n", currentPosn(1, m_fileName.c_str()));
+		// Motor 2 has moved
+		updateCurrPosn(m_coord1, value);
 	}
 	else if (function == P_reset)
 	{
+		// Been asked to reload the files
     	loadDefFile(m_fileName.c_str());
         setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
 		updatePositions();
@@ -115,6 +115,30 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 	return status;
 }
 
+// Update the current setpoint name based on the current coordinates
+void motionSetPoints::updateCurrPosn(double coord1, double coord2) 
+{
+	char buffer[256];
+
+	m_coord1 = coord1;
+	if ( getNumCoords(m_fileName.c_str())==2 )
+	{
+        posn2name(coord1, coord2, 1e10, m_fileName.c_str());
+        setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
+        setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
+		m_coord2 = coord2;
+	}
+	else
+	{
+        posn2name(coord1, 1e10, m_fileName.c_str());
+        setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
+	}
+
+    getPosnName(buffer, 0, m_fileName.c_str());
+    setStringParam(P_posn, buffer);  
+}
+
+// Write a string to the "hardware" ie EPICS has sent us a string value
 asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual)
 {
     int function = pasynUser->reason;
@@ -126,6 +150,7 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
 //	printf("value: %s\n", value);
     if (function == P_posnSP)
 	{
+		// Been told to go to a new setpoint by name
 	    name2posn(value, m_fileName.c_str());
         getPosnName(buffer, 0, m_fileName.c_str());
         setStringParam(P_posn, buffer);  
@@ -174,6 +199,9 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
 
 extern "C" {
 
+// called from the ioc shell to configure this ioc
+// portName - a unique name
+// fileName - environment variable name containing the lookup file name
 int motionSetPointsConfigure(const char *portName, const char* fileName)
 {
 	try

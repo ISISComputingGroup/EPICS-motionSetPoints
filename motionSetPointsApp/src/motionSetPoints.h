@@ -12,7 +12,7 @@ public:
 	virtual asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual);
                  
 private:
-    std::string m_fileName;
+    std::string m_fileName; // Lookup file name - used as a key to identify this lookup instance
 
     int P_positions; // string
     int P_posnSPRBV; // string
@@ -31,6 +31,10 @@ private:
 #define LAST_MSP_PARAM P_numAxes
 
 	void updatePositions();
+	void updateCurrPosn(double coord1, double coord2);
+	
+	double m_coord1; // Last values of the current motor positions
+	double m_coord2;
 };
 
 #define NUM_MSP_PARAMS (&LAST_MSP_PARAM - &FIRST_MSP_PARAM + 1)
