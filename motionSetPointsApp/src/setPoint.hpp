@@ -41,5 +41,7 @@ double currentPosn(int bFirst, const char* env_fname);
 int getFilterOut(char *target, const char *name);
 int getPosnName(char *target, int isRBV, const char* env_fname);
 int getPositions(char *target, int elem_size, int max_count, const char* env_fname);
+int getNumCoords(const char *env_fname);
+void setNumCoords(const char *env_fname, int numCoords);
 
 #endif

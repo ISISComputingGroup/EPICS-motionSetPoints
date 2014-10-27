@@ -21,6 +21,7 @@ record(fanout, "$(P)INT:POSN:SP")
 	field(DESC, "Propagate set")
 	field(LNK1, "$(P)POSN:SP:RBV")
 	field(LNK2, "$(P)COORD1")
+	field(LNK3, "$(P)COORD2")
 }
 
 record(stringin, "$(P)POSN")
@@ -67,7 +68,7 @@ record(dfanout, "$(P)INT:WRITE1")
 
 record(ao, "$(P)COORD1:RBV")
 {
-	field(DESC, "Current motor position")
+	field(DESC, "Current motor1 position")
 	field(DTYP,"asynFloat64")
 	field(FLNK, "$(P)POSN")
 	field(EGU,"mm")
@@ -86,6 +87,52 @@ record(dfanout, "$(P)INT:READ1")
 	field(SELM, "Mask")
 	field(SELN, "1")
 	field(FLNK, "$(P)COORD1:RBV")
+}
+
+record(ai, "$(P)COORD2")
+{
+	field(DESC, "Target position 2")
+	field(DTYP,"asynFloat64")
+	field(FLNK, "$(P)INT:WRITE2")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+	field(INP,"@asyn($(LOOKUP),0,0)COORD2")
+    info(INTEREST, "HIGH")
+}
+
+record(dfanout, "$(P)INT:WRITE2")
+{
+	field(DESC, "Pushes COORD2 to motor")
+	field(DOL, "$(P)COORD2")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(TARGET_PV2)")
+	field(SELM, "Mask")
+	field(SELN, "1")
+	field(FLNK, "$(TARGET_PV2)")
+}
+
+record(ao, "$(P)COORD2:RBV")
+{
+	field(DESC, "Current motor2 position")
+	field(DTYP,"asynFloat64")
+	field(FLNK, "$(P)POSN")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(OUT,"@asyn($(LOOKUP),0,0)COORD2RBV")
+    info(INTEREST, "HIGH")
+}
+
+record(dfanout, "$(P)INT:READ2")
+{
+	field(DESC, "Updates COORD2:RBV")
+	field(SCAN, "1 second")
+	field(DOL, "$(TARGET_RBV2)")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(P)COORD2:RBV")
+	field(SELM, "Mask")
+	field(SELN, "1")
+	field(FLNK, "$(P)COORD2:RBV")
 }
 
 record(ao, "$(P)RESET")
@@ -128,6 +175,16 @@ record(stringin, "$(P)FILTER:OUT")
 	field(INP,"@asyn($(LOOKUP),0,0)FILTEROUT")
 }
 
+record(ao, "$(P)NUMAXES")
+{
+	field(DESC, "Number of axes")
+	field(DTYP,"asynFloat64")
+	field(EGU,"none")
+	field(PREC,"1")
+	field(OUT,"@asyn($(LOOKUP),0,0)NUMAXES")
+    info(INTEREST, "HIGH")
+}
+
 record(ai, "$(P)TOLERENCE")
 {
 	field(VAL, "$(TOL,1)")
@@ -137,14 +194,20 @@ record(calc, "$(P)POSITIONED")
 {
 	field(SCAN, "1 second")
 	field(INPA, "$(TARGET_DONE)")
-	field(INPB, "$(P)COORD1")
-	field(INPC, "$(P)COORD1:RBV")
-	field(INPD, "$(P)TOLERENCE")
-	field(CALC, "A&&ABS(B-C)<D")
+    field(INPB, "$(TARGET_DONE2)")
+#	field(INPC, "$(P)COORD1")
+#	field(INPD, "$(P)COORD1:RBV")
+#    field(INPE, "$(P)COORD2")
+#	field(INPF, "$(P)COORD2:RBV")
+#	field(INPD, "$(P)TOLERENCE")
+    field(INPC, "$(P)NUMAXES")
+#	field(CALC, "A&&ABS(B-C)<D")
+	field(CALC, "C==1?A:A&&B")
 }
 
 # epics string is 40 characters, so NELM in char waveform _POSITIONS is 40 * NELM in POSITIONS
 # need intermediate char waveform as ASYN does not do currently handle string waveforms
+
 record(waveform,"$(P)POSITIONS") 
 {
     field(DESC, "Available positions")

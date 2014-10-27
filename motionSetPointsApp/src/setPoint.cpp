@@ -20,6 +20,7 @@
 // Global map of lookup tables, keyed by their environment vars
 static std::map<const std::string, LookupTable> gTables;
 static epicsMutex g_lock;
+static std::map<const std::string, int> g_numCoords;
 
 /* Load the lookup file if it is not already loaded */
 void checkLoadFile(const char* env_fname) {
@@ -67,6 +68,7 @@ void loadFile(const char *fname, const char *env_fname) {
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
 	
+    int numCoords = 0;
 	while ( fgets(buff, ROW_LEN, fptr) ) {
 		if ( buff[0]!='#' ) {
 			LookupRow row;
@@ -75,10 +77,19 @@ void loadFile(const char *fname, const char *env_fname) {
 				errlogPrintf("motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
 				return;
 			}
+            else if ( numCoords==0 ) {
+                numCoords = count - 1;
+            }
+            else if ( numCoords!=count-1 ) {
+				errlogPrintf("motionSetPoints: Inconsistent column count %s line %d\n", fname, table.rows.size()+1);
+				return;
+            }
 			table.rows.push_back(row);
 			//printf("Row: %s\n", buff);
 		}
 	}
+    
+    setNumCoords(env_fname, numCoords);
 
 	if ( table.rows.size()==0 ) {
 		errlogPrintf("motionSetPoints: Lookup file %s contains no rows\n", fname);
@@ -298,4 +309,19 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	}
 	
 	return count;
+}
+
+int getNumCoords(const char *env_fname) {
+                std::string key(env_fname);
+                epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
+                int numCoords = g_numCoords[key];
+                if ( numCoords==0 ) {
+                                printf("motionSetPoints: Table %s has zero coords\n", env_fname);
+                }
+                return numCoords;
+}
+void setNumCoords(const char *env_fname, int numCoords) {
+                std::string key(env_fname);
+                epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
+                g_numCoords[key] = numCoords;
 }

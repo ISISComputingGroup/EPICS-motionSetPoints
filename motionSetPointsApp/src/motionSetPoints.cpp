@@ -43,15 +43,21 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     createParam(P_posnString, asynParamOctet, &P_posn);
 	createParam(P_coord1String, asynParamFloat64, &P_coord1);
     createParam(P_coord1RBVString, asynParamFloat64, &P_coord1RBV);
+    createParam(P_coord2String, asynParamFloat64, &P_coord2);
+    createParam(P_coord2RBVString, asynParamFloat64, &P_coord2RBV);
     createParam(P_resetString, asynParamFloat64, &P_reset);
     createParam(P_filter1String, asynParamOctet, &P_filter1);
     createParam(P_filter2String, asynParamOctet, &P_filter2);
     createParam(P_filteroutString, asynParamOctet, &P_filterout);  
+    createParam(P_numAxesString, asynParamFloat64, &P_numAxes);
 	// initial values
     setStringParam(P_filterout, "");
     setStringParam(P_posn, "");
     setStringParam(P_posnSPRBV, "");
     setDoubleParam(P_coord1, 0.0);
+    setDoubleParam(P_coord2, 0.0);
+    loadDefFile(m_fileName.c_str());
+    setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
 }
 
 asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
@@ -82,9 +88,17 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
         setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
 //		printf("coord1: %f\n", currentPosn(1, m_fileName.c_str()));
 	}
+    else if (function == P_coord2RBV)
+	{
+//		printf("value: %f\n", value);
+        posn2name(value, 1e10, m_fileName.c_str());
+        setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
+//		printf("coord1: %f\n", currentPosn(1, m_fileName.c_str()));
+	}
 	else if (function == P_reset)
 	{
     	loadDefFile(m_fileName.c_str());
+        setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
 		updatePositions();
 	}
 	else
@@ -118,6 +132,10 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
         getPosnName(buffer2, 1, m_fileName.c_str());
         setStringParam(P_posnSPRBV, buffer2);  
         setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
+        if ( getNumCoords(m_fileName.c_str())==2 ) 
+        {
+            setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
+        }
 		*nActual = strlen(value);
 //		printf("posn %s posnsprbv %s\n", buffer, buffer2);
 	}
