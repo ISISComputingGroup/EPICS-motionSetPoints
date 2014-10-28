@@ -188,7 +188,7 @@ record(ao, "$(P)NUMAXES")
 {
 	field(DESC, "Number of axes")
 	field(DTYP,"asynFloat64")
-	field(EGU,"none")
+	field(EGU,"")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)NUMAXES")
     info(INTEREST, "HIGH")
