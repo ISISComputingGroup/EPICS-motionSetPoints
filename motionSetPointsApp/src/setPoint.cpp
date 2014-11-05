@@ -10,6 +10,7 @@
 #include <errlog.h>
 #include <epicsMutex.h>
 #include <epicsGuard.h>
+#include <epicsString.h>
 
 #include <epicsExport.h>
 
@@ -206,6 +207,7 @@ int checkFilter(const char *name, const std::string& filter) {
 		char *copy;
 		char *p1;
 		char *part;
+		char* saveptr;
 		int ret = 1; /* Assume no part matches */
 	
 		copy = strdup(filter.c_str());
@@ -214,7 +216,7 @@ int checkFilter(const char *name, const std::string& filter) {
 			exit(1);
 		}
 		p1 = copy;
-		while ( (part = strtok(p1, "|"))!=NULL ) {
+		while ( (part = epicsStrtok_r(p1, "|", &saveptr))!=NULL ) {
 			if ( strncmp(part, name, strlen(part))==0 ) {
 				/* Got a match */
 				ret = 0;
