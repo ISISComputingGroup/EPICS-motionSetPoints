@@ -13,21 +13,20 @@ record(motor,"$(D)THETA")
     field(DLLM,"-45") 
     field(TWV, "5") 
     field(RTRY,"0") 
-    field(EGU, "deg.") 
+    field(EGU, "degree") 
     info(INTEREST, "HIGH")
-	field(DESC,"Angle for $(M)")
+	field(DESC,"Angle")
     field(NTM, "NO")
-	field(EGU, "")
 }
 record(calcout,"$(D)_convertDriveValue") 
 { 
-    field(DESC,"Convert rotary to linear for $(M)") 
+    field(DESC,"Convert rotary to linear") 
     field(CALC,"TAN(A / 57.296) * $(H)") 
     field(OUT,"$(M).DVAL  PP MS") 
 }
 record(calcout,"$(D)_convertReadbackValue") 
 { 
-    field(DESC,"Convert linear to rotary for $(M)") 
+    field(DESC,"Convert linear to rotary") 
     field(CALC,"ATAN(A / $(H)) * 57.296") 
     field(INPA,"$(M).DRBV  CP MS") 
 }
