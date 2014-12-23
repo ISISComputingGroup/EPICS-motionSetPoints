@@ -46,12 +46,8 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     createParam(P_coord2String, asynParamFloat64, &P_coord2);
     createParam(P_coord2RBVString, asynParamFloat64, &P_coord2RBV);
     createParam(P_resetString, asynParamFloat64, &P_reset);
-    createParam(P_filter1String, asynParamOctet, &P_filter1);
-    createParam(P_filter2String, asynParamOctet, &P_filter2);
-    createParam(P_filteroutString, asynParamOctet, &P_filterout);  
     createParam(P_numAxesString, asynParamFloat64, &P_numAxes);
 	// initial values
-    setStringParam(P_filterout, "");
     setStringParam(P_posn, "");
     setStringParam(P_posnSPRBV, "");
     setDoubleParam(P_coord1, 0.0);
@@ -163,24 +159,6 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
         }
 		*nActual = strlen(value);
 //		printf("posn %s posnsprbv %s\n", buffer, buffer2);
-	}
-	else if (function == P_filter1)
-	{
-        setFilter("FILTER1", value, m_fileName.c_str());
-		updatePositions();
-        getFilterOut(buffer, m_fileName.c_str());
-        setStringParam(P_filterout, buffer);
-		*nActual = strlen(value);
-//		printf("filterout %s\n", buffer);
-	}
-	else if (function == P_filter2)
-	{
-        setFilter("FILTER2", value, m_fileName.c_str());
-		updatePositions();
-        getFilterOut(buffer, m_fileName.c_str());
-        setStringParam(P_filterout, buffer);
-		*nActual = strlen(value);
-//		printf("filterout %s\n", buffer);
 	}
 	else
 	{

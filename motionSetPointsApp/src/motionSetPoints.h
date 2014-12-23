@@ -23,9 +23,6 @@ private:
     int P_coord1RBV;  // double
     int P_coord2RBV;  // double
     int P_reset; // double
-    int P_filter1; // string
-    int P_filter2; // string
-    int P_filterout; // string
     int P_numAxes; // double
 #define FIRST_MSP_PARAM P_positions
 #define LAST_MSP_PARAM P_numAxes
@@ -48,9 +45,6 @@ private:
 #define P_coord1RBVString	"COORD1RBV"
 #define P_coord2RBVString	"COORD2RBV"
 #define P_resetString	    "RESET"
-#define P_filter1String	    "FILTER1"
-#define P_filter2String	    "FILTER2"
-#define P_filteroutString	"FILTEROUT"
 #define P_numAxesString     "NUMAXES"
 
 #endif /* MOTIONSETPOINTS_H */

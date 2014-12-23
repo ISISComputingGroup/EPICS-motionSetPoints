@@ -73,7 +73,7 @@ void loadFile(const char *fname, const char *env_fname) {
 	while ( fgets(buff, ROW_LEN, fptr) ) {
 		if ( buff[0]!='#' ) {
 			LookupRow row;
-			int count = sscanf(buff, "%39s %lf %lf %s39", row.name, &row.x, &row.y, row.filter);
+			int count = sscanf(buff, "%39s %lf %lf", row.name, &row.x, &row.y);
 			if ( count<2 ) {
 				errlogPrintf("motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
 				return;
@@ -112,7 +112,7 @@ int name2posn(const char *name, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		if ( table.checkFilters(name)==0 && strcmp(name, it->name)==0 ) {
+		if ( strcmp(name, it->name)==0 ) {
 			table.pRowRBV = &(*it);
 			return 0;
 		}
@@ -132,13 +132,11 @@ int posn2name(double x, double tol, const char* env_fname) {
 
 	table.pRowCurr = NULL;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		if ( table.checkFilters(it->name)==0 ) {
-			double diff = fabs(x - it->x);
-			if ( diff<best ) {
-				best = diff;
-				table.pRowCurr = &(*it);
-				//printf("Set c %s\n", table.pRowCurr->name);
-			}
+		double diff = fabs(x - it->x);
+		if ( diff<best ) {
+			best = diff;
+			table.pRowCurr = &(*it);
+			//printf("Set c %s\n", table.pRowCurr->name);
 		}
 	}
 	return 0;
@@ -150,93 +148,16 @@ int posn2name(double x, double y, double tol, const char* env_fname) {
 
 	table.pRowCurr = NULL;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		if ( table.checkFilters(it->name)==0 ) {
-			double diff1 = fabs(x - it->x);
-			double diff2 = fabs(y - it->y);
-			double diff = diff1*diff1+diff2*diff2;
-			if ( diff<best ) {
-				best = diff;
-				table.pRowCurr = &(*it);
-				//printf("Set c %s\n", table.pRowCurr->name);
-			}
+		double diff1 = fabs(x - it->x);
+		double diff2 = fabs(y - it->y);
+		double diff = diff1*diff1+diff2*diff2;
+		if ( diff<best ) {
+			best = diff;
+			table.pRowCurr = &(*it);
+			//printf("Set c %s\n", table.pRowCurr->name);
 		}
 	}
 	return 0;
-}
-
-// Set a filter
-// Arguments:
-//   const char *name      [in] The name of the filter (FILTER1 or FILTER2)
-//   const char *value     [in] The value to set
-//   const char *env_fname [in] Key to identify file
-//
-int setFilter(const char *name, const char *value, const char* env_fname) {
-	LookupTable &table = getTable(env_fname);
-	std::string &filter = strstr(name, "FILTER1") ? table.filter1 : table.filter2;
-
-	if ( strlen(value)==0 || value[0]=='*' ) {
-		filter = "";
-	}
-	else {
-		filter = value;
-	}
-	
-	return 0;
-}
-
-// Check a position name against a filter
-// Arguments:
-//   const char  *name   [in] Position name to check
-//   std::string  filter [in] The filter
-// Return:
-//   0 if matches. 1 if not
-int checkFilter(const char *name, const std::string& filter) {
-	if ( filter.length()==0 ) {
-		/* No filter */
-		//printf("No filter 0\n");
-		return 0;
-	}
-	else if ( filter.find("|")==std::string::npos ) {
-		const char *ptr = filter.c_str();
-		//printf("Simple %s==%s %d %d\n", filter, name, strncmp(ptr, name, strlen(ptr)), strlen(ptr));
-		return strncmp(filter.c_str(), name, filter.length());
-	}
-	else {
-		//printf("Complex\n");
-		/* Filter has several parts */
-		char *copy;
-		char *p1;
-		char *part;
-		char* saveptr;
-		int ret = 1; /* Assume no part matches */
-	
-		copy = strdup(filter.c_str());
-		if ( copy==NULL ) {
-			errlogPrintf("motionSetPoints: Out of memory\n");
-			exit(1);
-		}
-		p1 = copy;
-		while ( (part = epicsStrtok_r(p1, "|", &saveptr))!=NULL ) {
-			if ( strncmp(part, name, strlen(part))==0 ) {
-				/* Got a match */
-				ret = 0;
-				break;
-			}
-			p1 = NULL; /* Continue same tokenisation */
-		}
-		free(copy);
-		
-		return ret;
-	}
-}
-
-// Check whether name passes the filters
-// Arguments:
-//   const char  *name   [in] Position name to check
-// Return:
-//   0=passes
-int LookupTable::checkFilters(const char *name) {
-	return checkFilter(name, filter1) || checkFilter(name, filter2);
 }
 
 // Return the requested coordinate
@@ -256,23 +177,6 @@ double currentPosn(int bFirst, const char* env_fname) {
 		//printf("Coord %s %d %s %f %f\n", env_fname, bFirst, table.pRowRBV->name, table.pRowRBV->x, table.pRowRBV->y);
 		return bFirst ? table.pRowRBV->x : table.pRowRBV->y;
 	}
-}
-
-// Return the output filter
-// Arguments:
-//         char *target    [out] Char array to which to write
-//   const char *env_fname [in]  Key to identify file
-// Return 0
-int getFilterOut(char *target, const char *env_fname) {
-	LookupTable &table = getTable(env_fname);
-
-	if ( table.pRowRBV==NULL ) {
-		target[0] = '\0';
-	}
-	else {
-		strncpy(target, table.pRowRBV->filter, NAME_LEN);
-	}
-	return 0;
 }
 
 // Return the position name
@@ -312,14 +216,12 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 			errlogPrintf("motionSetPoints: Unable to return all positions\n");
 			break;
 		}
-		if ( table.checkFilters(it->name)==0 ) {
-			int len = strlen(it->name);
-			if ( len>elem_size ) {
-				len = elem_size;
-			}
-			memcpy(target + elem_size*count, it->name, len);
-			count++;
+		int len = strlen(it->name);
+		if ( len>elem_size ) {
+			len = elem_size;
 		}
+		memcpy(target + elem_size*count, it->name, len);
+		count++;
 	}
 	
 	if ( count<max_count ) {

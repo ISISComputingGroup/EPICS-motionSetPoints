@@ -3,7 +3,6 @@ record(stringin, "$(P)POSN:SP:RBV")
 {
 	field(DESC, "Current target")
 	field(DTYP,"asynOctetRead")
-	field(FLNK, "$(P)FILTER:OUT")
 	field(INP,"@asyn($(LOOKUP),0,0)POSNSPRBV")
     info(INTEREST, "HIGH")
 }
@@ -159,29 +158,6 @@ record(fanout, "$(P)INT:RESET")
 	field(LNK1, "$(P)_POSITIONS")
 	field(LNK2, "$(P)INT:READ1")
 	field(LNK3, "$(P)POSN:SP:RBV")
-}
-
-record(stringout, "$(P)FILTER1")
-{
-	field(DESC, "Filter targets")
-	field(DTYP,"asynOctetWrite")
-	field(FLNK, "$(P)INT:RESET")
-	field(OUT,"@asyn($(LOOKUP),0,0)FILTER1")
-}
-
-record(stringout, "$(P)FILTER2")
-{
-	field(DESC, "Filter targets")
-	field(DTYP,"asynOctetWrite")
-	field(FLNK, "$(P)INT:RESET")
-	field(OUT,"@asyn($(LOOKUP),0,0)FILTER2")
-}
-
-record(stringin, "$(P)FILTER:OUT")
-{
-	field(DESC, "Filter other axis")
-	field(DTYP,"asynOctetRead")
-	field(INP,"@asyn($(LOOKUP),0,0)FILTEROUT")
 }
 
 record(ao, "$(P)NUMAXES")
