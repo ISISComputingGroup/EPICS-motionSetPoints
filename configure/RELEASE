@@ -23,7 +23,7 @@ TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
 # If using the sequencer, point SNCSEQ at its top directory:
 #SNCSEQ=$(EPICS_BASE)/../modules/soft/seq
-ASYN=$(SUPPORT)/asyn/4-22
+ASYN=$(SUPPORT)/asyn/4-26
 ASUBFUNCTIONS=$(SUPPORT)/asubFunctions
 TINYXML=$(SUPPORT)/TinyXML
 
