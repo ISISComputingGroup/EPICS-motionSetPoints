@@ -13,6 +13,7 @@ record(stringout, "$(P)POSN:SP")
 	field(DTYP,"asynOctetWrite")
 	field(FLNK, "$(P)INT:POSN:SP")
 	field(OUT,"@asyn($(LOOKUP),0,0)POSNSP")
+    info(INTEREST, "HIGH")
 }
 
 record(fanout, "$(P)INT:POSN:SP")
