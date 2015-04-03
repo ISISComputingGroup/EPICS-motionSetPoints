@@ -47,7 +47,7 @@ LookupTable& getTable(const char *env_fname) {
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry	
 	LookupTable& table = gTables[key];
 	if ( table.rows.size()==0 ) {
-		printf("motionSetPoints: Table %s is empty\n", env_fname);
+		errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s is empty\n", env_fname);
 	}
 	return table;
 }
@@ -96,7 +96,7 @@ void loadFile(const char *fname, const char *env_fname) {
 		errlogPrintf("motionSetPoints: Lookup file %s contains no rows\n", fname);
 		return;
 	}
-	printf("motionSetPoints: Table %s, %d rows\n", env_fname, table.rows.size());
+	errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s, %d rows\n", env_fname, table.rows.size());
 	
 	fclose(fptr);
 }
@@ -243,7 +243,7 @@ int getNumCoords(const char *env_fname) {
                 epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
                 int numCoords = g_numCoords[key];
                 if ( numCoords==0 ) {
-                                printf("motionSetPoints: Table %s has zero coords\n", env_fname);
+                                errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s has zero coords\n", env_fname);
                 }
                 return numCoords;
 }
