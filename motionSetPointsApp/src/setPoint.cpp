@@ -111,8 +111,8 @@ void loadFile(const char *fname, const char *env_fname) {
 int name2posn(const char *name, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 
-	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		if ( strcmp(name, it->name)==0 ) {
+	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
+		if ( epicsStrCaseCmp(name, it->name) == 0 ) {
 			table.pRowRBV = &(*it);
 			return 0;
 		}
@@ -131,9 +131,9 @@ int posn2name(double x, double tol, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 
 	table.pRowCurr = NULL;
-	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
+	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
 		double diff = fabs(x - it->x);
-		if ( diff<best ) {
+		if ( diff < best ) {
 			best = diff;
 			table.pRowCurr = &(*it);
 			//printf("Set c %s\n", table.pRowCurr->name);
@@ -151,7 +151,7 @@ int posn2name(double x, double y, double tol, const char* env_fname) {
 		double diff1 = fabs(x - it->x);
 		double diff2 = fabs(y - it->y);
 		double diff = diff1*diff1+diff2*diff2;
-		if ( diff<best ) {
+		if ( diff < best ) {
 			best = diff;
 			table.pRowCurr = &(*it);
 			//printf("Set c %s\n", table.pRowCurr->name);
@@ -211,7 +211,7 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	memset(target, ' ', elem_size*max_count);
 	
 	int count = 0;
-	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
+	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
 		if ( count==max_count ) {
 			errlogPrintf("motionSetPoints: Unable to return all positions\n");
 			break;

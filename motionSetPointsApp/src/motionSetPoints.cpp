@@ -147,17 +147,26 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
     if (function == P_posnSP)
 	{
 		// Been told to go to a new setpoint by name
-	    name2posn(value, m_fileName.c_str());
-        getPosnName(buffer, 0, m_fileName.c_str());
-        setStringParam(P_posn, buffer);  
-        getPosnName(buffer2, 1, m_fileName.c_str());
-        setStringParam(P_posnSPRBV, buffer2);  
-        setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
-        if ( getNumCoords(m_fileName.c_str())==2 ) 
+	    if ( name2posn(value, m_fileName.c_str()) == 0 )
         {
-            setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
+            getPosnName(buffer, 0, m_fileName.c_str());
+            setStringParam(P_posn, buffer);  
+            getPosnName(buffer2, 1, m_fileName.c_str());
+            setStringParam(P_posnSPRBV, buffer2);  
+            setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
+            if ( getNumCoords(m_fileName.c_str())==2 ) 
+            {
+                setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
+            }
+		    *nActual = strlen(value);
         }
-		*nActual = strlen(value);
+        else
+        {
+            epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
+                  "%s:%s:%s: Unknown position \"%s\"", driverName, functionName, paramName, value);
+		    status = asynError;
+		    *nActual = 0;
+        }
 //		printf("posn %s posnsprbv %s\n", buffer, buffer2);
 	}
 	else
