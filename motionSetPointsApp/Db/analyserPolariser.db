@@ -14,9 +14,10 @@ record(motor,"$(D)THETA")
     field(TWV, "5") 
     field(RTRY,"0") 
     field(EGU, "degree") 
-    info(INTEREST, "HIGH")
 	field(DESC,"Angle")
     field(NTM, "NO")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL RBV")
 }
 record(calcout,"$(D)_convertDriveValue") 
 { 

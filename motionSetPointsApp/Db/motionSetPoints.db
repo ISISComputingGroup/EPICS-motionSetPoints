@@ -62,6 +62,7 @@ record(ai, "$(P)COORD1")
 	field(VAL,"0")
 	field(INP,"@asyn($(LOOKUP),0,0)COORD1")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(dfanout, "$(P)INT:WRITE1")
@@ -84,6 +85,7 @@ record(ao, "$(P)COORD1:RBV")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD1RBV")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(dfanout, "$(P)INT:READ1")
@@ -108,6 +110,7 @@ record(ai, "$(P)COORD2")
 	field(VAL,"0")
 	field(INP,"@asyn($(LOOKUP),0,0)COORD2")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(dfanout, "$(P)INT:WRITE2")
@@ -130,6 +133,7 @@ record(ao, "$(P)COORD2:RBV")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD2RBV")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(dfanout, "$(P)INT:READ2")
