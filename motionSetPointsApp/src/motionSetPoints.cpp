@@ -39,27 +39,63 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
 {
    	createParam(P_positionsString, asynParamOctet, &P_positions);
     createParam(P_posnSPRBVString, asynParamOctet, &P_posnSPRBV);
+    createParam(P_iposnSPRBVString, asynParamInt32, &P_iposnSPRBV);
 	createParam(P_posnSPString, asynParamOctet, &P_posnSP);
+	createParam(P_iposnSPString, asynParamInt32, &P_iposnSP);
     createParam(P_posnString, asynParamOctet, &P_posn);
+    createParam(P_iposnString, asynParamInt32, &P_iposn);
 	createParam(P_coord1String, asynParamFloat64, &P_coord1);
     createParam(P_coord1RBVString, asynParamFloat64, &P_coord1RBV);
     createParam(P_coord2String, asynParamFloat64, &P_coord2);
     createParam(P_coord2RBVString, asynParamFloat64, &P_coord2RBV);
     createParam(P_resetString, asynParamFloat64, &P_reset);
+    createParam(P_numPosString, asynParamInt32, &P_numpos);
     createParam(P_numAxesString, asynParamFloat64, &P_numAxes);
 	// initial values
     setStringParam(P_posn, "");
+    setIntegerParam(P_iposn, -1);
     setStringParam(P_posnSPRBV, "");
+    setIntegerParam(P_iposnSPRBV, -1);
     setDoubleParam(P_coord1, 0.0);
     setDoubleParam(P_coord2, 0.0);
+    setIntegerParam(P_numpos, 0);
     loadDefFile(m_fileName.c_str());
     setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
 }
 
-// Write int32 - not used?
 asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
-    return writeFloat64(pasynUser, value);
+    int function = pasynUser->reason;
+    const char* functionName = "writeInt32";
+    asynStatus status = asynSuccess;
+    const char *paramName = NULL;
+	getParamName(function, &paramName);
+    if (function == P_iposnSP)
+    {
+        std::string posn = getPositionByIndex(value, m_fileName.c_str());
+        if ( (posn.size() > 0) && (gotoPosition(posn.c_str()) == 0) )
+        {
+            ;
+        }
+        else
+        {
+            epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
+                  "%s:%s:%s: Unknown position index %d", driverName, functionName, paramName, value);
+		    status = asynError;
+        }
+    }
+	else
+	{
+        epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
+                  "%s:%s: status=%d, function=%d, name=%s, value=%f, error=%s", 
+                  driverName, functionName, status, function, paramName, value, "unknown parameter");
+		status = asynError;
+	}
+	callParamCallbacks();
+    asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
+              "%s:%s: function=%d, name=%s, value=%f\n", 
+              driverName, functionName, function, paramName, value);
+	return status;
 }
 
 // Update the list of available setpoint names
@@ -68,7 +104,8 @@ void motionSetPoints::updatePositions()
     const int buffer_size = 4096;
 	char* buffer = new char[buffer_size];
 	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
-	setStringParam(P_positions, buffer);  
+	setStringParam(P_positions, buffer);
+    setIntegerParam(P_numpos, numPositions(m_fileName.c_str()));
 	delete[] buffer;
 }
 
@@ -132,6 +169,30 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 
     getPosnName(buffer, 0, m_fileName.c_str());
     setStringParam(P_posn, buffer);  
+    setIntegerParam(P_iposn, getPositionIndexByName(buffer, m_fileName.c_str()));  
+}
+
+int motionSetPoints::gotoPosition(const char* value)
+{
+    char buffer[256], buffer2[256];
+	if ( name2posn(value, m_fileName.c_str()) == 0 )
+    {
+            getPosnName(buffer, 0, m_fileName.c_str());
+            setStringParam(P_posn, buffer);  
+            getPosnName(buffer2, 1, m_fileName.c_str());
+            setStringParam(P_posnSPRBV, buffer2);  
+            setIntegerParam(P_iposnSPRBV, getPositionIndexByName(buffer2, m_fileName.c_str()));  
+            setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
+            if ( getNumCoords(m_fileName.c_str()) == 2 ) 
+            {
+                setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
+            }
+            return 0;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 // Write a string to the "hardware" ie EPICS has sent us a string value
@@ -141,23 +202,13 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
     const char* functionName = "writeOctet";
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
-    char buffer[256], buffer2[256];
 	getParamName(function, &paramName);
 //	printf("value: %s\n", value);
     if (function == P_posnSP)
 	{
 		// Been told to go to a new setpoint by name
-	    if ( name2posn(value, m_fileName.c_str()) == 0 )
+	    if ( gotoPosition(value) == 0 )
         {
-            getPosnName(buffer, 0, m_fileName.c_str());
-            setStringParam(P_posn, buffer);  
-            getPosnName(buffer2, 1, m_fileName.c_str());
-            setStringParam(P_posnSPRBV, buffer2);  
-            setDoubleParam(P_coord1, currentPosn(1, m_fileName.c_str()));
-            if ( getNumCoords(m_fileName.c_str())==2 ) 
-            {
-                setDoubleParam(P_coord2, currentPosn(0, m_fileName.c_str()));
-            }
 		    *nActual = strlen(value);
         }
         else

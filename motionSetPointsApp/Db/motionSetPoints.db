@@ -16,12 +16,30 @@ record(stringout, "$(P)POSN:SP")
     info(INTEREST, "HIGH")
 }
 
+record(longin, "$(P)IPOSN:SP:RBV")
+{
+	field(DESC, "Current target index")
+	field(DTYP,"asynInt32")
+	field(INP,"@asyn($(LOOKUP),0,0)IPOSNSPRBV")
+    info(INTEREST, "HIGH")
+}
+
+record(longout, "$(P)IPOSN:SP")
+{
+	field(DESC, "Set target by index")
+	field(DTYP,"asynInt32")
+	field(FLNK, "$(P)INT:POSN:SP")
+	field(OUT,"@asyn($(LOOKUP),0,0)IPOSNSP")
+    info(INTEREST, "HIGH")
+}
+
 record(fanout, "$(P)INT:POSN:SP")
 {
 	field(DESC, "Propagate set")
 	field(LNK1, "$(P)POSN:SP:RBV")
-	field(LNK2, "$(P)COORD1")
-	field(LNK3, "$(P)COORD2")
+	field(LNK2, "$(P)IPOSN:SP:RBV")
+	field(LNK3, "$(P)COORD1")
+	field(LNK4, "$(P)COORD2")
 }
 
 record(stringin, "$(P)POSN")
@@ -30,6 +48,15 @@ record(stringin, "$(P)POSN")
 	field(SCAN, "1 second")
 	field(DTYP,"asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0,0)POSN")
+    info(INTEREST, "HIGH")
+}
+
+record(longin, "$(P)IPOSN")
+{
+	field(DESC, "Current position index")
+	field(SCAN, "1 second")
+	field(DTYP,"asynInt32")
+	field(INP,"@asyn($(LOOKUP),0,0)IPOSN")
     info(INTEREST, "HIGH")
 }
 
@@ -172,6 +199,14 @@ record(ao, "$(P)NUMAXES")
 	field(EGU,"")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)NUMAXES")
+    info(INTEREST, "HIGH")
+}
+
+record(longin, "$(P)POSN:NUM")
+{
+	field(DESC, "Number of positions")
+	field(DTYP,"asynInt32")
+	field(INP,"@asyn($(LOOKUP),0,0)NUMPOS")
     info(INTEREST, "HIGH")
 }
 

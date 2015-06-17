@@ -120,6 +120,19 @@ int name2posn(const char *name, const char* env_fname) {
 	return 1;
 }
 
+int getPositionIndexByName(const char* name, const char* env_fname)
+{
+	LookupTable &table = getTable(env_fname);
+    for(int i=0; i<table.rows.size(); ++i)
+    {
+		if ( epicsStrCaseCmp(name, table.rows[i].name) == 0 ) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+
 /* Get the name that best corresponds to the current position 
  * Arguments:
  *   double  x    [in]  Coord
@@ -234,6 +247,27 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	
 	return count;
 }
+
+
+std::string getPositionByIndex(int pos, const char* env_fname) 
+{
+	LookupTable &table = getTable(env_fname);
+	
+    if ( pos >= 0 && pos < table.rows.size() )
+    {
+        return table.rows[pos].name;
+    }
+    else
+    {
+        return "";
+    }
+}
+
+int numPositions(const char* env_fname)
+{
+	LookupTable &table = getTable(env_fname);
+    return table.rows.size();
+ }
 
 // Return the number of coordinates in the current lookup
 // Arguments:
