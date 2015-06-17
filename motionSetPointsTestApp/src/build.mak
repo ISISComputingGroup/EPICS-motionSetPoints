@@ -18,8 +18,12 @@ DBD += $(APPNAME).dbd
 # motionSetPointsTest.dbd will be made up from these files:
 $(APPNAME)_DBD += base.dbd
 $(APPNAME)_DBD += motionSetPoints.dbd
+$(APPNAME)_DBD += motorSupport.dbd
+$(APPNAME)_DBD += motorSimSupport.dbd
 
 # Add all the support libraries needed by this IOC
+$(APPNAME)_LIBS += motorSimSupport
+$(APPNAME)_LIBS += motor
 $(APPNAME)_LIBS += motionSetPoints asubFunctions asyn
 
 # motionSetPointsTest_registerRecordDeviceDriver.cpp derives from motionSetPointsTest.dbd

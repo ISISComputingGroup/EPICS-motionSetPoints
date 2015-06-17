@@ -28,6 +28,9 @@ ASYN=$(SUPPORT)/asyn/4-26
 ASUBFUNCTIONS=$(SUPPORT)/asubFunctions
 TINYXML=$(SUPPORT)/TinyXML
 
+# only needed for test app
+MOTOR=$(SUPPORT)/motor/R6-9
+
 # EPICS_BASE usually appears last so other apps can override stuff:
 EPICS_BASE=C:/ISISEPICS/base/3-14-12-2
 

@@ -48,13 +48,13 @@ record(stringin, "$(P)POSN")
 	field(SCAN, "1 second")
 	field(DTYP,"asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0,0)POSN")
+    field(FLNK, "$(P)IPOSN")
     info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)IPOSN")
 {
 	field(DESC, "Current position index")
-	field(SCAN, "1 second")
 	field(DTYP,"asynInt32")
 	field(INP,"@asyn($(LOOKUP),0,0)IPOSN")
     info(INTEREST, "HIGH")
@@ -190,12 +190,14 @@ record(fanout, "$(P)INT:RESET")
 	field(LNK1, "$(P)_POSITIONS")
 	field(LNK2, "$(P)INT:READ1")
 	field(LNK3, "$(P)POSN:SP:RBV")
+	field(LNK4, "$(P)IPOSN:SP:RBV")
 }
 
 record(ao, "$(P)NUMAXES")
 {
 	field(DESC, "Number of axes")
 	field(DTYP,"asynFloat64")
+    field(SCAN, "I/O Intr")
 	field(EGU,"")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)NUMAXES")
@@ -206,6 +208,7 @@ record(longin, "$(P)POSN:NUM")
 {
 	field(DESC, "Number of positions")
 	field(DTYP,"asynInt32")
+    field(SCAN, "I/O Intr")
 	field(INP,"@asyn($(LOOKUP),0,0)NUMPOS")
     info(INTEREST, "HIGH")
 }
