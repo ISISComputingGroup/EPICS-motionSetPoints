@@ -5,6 +5,7 @@ record(stringin, "$(P)POSN:SP:RBV")
 	field(DTYP,"asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0,0)POSNSPRBV")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(stringout, "$(P)POSN:SP")
@@ -14,6 +15,7 @@ record(stringout, "$(P)POSN:SP")
 	field(FLNK, "$(P)INT:POSN:SP")
 	field(OUT,"@asyn($(LOOKUP),0,0)POSNSP")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)IPOSN:SP:RBV")
@@ -21,7 +23,7 @@ record(longin, "$(P)IPOSN:SP:RBV")
 	field(DESC, "Current target index")
 	field(DTYP,"asynInt32")
 	field(INP,"@asyn($(LOOKUP),0,0)IPOSNSPRBV")
-    info(INTEREST, "HIGH")
+	field(EGU, "")
 }
 
 record(longout, "$(P)IPOSN:SP")
@@ -30,7 +32,7 @@ record(longout, "$(P)IPOSN:SP")
 	field(DTYP,"asynInt32")
 	field(FLNK, "$(P)INT:POSN:SP")
 	field(OUT,"@asyn($(LOOKUP),0,0)IPOSNSP")
-    info(INTEREST, "HIGH")
+	field(EGU, "")
 }
 
 record(fanout, "$(P)INT:POSN:SP")
@@ -50,6 +52,7 @@ record(stringin, "$(P)POSN")
 	field(INP,"@asyn($(LOOKUP),0,0)POSN")
     field(FLNK, "$(P)IPOSN")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
 }
 
 record(longin, "$(P)IPOSN")
@@ -57,7 +60,7 @@ record(longin, "$(P)IPOSN")
 	field(DESC, "Current position index")
 	field(DTYP,"asynInt32")
 	field(INP,"@asyn($(LOOKUP),0,0)IPOSN")
-    info(INTEREST, "HIGH")
+	field(EGU, "")
 }
 
 record(ai, "$(P)STATIONARY")
@@ -201,7 +204,6 @@ record(ao, "$(P)NUMAXES")
 	field(EGU,"")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)NUMAXES")
-    info(INTEREST, "HIGH")
 }
 
 record(longin, "$(P)POSN:NUM")
@@ -210,7 +212,7 @@ record(longin, "$(P)POSN:NUM")
 	field(DTYP,"asynInt32")
     field(SCAN, "I/O Intr")
 	field(INP,"@asyn($(LOOKUP),0,0)NUMPOS")
-    info(INTEREST, "HIGH")
+	field(EGU, "")
 }
 
 record(ai, "$(P)TOLERENCE")
