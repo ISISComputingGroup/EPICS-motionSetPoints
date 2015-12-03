@@ -25,6 +25,7 @@ $(APPNAME)_DBD += motorSimSupport.dbd
 $(APPNAME)_LIBS += motorSimSupport
 $(APPNAME)_LIBS += motor
 $(APPNAME)_LIBS += motionSetPoints asubFunctions asyn
+$(APPNAME)_LIBS += seqDev seq pv
 
 # motionSetPointsTest_registerRecordDeviceDriver.cpp derives from motionSetPointsTest.dbd
 $(APPNAME)_SRCS += $(APPNAME)_registerRecordDeviceDriver.cpp
