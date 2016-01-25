@@ -235,6 +235,9 @@ record(calc, "$(P)POSITIONED")
 	field(CALC, "C==1?A:A&&B")
 }
 
+# The DMOV for POSN is the same as POSITIONED
+alias("$(P)POSITIONED", "$(P)POSN:DMOV")
+
 # epics string is 40 characters, so NELM in char waveform _POSITIONS is 40 * NELM in POSITIONS
 # need intermediate char waveform as ASYN does not do currently handle string waveforms
 

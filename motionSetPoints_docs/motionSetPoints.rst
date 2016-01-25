@@ -62,6 +62,7 @@ The following PVs control the lookup:
 The following report what is going on:
 
 * **$(P)POSN** - The name of the current position. If not at an exact position, it will show the nearest.
+* **$(P)POSN:DMOV** - Equals 1 when the motion is complete, otherwise 0
 * **$(P)POSN:SP:RBV** - The name of the target position 
 * **$(P)COORD1** - The target position for the first motor
 * **$(P)COORD1:RBV** - The current position of the first motor
