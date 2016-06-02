@@ -12,9 +12,11 @@ LIBRARY_IOC = motionSetPoints
 
 # motionSetPoints.dbd will be created and installed
 DBD += motionSetPoints.dbd
+motionSetPoints_DBD += calcSupport.dbd
 
 # Add all the support libraries needed by this IOC
 motionSetPoints_LIBS += asubFunctions asyn
+motionSetPoints_LIBS += calc
 
 motionSetPoints_SRCS += setPoint.cpp motionSetPoints.cpp
 

@@ -44,14 +44,34 @@ record(fanout, "$(P)INT:POSN:SP")
 	field(LNK4, "$(P)COORD2")
 }
 
-record(stringin, "$(P)POSN")
+record(stringin, "$(P)POSN_NO_ERR")
 {
-	field(DESC, "Current position")
+	field(DESC, "Current position with no error")
 	field(SCAN, "1 second")
 	field(DTYP,"asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0,0)POSN")
-    field(FLNK, "$(P)IPOSN")
+    field(FLNK, "$(P)POSN_CALC")
     info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(scalcout, "$(P)POSN_CALC")
+{
+	field(DESC, "Add error to current position")
+	field(INAA, "$(P)POSN_NO_ERR")
+	field(INPA, "$(TARGET_RBV1) MS")
+	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1)) MS")
+
+    field(CALC, "AA")
+    field(OUT, "$(P)POSN MS")
+    field(FLNK, "$(P)POSN")
+}
+
+record(stringin, "$(P)POSN")
+{
+	field(DESC, "Current position")
+	field(FLNK, "$(P)IPOSN")
+	info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
 
@@ -110,7 +130,7 @@ record(ao, "$(P)COORD1:RBV")
 {
 	field(DESC, "Current motor1 position")
 	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)POSN")
+	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD1RBV")
@@ -158,7 +178,7 @@ record(ao, "$(P)COORD2:RBV")
 {
 	field(DESC, "Current motor2 position")
 	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)POSN")
+	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD2RBV")
@@ -223,8 +243,8 @@ record(ai, "$(P)TOLERENCE")
 record(calc, "$(P)POSITIONED") 
 {
 	field(SCAN, "1 second")
-	field(INPA, "$(TARGET_DONE)")
-    field(INPB, "$(TARGET_DONE2=)")
+	field(INPA, "$(TARGET_DONE) MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE)) MS")
 #	field(INPC, "$(P)COORD1")
 #	field(INPD, "$(P)COORD1:RBV")
 #    field(INPE, "$(P)COORD2")
