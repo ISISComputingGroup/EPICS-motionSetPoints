@@ -276,6 +276,7 @@ record(waveform,"$(P)_POSITIONS")
 	field(INP,"@asyn($(LOOKUP),0,0)POSITIONS")
 	field(FLNK, "$(P)_WFCTOS")
 }
+alias("$(P)_POSITIONS", "$(P)POSITIONS_C")
 
 record(aSub, "$(P)_WFCTOS")
 {
