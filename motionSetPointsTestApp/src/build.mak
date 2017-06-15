@@ -18,12 +18,15 @@ DBD += $(APPNAME).dbd
 # motionSetPointsTest.dbd will be made up from these files:
 $(APPNAME)_DBD += base.dbd
 $(APPNAME)_DBD += motionSetPoints.dbd
+$(APPNAME)_DBD += calcSupport.dbd
+$(APPNAME)_DBD += asyn.dbd
 $(APPNAME)_DBD += motorSupport.dbd
 $(APPNAME)_DBD += motorSimSupport.dbd
+$(APPNAME)_DBD += asubFunctions.dbd
 
 # Add all the support libraries needed by this IOC
 $(APPNAME)_LIBS += motorSimSupport
-$(APPNAME)_LIBS += motor
+$(APPNAME)_LIBS += motor calc sscan
 $(APPNAME)_LIBS += motionSetPoints asubFunctions asyn
 $(APPNAME)_LIBS += seqDev seq pv
 
