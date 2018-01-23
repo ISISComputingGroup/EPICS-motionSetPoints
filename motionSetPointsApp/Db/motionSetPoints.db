@@ -10,10 +10,13 @@ record(stringin, "$(P)COORD2:NAME")
 	field(VAL, "$(NAME2=$(TARGET_PV2=$(AXIS2=No Axis 2)))")
 }
 
+record(motor, "$(P):MTR")
+{
+	field(DESC, "Dummy record to help with mtr alias")
+}
 
-alias("$(AXIS1):MTR","$(P)COORD1:MTR")
-alias("$(AXIS2=$(AXIS1)):MTR","$(P)COORD2:MTR")
-
+alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD1:MTR")
+alias("$(TARGET_PV2=$(AXIS2=$(P)):MTR)","$(P)COORD2:MTR")
 
 record(stringin, "$(P)POSN:SP:RBV")
 {
