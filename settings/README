@@ -1,0 +1,34 @@
+README
+------
+
+This folder contains several example settings files used to set up motion setpoints on LARMOR and SANDALS:
+
+- 1D with motor
+- 2D with motors
+- 2D with axes
+
+To use the files, the relevant motion setpoint lookup files should be placed in ...\Settings\config\NDX<instrument>\configurations\motionSetPoints and the command file should be placed in a folder depeneding on the underlying motor, e.g. for a galil motor ...\Settings\config\NDX<instrument>\configurations\galil or the SMC300...\Settings\config\NDX<instrument>\configurations\SMC300_01.
+
+-----------
+1D with motor
+-----------
+
+galil/motionsetpoints.cmd: Contains the location of the monitor3.txt lookup file. It configures a setpoint controller and then loads a DB file to allow interaction with that controller. The db file provides PVs starting with $(MYPVPREFIX)LKUP:MON3: which control the motor MOT:MTR0601
+motionSetPoints/monitor3.txt: This maps the setpoint position names, in and out, to the position of the motor.
+
+
+-----------
+2D with motor
+-----------
+
+galil/axes: Creates a motion axis using prefix MOT:STACK:ZLO which controls the motor MTR0507.
+galil/motionsetpoints.cmd: Contains the location of the sample_larmor.txt lookup file. It configures a setpoint controller and then loads a DB file to allow interaction with that controller. The db file provides PVs starting with LKUP:SAMPLE_LARMOR: which control the motor MOT:MTR0601 and axis MOT:STACK:ZLO. It uses the motor version of the configuration for both the motor and the axis specifying the target, setpoint and done moving flags.
+motionSetPoints/sample_larmor.txt: This maps the setpoint position names, e.g. AB, BB CB, to the position of the two motors.
+
+-----------
+2D with axis
+-----------
+
+sm300_01/axes: Creates two axes using prefix SAMPLE:LIN and SAMPLE:ROT.
+galil/motionsetpoints.cmd: Contains the location of the sample.txt lookup file. It configures a setpoint controller and then loads a DB file to allow interaction with that controller. The db file provides PVs starting with LKUP:SAMPLE: which control the axes SAMPLE:LIN and SAMPLE:ROT. This also contains an extra command to give the lookup some extra sm300 specific extentions, this is so it works with the extended SM300 sample changer OPI.
+motionSetPoints/sample.txt: This maps the setpoint position names, e.g. Sample01 to the position of the two motors.

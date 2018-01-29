@@ -1,3 +1,19 @@
+record(stringin, "$(P)COORD1:NAME")
+{
+	field(DESC, "Name of the first coord")
+	field(VAL, "$(NAME1=$(TARGET_PV1=$(AXIS1=)))")
+}
+
+record(stringin, "$(P)COORD2:NAME")
+{
+	field(DESC, "Name of the first coord")
+	field(VAL, "$(NAME2=$(TARGET_PV2=$(AXIS2=No Axis 2)))")
+}
+
+
+alias("$(AXIS1):MTR","$(P)COORD1:MTR")
+alias("$(AXIS2=$(AXIS1)):MTR","$(P)COORD2:MTR")
+
 
 record(stringin, "$(P)POSN:SP:RBV")
 {
@@ -40,8 +56,8 @@ record(fanout, "$(P)INT:POSN:SP")
 	field(DESC, "Propagate set")
 	field(LNK1, "$(P)POSN:SP:RBV")
 	field(LNK2, "$(P)IPOSN:SP:RBV")
-	field(LNK3, "$(P)COORD1")
-	field(LNK4, "$(P)COORD2")
+	field(LNK3, "$(P)COORD1:NO_OFFSET")
+	field(LNK4, "$(P)COORD2:NO_OFFSET")
 }
 
 record(stringin, "$(P)POSN_NO_ERR")
@@ -59,8 +75,8 @@ record(scalcout, "$(P)POSN_CALC")
 {
 	field(DESC, "Add error to current position")
 	field(INAA, "$(P)POSN_NO_ERR")
-	field(INPA, "$(TARGET_RBV1) MS")
-	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1)) MS")
+	field(INPA, "$(TARGET_RBV1=$(AXIS1)) MS")
+	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1=$(AXIS2=$(AXIS1)))) MS")
 
     field(CALC, "AA")
     field(OUT, "$(P)POSN MS")
@@ -87,26 +103,34 @@ record(ai, "$(P)STATIONARY")
 {
     field(DESC, "Is sample in position")
 	field(SCAN, "1 second")
-	field(INP, "$(TARGET_DONE)")
-	field(FLNK, "$(P)POSITIONED")
-	field(EGU, "")
-    info(INTEREST, "HIGH")
-}
-record(ai, "$(P)STATIONARY2")
-{
-    field(DESC, "Is sample in position")
-	field(SCAN, "1 second")
-	field(INP, "$(TARGET_DONE2=)")
+	field(INP, "$(TARGET_DONE=$(AXIS1):DMOV)")
 	field(FLNK, "$(P)POSITIONED")
 	field(EGU, "")
     info(INTEREST, "HIGH")
 }
 
-record(ai, "$(P)COORD1")
+record(ai, "$(P):DMOV")
 {
-	field(DESC, "Target position 1")
+    field(DESC, "Dummy record for when there is no axis 2")
+    field(VAL, 0)
+    field(PINI, "YES")
+}
+
+record(ai, "$(P)STATIONARY2")
+{
+    field(DESC, "Is sample in position")
+	field(SCAN, "1 second")
+	field(INP, "$(TARGET_DONE2=$(AXIS2=$(P)):DMOV)")
+	field(FLNK, "$(P)POSITIONED")
+	field(EGU, "")
+    info(INTEREST, "HIGH")
+}
+
+record(ai, "$(P)COORD1:NO_OFFSET")
+{
+	field(DESC, "Target position 1 no offset")
 	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)INT:WRITE1")
+    field(FLNK, "$(P)COORD1")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
@@ -115,34 +139,86 @@ record(ai, "$(P)COORD1")
     info(archive, "VAL")
 }
 
+record(ai, "$(P)COORD1:OFFSET")
+{
+    field(DESC, "Offset for coord 2")
+    field(VAL, "0")    
+    field(FLNK, "$(P)COORD1")
+  	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+    info(autosaveFields, "VAL")
+}
+
+alias("$(P)COORD1:OFFSET", "$(P)COORD1:OFFSET:SP")
+
+record(calc, "$(P)COORD1")
+{
+    field(DESC, "Position 1 with offset")
+    field(INPA, "$(P)COORD1:NO_OFFSET MS")
+    field(INPB, "$(P)COORD1:OFFSET")
+    field(CALC, "A+B")
+    field(FLNK, "$(P)INT:WRITE1")
+  	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+
 record(dfanout, "$(P)INT:WRITE1")
 {
 	field(DESC, "Pushes COORD1 to motor")
 	field(DOL, "$(P)COORD1")
 	field(OMSL, "closed_loop")
-	field(OUTA, "$(TARGET_PV1)")
+	field(OUTA, "$(TARGET_PV1=$(AXIS1):SP)")
 	field(SELM, "Mask")
 	field(SELN, "1")
-	field(FLNK, "$(TARGET_PV1)")
+	field(FLNK, "$(TARGET_PV1=$(AXIS1):SP)")
 }
 
 record(ao, "$(P)COORD1:RBV")
 {
 	field(DESC, "Current motor1 position")
+	field(FLNK, "$(P)COORD1:RBV:OFFSET")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(OUT,"$(P)COORD1:RBV:OFFSET.A")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(calcout, "$(P)COORD1:RBV:OFFSET")
+{
+    field(DESC, "Motor1 position with offset")
+	field(FLNK, "$(P)COORD1:LOOKUP:SET:RBV")
+	field(EGU, "mm")
+	field(PREC,"1")
+    # A is set by COORD1:RBV
+    field(INPA, "0") 
+    field(INPB, "$(P)COORD1:OFFSET")
+    field(CALC, "A-B")
+	field(OUT,"$(P)COORD1:LOOKUP:SET:RBV")
+}
+
+record(ao, "$(P)COORD1:LOOKUP:SET:RBV")
+{
+	field(DESC, "Send motor1 position to lookup")
 	field(DTYP,"asynFloat64")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD1RBV")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
 }
 
 record(dfanout, "$(P)INT:READ1")
 {
 	field(DESC, "Updates COORD1:RBV")
 	field(SCAN, "1 second")
-	field(DOL, "$(TARGET_RBV1) MS")
+	field(DOL, "$(TARGET_RBV1=$(AXIS1)) MS")
 	field(OMSL, "closed_loop")
 	field(OUTA, "$(P)COORD1:RBV MS")
 	field(SELM, "Mask")
@@ -150,11 +226,25 @@ record(dfanout, "$(P)INT:READ1")
 	field(FLNK, "$(P)COORD1:RBV")
 }
 
-record(ai, "$(P)COORD2")
+record(ai, "$(P)COORD2:OFFSET")
 {
-	field(DESC, "Target position 2")
+    field(DESC, "Offset for coord 2")
+    field(VAL, "0")    
+    field(FLNK, "$(P)COORD2")
+  	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+    info(autosaveFields, "VAL")
+}
+alias("$(P)COORD2:OFFSET", "$(P)COORD2:OFFSET:SP")
+
+record(ai, "$(P)COORD2:NO_OFFSET")
+{
+	field(DESC, "Target position 2 no offset")
 	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)INT:WRITE2")
+	field(FLNK, "$(P)COORD2")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
@@ -163,34 +253,78 @@ record(ai, "$(P)COORD2")
     info(archive, "VAL")
 }
 
+record(calc, "$(P)COORD2")
+{
+	field(DESC, "Target position 2 with offset")
+    field(INPA, "$(P)COORD2:NO_OFFSET MS")
+    field(INPB, "$(P)COORD2:OFFSET")
+    field(CALC, "A+B")
+    field(FLNK, "$(P)INT:WRITE2")
+  	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(ai, "$(P):SP")
+{
+    field(DESC, "Dummy record for when there is no axis 2")
+    field(VAL, 0)
+    field(PINI, "YES")
+}
+
 record(dfanout, "$(P)INT:WRITE2")
 {
 	field(DESC, "Pushes COORD2 to motor")
 	field(DOL, "$(P)COORD2")
 	field(OMSL, "closed_loop")
-	field(OUTA, "$(TARGET_PV2=)")
+	field(OUTA, "$(TARGET_PV2=$(AXIS2=$(P)):SP)")
 	field(SELM, "Mask")
 	field(SELN, "1")
-	field(FLNK, "$(TARGET_PV2=)")
+	field(FLNK, "$(TARGET_PV2=$(AXIS2=$(P)):SP)")
 }
 
 record(ao, "$(P)COORD2:RBV")
 {
 	field(DESC, "Current motor2 position")
+	field(FLNK, "$(P)COORD2:RBV:OFFSET")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(OUT,"$(P)COORD2:RBV:OFFSET.A")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(calcout, "$(P)COORD2:RBV:OFFSET")
+{
+    field(DESC, "Motor2 position with offset")
+	field(FLNK, "$(P)COORD2:LOOKUP:SET:RBV")
+	field(EGU, "mm")
+	field(PREC,"1")
+    # A is set by COORD2:RBV
+    field(INPA, "0") 
+    field(INPB, "$(P)COORD2:OFFSET")
+    field(CALC, "A-B")
+	field(OUT,"$(P)COORD2:LOOKUP:SET:RBV")
+}
+
+record(ao, "$(P)COORD2:LOOKUP:SET:RBV")
+{
+	field(DESC, "Send motor2 position to lookup")
 	field(DTYP,"asynFloat64")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD2RBV")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
 }
+
 
 record(dfanout, "$(P)INT:READ2")
 {
 	field(DESC, "Updates COORD2:RBV")
 	field(SCAN, "1 second")
-	field(DOL, "$(TARGET_RBV2=) MS")
+	field(DOL, "$(TARGET_RBV2=$(AXIS2=)) MS")
 	field(OMSL, "closed_loop")
 	field(OUTA, "$(P)COORD2:RBV MS")
 	field(SELM, "Mask")
@@ -243,15 +377,9 @@ record(ai, "$(P)TOLERENCE")
 record(calc, "$(P)POSITIONED") 
 {
 	field(SCAN, "1 second")
-	field(INPA, "$(TARGET_DONE) MS")
-    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE)) MS")
-#	field(INPC, "$(P)COORD1")
-#	field(INPD, "$(P)COORD1:RBV")
-#    field(INPE, "$(P)COORD2")
-#	field(INPF, "$(P)COORD2:RBV")
-#	field(INPD, "$(P)TOLERENCE")
+	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) MS")   
     field(INPC, "$(P)NUMAXES")
-#	field(CALC, "A&&ABS(B-C)<D")
 	field(CALC, "C==1?A:A&&B")
 }
 
