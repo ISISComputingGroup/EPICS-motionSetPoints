@@ -1,6 +1,4 @@
 # Convert sample position names to motor coordinates
-# WARNING: Generated file - Do not edit
-# Instead edit samplechanger.xml and press recalc
 Sample_00   10.000000  21.000000
 Sample_01   75.000000  21.000000
 Sample_02  140.000000  21.000000

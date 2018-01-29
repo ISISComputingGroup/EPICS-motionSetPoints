@@ -183,13 +183,35 @@ record(dfanout, "$(P)INT:WRITE1")
 record(ao, "$(P)COORD1:RBV")
 {
 	field(DESC, "Current motor1 position")
+	field(FLNK, "$(P)COORD1:RBV:OFFSET")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(OUT,"$(P)COORD1:RBV:OFFSET.A")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(calcout, "$(P)COORD1:RBV:OFFSET")
+{
+    field(DESC, "Motor1 position with offset")
+	field(FLNK, "$(P)COORD1:LOOKUP:SET:RBV")
+	field(EGU, "mm")
+	field(PREC,"1")
+    # A is set by COORD1:RBV
+    field(INPA, "0") 
+    field(INPB, "$(P)COORD1:OFFSET")
+    field(CALC, "A-B")
+	field(OUT,"$(P)COORD1:LOOKUP:SET:RBV")
+}
+
+record(ao, "$(P)COORD1:LOOKUP:SET:RBV")
+{
+	field(DESC, "Send motor1 position to lookup")
 	field(DTYP,"asynFloat64")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD1RBV")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
 }
 
 record(dfanout, "$(P)INT:READ1")
@@ -266,14 +288,37 @@ record(dfanout, "$(P)INT:WRITE2")
 record(ao, "$(P)COORD2:RBV")
 {
 	field(DESC, "Current motor2 position")
+	field(FLNK, "$(P)COORD2:RBV:OFFSET")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(OUT,"$(P)COORD2:RBV:OFFSET.A")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(calcout, "$(P)COORD2:RBV:OFFSET")
+{
+    field(DESC, "Motor2 position with offset")
+	field(FLNK, "$(P)COORD2:LOOKUP:SET:RBV")
+	field(EGU, "mm")
+	field(PREC,"1")
+    # A is set by COORD2:RBV
+    field(INPA, "0") 
+    field(INPB, "$(P)COORD2:OFFSET")
+    field(CALC, "A-B")
+	field(OUT,"$(P)COORD2:LOOKUP:SET:RBV")
+}
+
+record(ao, "$(P)COORD2:LOOKUP:SET:RBV")
+{
+	field(DESC, "Send motor2 position to lookup")
 	field(DTYP,"asynFloat64")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(OUT,"@asyn($(LOOKUP),0,0)COORD2RBV")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
 }
+
 
 record(dfanout, "$(P)INT:READ2")
 {
