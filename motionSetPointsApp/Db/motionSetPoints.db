@@ -11,8 +11,8 @@ record(stringin, "$(P)COORD2:NAME")
 }
 
 
-alias("$(AXIS1):MTR","$(P)COORD1:MTR")
-alias("$(AXIS2=$(AXIS1)):MTR","$(P)COORD2:MTR")
+alias("$(AXIS1=):MTR","$(P)COORD1:MTR")
+alias("$(AXIS2=$(AXIS1=)):MTR","$(P)COORD2:MTR")
 
 
 record(stringin, "$(P)POSN:SP:RBV")
@@ -75,8 +75,8 @@ record(scalcout, "$(P)POSN_CALC")
 {
 	field(DESC, "Add error to current position")
 	field(INAA, "$(P)POSN_NO_ERR")
-	field(INPA, "$(TARGET_RBV1=$(AXIS1)) MS")
-	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1=$(AXIS2=$(AXIS1)))) MS")
+	field(INPA, "$(TARGET_RBV1=$(AXIS1=)) MS")
+	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1=$(AXIS2=$(AXIS1=)))) MS")
 
     field(CALC, "AA")
     field(OUT, "$(P)POSN MS")
@@ -103,7 +103,7 @@ record(ai, "$(P)STATIONARY")
 {
     field(DESC, "Is sample in position")
 	field(SCAN, "1 second")
-	field(INP, "$(TARGET_DONE=$(AXIS1):DMOV)")
+	field(INP, "$(TARGET_DONE=$(AXIS1=):DMOV)")
 	field(FLNK, "$(P)POSITIONED")
 	field(EGU, "")
     info(INTEREST, "HIGH")
@@ -174,10 +174,10 @@ record(dfanout, "$(P)INT:WRITE1")
 	field(DESC, "Pushes COORD1 to motor")
 	field(DOL, "$(P)COORD1")
 	field(OMSL, "closed_loop")
-	field(OUTA, "$(TARGET_PV1=$(AXIS1):SP)")
+	field(OUTA, "$(TARGET_PV1=$(AXIS1=):SP)")
 	field(SELM, "Mask")
 	field(SELN, "1")
-	field(FLNK, "$(TARGET_PV1=$(AXIS1):SP)")
+	field(FLNK, "$(TARGET_PV1=$(AXIS1=):SP)")
 }
 
 record(ao, "$(P)COORD1:RBV")
@@ -218,7 +218,7 @@ record(dfanout, "$(P)INT:READ1")
 {
 	field(DESC, "Updates COORD1:RBV")
 	field(SCAN, "1 second")
-	field(DOL, "$(TARGET_RBV1=$(AXIS1)) MS")
+	field(DOL, "$(TARGET_RBV1=$(AXIS1=)) MS")
 	field(OMSL, "closed_loop")
 	field(OUTA, "$(P)COORD1:RBV MS")
 	field(SELM, "Mask")
@@ -377,8 +377,8 @@ record(ai, "$(P)TOLERENCE")
 record(calc, "$(P)POSITIONED") 
 {
 	field(SCAN, "1 second")
-	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) MS")
-    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) MS")   
+	field(INPA, "$(TARGET_DONE=$(AXIS1=):DMOV) MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1=)):DMOV)) MS")   
     field(INPC, "$(P)NUMAXES")
 	field(CALC, "C==1?A:A&&B")
 }
