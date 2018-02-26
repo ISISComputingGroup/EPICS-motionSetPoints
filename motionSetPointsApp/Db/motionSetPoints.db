@@ -10,7 +10,8 @@ record(stringin, "$(P)COORD2:NAME")
 	field(VAL, "$(NAME2=$(TARGET_PV2=$(AXIS2=No Axis 2)))")
 }
 
-record(motor, "$(P):MTR")
+# colon in :MTR is needed because it is a dummy for $(P):MTR in alias
+record(ai, "$(P):MTR")
 {
 	field(DESC, "Dummy record to help with mtr alias")
 }
@@ -112,6 +113,7 @@ record(ai, "$(P)STATIONARY")
     info(INTEREST, "HIGH")
 }
 
+# colon in :DMOV is needed because it is a dummy for $(P):DMOV in alias
 record(ai, "$(P):DMOV")
 {
     field(DESC, "Dummy record for when there is no axis 2")
@@ -270,6 +272,7 @@ record(calc, "$(P)COORD2")
     info(archive, "VAL")
 }
 
+# colon in :SP is needed because it is a dummy for $(P):SP in alias
 record(ai, "$(P):SP")
 {
     field(DESC, "Dummy record for when there is no axis 2")
