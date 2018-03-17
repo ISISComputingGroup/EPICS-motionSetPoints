@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/CWD/delimiter=;
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/CWD/operation=replace
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/CWD/value=C\:\\Instrument\\Apps\\EPICS\\support\\motionSetPoints\\master
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/PWD/delimiter=;
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/PWD/operation=replace
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/PWD/value=C\:\\Instrument\\Apps\\EPICS\\support\\motionSetPoints\\master
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/append=true
-environment/project/org.eclipse.cdt.msvc.toolchain.dll.debug.934228000/appendContributed=true

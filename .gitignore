@@ -13,3 +13,5 @@ runIOC.sh
 relPaths.sh
 .project
 test-reports
+.settings
+.cproject
