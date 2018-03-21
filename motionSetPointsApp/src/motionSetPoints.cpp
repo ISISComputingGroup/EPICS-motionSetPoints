@@ -67,7 +67,7 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     setIntegerParam(P_numpos, 0);
     setDoubleParam(P_tol, m_tol);
     loadDefFile(m_fileName.c_str());
-    setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
+	updatePositions();
 }
 
 // new position requsted
@@ -115,6 +115,7 @@ void motionSetPoints::updatePositions()
 	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
 	setStringParam(P_positions, buffer);
     setIntegerParam(P_numpos, static_cast<int>(numPositions(m_fileName.c_str())));
+    setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
 	delete[] buffer;
 }
 
@@ -139,13 +140,13 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 	{
 		// Been asked to reload the files
     	loadDefFile(m_fileName.c_str());
-        setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
 		updatePositions();
 	}
     else if (function == P_tol)
 	{
-		setDoubleParam(P_tol, value);
 		m_tol = value;
+		setDoubleParam(P_tol, value);
+		updateCurrPosn(m_coord1, m_coord2); // as tolerance has changed, this may no longer count as a valid position 
 	}
 	else
 	{
@@ -167,10 +168,11 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 	char buffer[256];
 	double position, pos_diff;
 	bool pos_ok = false;
+	int ncoords = getNumCoords(m_fileName.c_str());
 
 	m_coord1 = coord1;
 	m_coord2 = coord2;
-	if ( getNumCoords(m_fileName.c_str()) == 2 )
+	if ( ncoords == 2 )
 	{
         if (posn2name(coord1, coord2, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
@@ -181,7 +183,7 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 			pos_ok = true;
 		}
 	}
-	else
+	else if ( ncoords == 1 )
 	{
         if (posn2name(coord1, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{

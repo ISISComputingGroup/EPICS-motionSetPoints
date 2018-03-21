@@ -74,6 +74,7 @@ void loadFile(const char *fname, const char *env_fname) {
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
 	
+    setNumCoords(env_fname, 0);
     int numCoords = 0;
 	while ( fgets(buff, ROW_LEN, fptr) ) {
 		if ( buff[0]!='#' ) {
@@ -82,6 +83,7 @@ void loadFile(const char *fname, const char *env_fname) {
 			if ( count<2 ) {
 				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
 				fclose(fptr);
+				table.rows.clear();
 				return;
 			}
             else if ( numCoords==0 ) {
@@ -90,19 +92,24 @@ void loadFile(const char *fname, const char *env_fname) {
             else if ( numCoords!=count-1 ) {
 				errlogSevPrintf(errlogMajor, "motionSetPoints: Inconsistent column count in %s line %d\n", fname, table.rows.size()+1);
 				fclose(fptr);
+				table.rows.clear();
 				return;
             }
 			if (read_names.count(row.name) != 0)
 			{
-				errlogSevPrintf(errlogMajor, "motionSetPoints: ignored duplicate name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-				continue;
+				errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
+				fclose(fptr);
+				table.rows.clear();
+				return;
 			}
 			for(int i = 0; i < table.rows.size(); ++i)
 			{
 				if (row.x == table.rows[i].x && row.y == table.rows[i].y)
 				{
-					errlogSevPrintf(errlogMajor, "motionSetPoints: ignored duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-					continue;
+					errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
+				    fclose(fptr);
+					table.rows.clear();
+					return;
 				}
 			}
 			table.rows.push_back(row);
@@ -306,9 +313,6 @@ int getNumCoords(const char *env_fname) {
                 std::string key(env_fname);
                 epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
                 int numCoords = g_numCoords[key];
-                if ( numCoords==0 ) {
-                                errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s has zero coords\n", env_fname);
-                }
                 return numCoords;
 }
 

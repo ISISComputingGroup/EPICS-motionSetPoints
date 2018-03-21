@@ -386,6 +386,7 @@ record(ao, "$(P)TOLERENCE")
 	field(EGU,"")
 	field(PREC,"3")
 	field(PINI, "YES")
+	field(FLNK, "$(P)POSITIONED")
 }
 
 record(ai, "$(P)POSDIFF")
