@@ -1,0 +1,5 @@
+# Lookup file for motion setpoints
+Sample1 3
+Sample2 1
+Sample3 0
+Sample1 4
