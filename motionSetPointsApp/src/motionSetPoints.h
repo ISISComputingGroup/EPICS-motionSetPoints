@@ -13,20 +13,25 @@ public:
                  
 private:
     std::string m_fileName; // Lookup file name - used as a key to identify this lookup instance
+	double m_coord1; // Last values of the current motor positions
+	double m_coord2;
+	double m_tol; // tolerance to use for position match
 
     int P_positions; // string
-    int P_posnSPRBV; // string
-    int P_iposnSPRBV; // int
-    int P_posnSP; // string
-    int P_iposnSP; // int
-    int P_posn; // string
-    int P_iposn; // int
-    int P_coord1; // double
-    int P_coord2; // double
-    int P_coord1RBV;  // double
-    int P_coord2RBV;  // double
+    int P_posnSPRBV; // string - requested position readback
+    int P_iposnSPRBV; // int - requested position readback
+    int P_posnSP; // string - requested position
+    int P_iposnSP; // int - requested position
+    int P_posn; // string - current position
+    int P_iposn; // int - current position
+    int P_coord1; // double - current position coordinate
+    int P_coord2; // double - current position coordinate
+    int P_coord1RBV;  // double - requested position coordinate
+    int P_coord2RBV;  // double - requested position coordinate
     int P_reset; // double
     int P_numpos; // int
+	int P_tol; // double
+	int P_posDiff; // double - position difference (< m_tol) for current position (if there is a valid current position)
     int P_numAxes; // double
 #define FIRST_MSP_PARAM P_positions
 #define LAST_MSP_PARAM P_numAxes
@@ -35,8 +40,6 @@ private:
 	void updateCurrPosn(double coord1, double coord2);
     int gotoPosition(const char* value);
 	
-	double m_coord1; // Last values of the current motor positions
-	double m_coord2;
 };
 
 #define NUM_MSP_PARAMS (&LAST_MSP_PARAM - &FIRST_MSP_PARAM + 1)
@@ -55,5 +58,7 @@ private:
 #define P_resetString	    "RESET"
 #define P_numPosString      "NUMPOS"
 #define P_numAxesString     "NUMAXES"
+#define P_tolString         "TOL"
+#define P_posDiffString     "POSDIFF"
 
 #endif /* MOTIONSETPOINTS_H */

@@ -24,6 +24,7 @@ record(stringin, "$(P)POSN:SP:RBV")
 	field(DESC, "Current target")
 	field(DTYP,"asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0,0)POSNSPRBV")
+	field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
@@ -44,6 +45,7 @@ record(longin, "$(P)IPOSN:SP:RBV")
 	field(DTYP,"asynInt32")
 	field(INP,"@asyn($(LOOKUP),0,0)IPOSNSPRBV")
 	field(EGU, "")
+	field(SCAN, "I/O Intr")
 }
 
 record(longout, "$(P)IPOSN:SP")
@@ -58,10 +60,8 @@ record(longout, "$(P)IPOSN:SP")
 record(fanout, "$(P)INT:POSN:SP")
 {
 	field(DESC, "Propagate set")
-	field(LNK1, "$(P)POSN:SP:RBV")
-	field(LNK2, "$(P)IPOSN:SP:RBV")
-	field(LNK3, "$(P)COORD1:NO_OFFSET")
-	field(LNK4, "$(P)COORD2:NO_OFFSET")
+	field(LNK1, "$(P)COORD1:NO_OFFSET")
+	field(LNK2, "$(P)COORD2:NO_OFFSET")
 }
 
 record(stringin, "$(P)POSN_NO_ERR")
@@ -77,7 +77,7 @@ record(stringin, "$(P)POSN_NO_ERR")
 
 record(scalcout, "$(P)POSN_CALC")
 {
-	field(DESC, "Add error to current position")
+	field(DESC, "Add alarm to current position")
 	field(INAA, "$(P)POSN_NO_ERR")
 	field(INPA, "$(TARGET_RBV1=$(AXIS1)) MS")
 	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1=$(AXIS2=$(AXIS1)))) MS")
@@ -90,7 +90,6 @@ record(scalcout, "$(P)POSN_CALC")
 record(stringin, "$(P)POSN")
 {
 	field(DESC, "Current position")
-	field(FLNK, "$(P)IPOSN")
 	info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
@@ -101,6 +100,7 @@ record(longin, "$(P)IPOSN")
 	field(DTYP,"asynInt32")
 	field(INP,"@asyn($(LOOKUP),0,0)IPOSN")
 	field(EGU, "")
+	field(SCAN, "I/O Intr")
 }
 
 record(ai, "$(P)STATIONARY")
@@ -139,7 +139,7 @@ record(ai, "$(P)COORD1:NO_OFFSET")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
-	field(INP,"@asyn($(LOOKUP),0,0)COORD1")
+	field(INP,"@asyn($(LOOKUP),0,0)COORD1RBV")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
@@ -216,7 +216,7 @@ record(ao, "$(P)COORD1:LOOKUP:SET:RBV")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
-	field(OUT,"@asyn($(LOOKUP),0,0)COORD1RBV")
+	field(OUT,"@asyn($(LOOKUP),0,0)COORD1")
 }
 
 record(dfanout, "$(P)INT:READ1")
@@ -252,7 +252,7 @@ record(ai, "$(P)COORD2:NO_OFFSET")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
-	field(INP,"@asyn($(LOOKUP),0,0)COORD2")
+	field(INP,"@asyn($(LOOKUP),0,0)COORD2RBV")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
@@ -322,7 +322,7 @@ record(ao, "$(P)COORD2:LOOKUP:SET:RBV")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
-	field(OUT,"@asyn($(LOOKUP),0,0)COORD2RBV")
+	field(OUT,"@asyn($(LOOKUP),0,0)COORD2")
 }
 
 
@@ -352,18 +352,16 @@ record(fanout, "$(P)INT:RESET")
 	field(DESC, "Propagate reset")
 	field(LNK1, "$(P)_POSITIONS")
 	field(LNK2, "$(P)INT:READ1")
-	field(LNK3, "$(P)POSN:SP:RBV")
-	field(LNK4, "$(P)IPOSN:SP:RBV")
 }
 
-record(ao, "$(P)NUMAXES")
+record(ai, "$(P)NUMAXES")
 {
 	field(DESC, "Number of axes")
 	field(DTYP,"asynFloat64")
     field(SCAN, "I/O Intr")
 	field(EGU,"")
 	field(PREC,"1")
-	field(OUT,"@asyn($(LOOKUP),0,0)NUMAXES")
+	field(INP,"@asyn($(LOOKUP),0,0)NUMAXES")
 }
 
 record(longin, "$(P)POSN:NUM")
@@ -375,18 +373,41 @@ record(longin, "$(P)POSN:NUM")
 	field(EGU, "")
 }
 
-record(ai, "$(P)TOLERENCE")
+## how close we must be to a position to be considered at that position
+## we also wait for motion to stop, so a large value here will just mean we
+## are in positon once we have (1) stopped moving and the (2) the target position 
+## is the closest match out of all available positions. See POSITIONED below
+record(ao, "$(P)TOLERENCE")
 {
-	field(VAL, "$(TOL,1)")
+    field(DESC, "Position tolerance")
+	field(DTYP,"asynFloat64")
+	field(VAL, "$(TOL=1e10)")
+	field(OUT,"@asyn($(LOOKUP),0,0)TOL")
+	field(EGU,"")
+	field(PREC,"3")
+	field(PINI, "YES")
+	field(FLNK, "$(P)POSITIONED")
 }
 
-record(calc, "$(P)POSITIONED") 
+record(ai, "$(P)POSDIFF")
 {
-	field(SCAN, "1 second")
+	field(DESC, "distance from current position")
+	field(DTYP,"asynFloat64")
+	field(INP,"@asyn($(LOOKUP),0,0)POSDIFF")
+    field(SCAN, "I/O Intr")
+	field(EGU,"")
+	field(PREC,"3")
+}
+
+## when are we in position? When position names match and we have stopped moving
+record(calc, "$(P)POSITIONED")
+{
 	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) MS")
     field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) MS")   
     field(INPC, "$(P)NUMAXES")
-	field(CALC, "C==1?A:A&&B")
+	field(INPD, "$(P)IPOSN:SP:RBV")
+	field(INPE, "$(P)IPOSN")
+	field(CALC, "(D==E)&&(C==1?A:A&&B)")
 }
 
 # The DMOV for POSN is the same as POSITIONED

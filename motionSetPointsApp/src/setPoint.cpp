@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <map>
+#include <set>
 #include <string>
 
 #include <errlog.h>
@@ -23,6 +24,13 @@ static std::map<const std::string, LookupTable> gTables;
 static epicsMutex g_lock;
 static std::map<const std::string, int> g_numCoords;
 
+// implementation of std::less<> for caseless string comparison
+struct CaselessCompare {
+    bool operator() (const std::string& s1, const std::string& s2) const {
+        return (epicsStrCaseCmp(s1.c_str(), s2.c_str()) < 0 ? true : false);
+	}
+};
+
 /* Load the lookup file if it is not already loaded */
 void checkLoadFile(const char* env_fname) {
 	std::string key(env_fname);
@@ -35,7 +43,7 @@ void checkLoadFile(const char* env_fname) {
 void loadDefFile(const char* env_fname) {
 	const char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
-		errlogPrintf("motionSetPoints: Environment variable \"%s\" not set\n", env_fname);
+		errlogSevPrintf(errlogMajor, "motionSetPoints: Environment variable \"%s\" not set\n", env_fname);
 		return;
 	}
 	loadFile(fname, env_fname);
@@ -46,9 +54,6 @@ LookupTable& getTable(const char *env_fname) {
 	std::string key(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry	
 	LookupTable& table = gTables[key];
-	if ( table.rows.size()==0 ) {
-		errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s is empty\n", env_fname);
-	}
 	return table;
 }
 
@@ -57,72 +62,93 @@ LookupTable& getTable(const char *env_fname) {
 //   const char *fname     [in] File to load
 //   const char *env_fname [in] Key to identify file
 void loadFile(const char *fname, const char *env_fname) {
+	std::set<std::string, CaselessCompare> read_names; // for checking uniqueness
 	FILE *fptr = fopen(fname, "rt");
 	int rowCount = 0;
 	char buff[ROW_LEN];
 	if ( fptr==NULL ) {
-		errlogPrintf("motionSetPoints: Unable to open lookup file \"%s\"\n", fname);
+		errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to open lookup file \"%s\"\n", fname);
 		return;
 	}
-	//printf("Creating table: %s[%s]\n", env_fname, fname);
 	LookupTable& table = getTable(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
 	
+    setNumCoords(env_fname, 0);
     int numCoords = 0;
 	while ( fgets(buff, ROW_LEN, fptr) ) {
 		if ( buff[0]!='#' ) {
 			LookupRow row;
 			int count = sscanf(buff, "%39s %lf %lf", row.name, &row.x, &row.y);
 			if ( count<2 ) {
-				errlogPrintf("motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
+				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
+				fclose(fptr);
+				table.rows.clear();
 				return;
 			}
             else if ( numCoords==0 ) {
                 numCoords = count - 1;
             }
             else if ( numCoords!=count-1 ) {
-				errlogPrintf("motionSetPoints: Inconsistent column count %s line %d\n", fname, table.rows.size()+1);
+				errlogSevPrintf(errlogMajor, "motionSetPoints: Inconsistent column count in %s line %d\n", fname, table.rows.size()+1);
+				fclose(fptr);
+				table.rows.clear();
 				return;
             }
+			if (read_names.count(row.name) != 0)
+			{
+				errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
+				fclose(fptr);
+				table.rows.clear();
+				return;
+			}
+			for(int i = 0; i < table.rows.size(); ++i)
+			{
+				if (row.x == table.rows[i].x && row.y == table.rows[i].y)
+				{
+					errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
+				    fclose(fptr);
+					table.rows.clear();
+					return;
+				}
+			}
 			table.rows.push_back(row);
-			//printf("Row: %s\n", buff);
+			read_names.insert(row.name);
 		}
 	}
+	fclose(fptr);
     
     setNumCoords(env_fname, numCoords);
 
 	if ( table.rows.size()==0 ) {
-		errlogPrintf("motionSetPoints: Lookup file %s contains no rows\n", fname);
-		return;
+		errlogSevPrintf(errlogMinor, "motionSetPoints: Lookup file %s contains no rows\n", fname);
+	} else {
+	    errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s, %d rows\n", env_fname, table.rows.size());
 	}
-	errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s, %d rows\n", env_fname, table.rows.size());
-	
-	fclose(fptr);
 }
 
-/* Get the position for a name 
+/* Get the position for a name - also sets the requested position row pointer
  * Arguments:
 //   const char *name      [in] Name to look up
 //   const char *env_fname [in] Key to identify file
  * Return:
- *   int - 0=OK, 1=Name not found
+ *   int - 0=OK, -1=Name not found
  */
 int name2posn(const char *name, const char* env_fname) {
-	LookupTable &table = getTable(env_fname);
-
+	LookupTable& table = getTable(env_fname);
+    table.pRowRBV = NULL;
 	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
 		if ( epicsStrCaseCmp(name, it->name) == 0 ) {
 			table.pRowRBV = &(*it);
-			return 0;
 		}
 	}
-	return 1;
+	return (table.pRowRBV != NULL ? 0 : -1);
 }
 
+// return position, -1 if not found
 int getPositionIndexByName(const char* name, const char* env_fname)
 {
-	LookupTable &table = getTable(env_fname);
+	LookupTable& table = getTable(env_fname);
     for(int i=0; i<table.rows.size(); ++i)
     {
 		if ( epicsStrCaseCmp(name, table.rows[i].name) == 0 ) {
@@ -133,13 +159,13 @@ int getPositionIndexByName(const char* name, const char* env_fname)
 }
 
 
-/* Get the name that best corresponds to the current position 
+/* Get the name that best corresponds to the current position, sets the current position row pointer
  * Arguments:
  *   double  x    [in]  Coord
  *   double  tol  [in]  Tolerence for match
 //   const char *env_fname [in] Key to identify file
  */
-int posn2name(double x, double tol, const char* env_fname) {
+int posn2name(double x, double tol, const char* env_fname, double& pos_diff) {
 	double best = tol;
 	LookupTable &table = getTable(env_fname);
 
@@ -149,28 +175,37 @@ int posn2name(double x, double tol, const char* env_fname) {
 		if ( diff < best ) {
 			best = diff;
 			table.pRowCurr = &(*it);
-			//printf("Set c %s\n", table.pRowCurr->name);
 		}
 	}
-	return 0;
+	if (table.pRowCurr != NULL) {
+	    pos_diff = best;
+		return 0;
+	} else {
+		return -1;
+	}
 }
 
-int posn2name(double x, double y, double tol, const char* env_fname) {
-	double best = tol*tol;
-	LookupTable &table = getTable(env_fname);
+// Get the name that best corresponds to the current position 
+int posn2name(double x, double y, double tol, const char* env_fname, double& pos_diff) {
+	double best = tol * tol;
+	LookupTable& table = getTable(env_fname);
 
 	table.pRowCurr = NULL;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
 		double diff1 = fabs(x - it->x);
 		double diff2 = fabs(y - it->y);
-		double diff = diff1*diff1+diff2*diff2;
-		if ( diff < best ) {
-			best = diff;
+		double diffsq = diff1 * diff1 + diff2 * diff2;
+		if ( diffsq < best ) {
+			best = diffsq;
 			table.pRowCurr = &(*it);
-			//printf("Set c %s\n", table.pRowCurr->name);
 		}
 	}
-	return 0;
+	if (table.pRowCurr != NULL) {
+	    pos_diff = sqrt(best);
+		return 0;
+	} else {
+		return -1;
+	}
 }
 
 // Return the requested coordinate
@@ -178,17 +213,18 @@ int posn2name(double x, double y, double tol, const char* env_fname) {
 //         int   bFirst    [in] Whether to return the 1st coord (x)
 //   const char *env_fname [in] Key to identify file
 // Return:
-//   double - the coordinate (or 0)
-double currentPosn(int bFirst, const char* env_fname) {
-	LookupTable &table = getTable(env_fname);
+//   0 if found and position set, -1 if not
+//   
+int getPosn(int bFirst, int isRBV, const char* env_fname, double& position) {
+	LookupTable& table = getTable(env_fname);
 
-	if ( table.pRowRBV==NULL ) {
-		//printf("Coord %s %d None\n", env_fname, bFirst);
-		return 0;
+	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
+	if ( pRow == NULL ) {
+		return -1;
 	}
 	else {
-		//printf("Coord %s %d %s %f %f\n", env_fname, bFirst, table.pRowRBV->name, table.pRowRBV->x, table.pRowRBV->y);
-		return bFirst ? table.pRowRBV->x : table.pRowRBV->y;
+		position = bFirst ? pRow->x : pRow->y;
+		return 0;
 	}
 }
 
@@ -201,14 +237,15 @@ double currentPosn(int bFirst, const char* env_fname) {
 int getPosnName(char *target, int isRBV, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 
-	LookupRow *pRow = isRBV ? table.pRowRBV : table.pRowCurr;
+	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
 	if ( pRow==NULL ) {
-		strcpy(target, "Unknown");
+		strcpy(target, "");
+		return -1;
 	}
 	else {
 		strncpy(target, pRow->name, NAME_LEN);
+	    return 0;
 	}
-	return 0;
 }
 
 // Return a list of available positions
@@ -226,10 +263,10 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	int count = 0;
 	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
 		if ( count==max_count ) {
-			errlogPrintf("motionSetPoints: Unable to return all positions\n");
+			errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to return all positions\n");
 			break;
 		}
-		int len = strlen(it->name);
+		size_t len = strlen(it->name);
 		if ( len>elem_size ) {
 			len = elem_size;
 		}
@@ -263,7 +300,7 @@ std::string getPositionByIndex(int pos, const char* env_fname)
     }
 }
 
-int numPositions(const char* env_fname)
+size_t numPositions(const char* env_fname)
 {
 	LookupTable &table = getTable(env_fname);
     return table.rows.size();
@@ -276,9 +313,6 @@ int getNumCoords(const char *env_fname) {
                 std::string key(env_fname);
                 epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
                 int numCoords = g_numCoords[key];
-                if ( numCoords==0 ) {
-                                errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s has zero coords\n", env_fname);
-                }
                 return numCoords;
 }
 
