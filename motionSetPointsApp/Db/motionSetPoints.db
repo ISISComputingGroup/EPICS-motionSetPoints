@@ -409,9 +409,42 @@ record(calc, "$(P)POSITIONED")
 	field(INPE, "$(P)IPOSN")
 	field(CALC, "(D==E)&&(C==1?A:A&&B)")
 }
-
 # The DMOV for POSN is the same as POSITIONED
 alias("$(P)POSITIONED", "$(P)POSN:DMOV")
+
+record(calc, "$(P)INPOS0")
+{
+    field(DESC, "Is motor at setpoint position 0")
+	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) CP MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) CP MS")   
+    field(INPC, "$(P)NUMAXES CP MS")
+	field(INPD, "0")
+	field(INPE, "$(P)IPOSN CP MS")
+	field(CALC, "(D==E)&&(C==1?A:A&&B)")
+    
+}
+
+record(calc, "$(P)INPOS1")
+{
+    field(DESC, "Is motor at setpoint position 1")
+	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) CP MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) CP MS")   
+    field(INPC, "$(P)NUMAXES CP MS")
+	field(INPD, "1")
+	field(INPE, "$(P)IPOSN CP MS")
+	field(CALC, "(D==E)&&(C==1?A:A&&B)")
+}
+
+record(calc, "$(P)INPOS2")
+{
+    field(DESC, "Is motor at setpoint position 2")
+	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) MS")   
+    field(INPC, "$(P)NUMAXES")
+	field(INPD, "2")
+	field(INPE, "$(P)IPOSN")
+	field(CALC, "(D==E)&&(C==1?A:A&&B)")
+}
 
 # epics string is 40 characters, so NELM in char waveform _POSITIONS is 40 * NELM in POSITIONS
 # need intermediate char waveform as ASYN does not do currently handle string waveforms
