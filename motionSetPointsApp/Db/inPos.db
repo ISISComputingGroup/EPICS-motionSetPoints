@@ -1,0 +1,10 @@
+record(calc, "$(P)INPOS$(NUMPOS)")
+{
+    field(DESC, "Is motor at setpoint position $(NUMPOS)")
+	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) CP MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) CP MS")   
+    field(INPC, "$(P)NUMAXES CP MS")
+	field(INPD, "$(NUMPOS)")
+	field(INPE, "$(P)IPOSN CP MS")
+	field(CALC, "(D==E)&&(C==1?A:A&&B)")    
+}
