@@ -409,7 +409,6 @@ record(calc, "$(P)POSITIONED")
 	field(INPE, "$(P)IPOSN")
 	field(CALC, "(D==E)&&(C==1?A:A&&B)")
 }
-
 # The DMOV for POSN is the same as POSITIONED
 alias("$(P)POSITIONED", "$(P)POSN:DMOV")
 
