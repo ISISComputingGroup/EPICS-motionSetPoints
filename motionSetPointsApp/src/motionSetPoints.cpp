@@ -173,7 +173,7 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 	double position, pos_diff;
 	bool pos_ok = false;
 	int ncoords = getNumCoords(m_fileName.c_str());
-	static const double max_tol = std::numeric_limits<double>::max();
+	static const double max_tol = sqrt(std::numeric_limits<double>::max());
 
 	m_coord1 = coord1;
 	m_coord2 = coord2;
