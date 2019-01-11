@@ -24,6 +24,8 @@ private:
     int P_iposnSP; // int - requested position
     int P_posn; // string - current position
     int P_iposn; // int - current position
+    int P_nposn; // string - nearest current position
+    int P_niposn; // int - nearest current position
     int P_coord1; // double - current position coordinate
     int P_coord2; // double - current position coordinate
     int P_coord1RBV;  // double - requested position coordinate
@@ -51,6 +53,8 @@ private:
 #define P_iposnSPString	    "IPOSNSP"
 #define P_posnString	    "POSN"
 #define P_iposnString	    "IPOSN"
+#define P_nposnString	    "NPOSN"
+#define P_niposnString	    "NIPOSN"
 #define P_coord1String	    "COORD1"
 #define P_coord2String	    "COORD2"
 #define P_coord1RBVString	"COORD1RBV"
