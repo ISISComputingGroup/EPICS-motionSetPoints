@@ -110,7 +110,7 @@ asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 // Update the list of available setpoint names
 void motionSetPoints::updatePositions() 
 {
-    const int buffer_size = 4096;
+    const int buffer_size = 8192;
 	char* buffer = new char[buffer_size];
 	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
 	setStringParam(P_positions, buffer);
