@@ -44,6 +44,8 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
 	createParam(P_iposnSPString, asynParamInt32, &P_iposnSP);
     createParam(P_posnString, asynParamOctet, &P_posn);
     createParam(P_iposnString, asynParamInt32, &P_iposn);
+    createParam(P_nposnString, asynParamOctet, &P_nposn);
+    createParam(P_niposnString, asynParamInt32, &P_niposn);
 	createParam(P_coord1String, asynParamFloat64, &P_coord1);
     createParam(P_coord1RBVString, asynParamFloat64, &P_coord1RBV);
     createParam(P_coord2String, asynParamFloat64, &P_coord2);
@@ -55,9 +57,11 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     createParam(P_posDiffString, asynParamFloat64, &P_posDiff);
 	// initial values
     setStringParam(P_posn, "");
+    setStringParam(P_nposn, "");
     setStringParam(P_posnSP, "");
     setStringParam(P_posnSPRBV, "");
     setIntegerParam(P_iposn, -1);
+    setIntegerParam(P_niposn, -1);
     setIntegerParam(P_iposnSP, -1);
     setIntegerParam(P_iposnSPRBV, -1);
     setDoubleParam(P_coord1, 0.0);
@@ -169,11 +173,16 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 	double position, pos_diff;
 	bool pos_ok = false;
 	int ncoords = getNumCoords(m_fileName.c_str());
+	static const double max_tol = sqrt(std::numeric_limits<double>::max());
 
 	m_coord1 = coord1;
 	m_coord2 = coord2;
 	if ( ncoords == 2 )
 	{
+        posn2name(coord1, coord2, max_tol, m_fileName.c_str(), pos_diff);
+        getPosnName(buffer, 0, m_fileName.c_str());
+        setStringParam(P_nposn, buffer);  
+        setIntegerParam(P_niposn, getPositionIndexByName(buffer, m_fileName.c_str()));
         if (posn2name(coord1, coord2, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
 		    getPosn(1, 0, m_fileName.c_str(), position);
@@ -185,6 +194,10 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 	}
 	else if ( ncoords == 1 )
 	{
+        posn2name(coord1, max_tol, m_fileName.c_str(), pos_diff);
+        getPosnName(buffer, 0, m_fileName.c_str());
+        setStringParam(P_nposn, buffer);  
+        setIntegerParam(P_niposn, getPositionIndexByName(buffer, m_fileName.c_str()));
         if (posn2name(coord1, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
 		    getPosn(1, 0, m_fileName.c_str(), position);

@@ -94,11 +94,30 @@ record(stringin, "$(P)POSN")
     info(archive, "VAL")
 }
 
+record(stringin, "$(P)NPOSN")
+{
+	field(DESC, "Current nearest position")
+	field(DTYP,"asynOctetRead")
+	field(INP,"@asyn($(LOOKUP),0,0)NPOSN")
+	field(SCAN, "I/O Intr")
+	info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
 record(longin, "$(P)IPOSN")
 {
 	field(DESC, "Current position index")
 	field(DTYP,"asynInt32")
 	field(INP,"@asyn($(LOOKUP),0,0)IPOSN")
+	field(EGU, "")
+	field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)NIPOSN")
+{
+	field(DESC, "Current nearest position index")
+	field(DTYP,"asynInt32")
+	field(INP,"@asyn($(LOOKUP),0,0)NIPOSN")
 	field(EGU, "")
 	field(SCAN, "I/O Intr")
 }
