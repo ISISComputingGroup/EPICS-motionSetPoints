@@ -5,6 +5,7 @@
 #include <math.h>
 #include <exception>
 #include <iostream>
+#include <limits>
 
 #include <epicsTypes.h>
 #include <epicsTime.h>
