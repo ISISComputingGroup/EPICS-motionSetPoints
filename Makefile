@@ -13,6 +13,12 @@ $(foreach dir, $(filter-out configure,$(DIRS)),$(eval $(call DIR_template,$(dir)
 motionSetPointsTestApp_DEPEND_DIRS += motionSetPointsApp
 iocBoot_DEPEND_DIRS += $(filter %App,$(DIRS))
 
+TEST_RUNNER = $(TOP)/motionSetPointsApp/src/O.$(EPICS_HOST_ARCH)/runner
+
 include $(TOP)/configure/RULES_TOP
 
-
+.PHONY: test
+test:
+ifneq ($(wildcard $(TEST_RUNNER)*),)
+	$(TEST_RUNNER) --gtest_output=xml:$(TOP)/test-reports/TEST-motionSetPoints.xml
+endif

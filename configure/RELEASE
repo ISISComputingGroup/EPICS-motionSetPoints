@@ -3,6 +3,7 @@ ASUBFUNCTIONS=$(SUPPORT)/asubFunctions/master
 ASYN=$(SUPPORT)/asyn/master
 AXIS=$(SUPPORT)/axis/master
 CALC=$(SUPPORT)/calc/master
+GTEST=$(SUPPORT)/googletest/master
 MOTOR=$(SUPPORT)/motor/master
 ONCRPC=$(SUPPORT)/oncrpc/master
 SNCSEQ=$(SUPPORT)/seq/master
