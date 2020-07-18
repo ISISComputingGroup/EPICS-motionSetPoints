@@ -19,6 +19,22 @@
 
 #define ROW_LEN 200
 
+class FileIO : public FileIOInterface {
+public:
+    virtual FILE* Open(const char* filename, const char* mode) {
+        return fopen(filename, mode);
+    }
+
+    virtual char* Read(char *str, int n, FILE *stream) {
+        return fgets(str, n, stream);
+    }
+
+    virtual int Close(FILE* file) {
+        return fclose(file);
+    }
+};
+
+
 // Global map of lookup tables, keyed by their environment vars
 static std::map<const std::string, LookupTable> gTables;
 static epicsMutex g_lock;
@@ -41,12 +57,13 @@ void checkLoadFile(const char* env_fname) {
 
 /* Load the lookup file named by the environment variable */
 void loadDefFile(const char* env_fname) {
+    FileIO fileIO;
 	const char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
 		errlogSevPrintf(errlogMajor, "motionSetPoints: Environment variable \"%s\" not set\n", env_fname);
 		return;
 	}
-	loadFile(fname, env_fname);
+	loadFile(&fileIO, fname, env_fname);
 }
 
 // Find the table structure for a key
@@ -59,11 +76,12 @@ LookupTable& getTable(const char *env_fname) {
 
 // Load a lookup file
 // Arguments
-//   const char *fname     [in] File to load
-//   const char *env_fname [in] Key to identify file
-void loadFile(const char *fname, const char *env_fname) {
+//   FileIOInterface *fileIO    [in] Interface to interact with the file system
+//   const char *fname          [in] File to load
+//   const char *env_fname      [in] Key to identify file
+void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname) {
 	std::set<std::string, CaselessCompare> read_names; // for checking uniqueness
-	FILE *fptr = fopen(fname, "rt");
+	FILE *fptr = fileIO->Open(fname, "rt");
 	int rowCount = 0;
 	char buff[ROW_LEN];
 	if ( fptr==NULL ) {
@@ -76,13 +94,13 @@ void loadFile(const char *fname, const char *env_fname) {
 	
     setNumCoords(env_fname, 0);
     int numCoords = 0;
-	while ( fgets(buff, ROW_LEN, fptr) ) {
+	while ( fileIO->Read(buff, ROW_LEN, fptr) ) {
 		if ( buff[0]!='#' ) {
 			LookupRow row;
 			int count = sscanf(buff, "%39s %lf %lf", row.name, &row.x, &row.y);
 			if ( count<2 ) {
 				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
-				fclose(fptr);
+				fileIO->Close(fptr);
 				table.rows.clear();
 				return;
 			}
@@ -91,14 +109,14 @@ void loadFile(const char *fname, const char *env_fname) {
             }
             else if ( numCoords!=count-1 ) {
 				errlogSevPrintf(errlogMajor, "motionSetPoints: Inconsistent column count in %s line %d\n", fname, table.rows.size()+1);
-				fclose(fptr);
+                fileIO->Close(fptr);
 				table.rows.clear();
 				return;
             }
 			if (read_names.count(row.name) != 0)
 			{
 				errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-				fclose(fptr);
+                fileIO->Close(fptr);
 				table.rows.clear();
 				return;
 			}
@@ -107,7 +125,7 @@ void loadFile(const char *fname, const char *env_fname) {
 				if (row.x == table.rows[i].x && row.y == table.rows[i].y)
 				{
 					errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-				    fclose(fptr);
+                    fileIO->Close(fptr);
 					table.rows.clear();
 					return;
 				}
@@ -116,7 +134,7 @@ void loadFile(const char *fname, const char *env_fname) {
 			read_names.insert(row.name);
 		}
 	}
-	fclose(fptr);
+    fileIO->Close(fptr);
     
     setNumCoords(env_fname, numCoords);
 

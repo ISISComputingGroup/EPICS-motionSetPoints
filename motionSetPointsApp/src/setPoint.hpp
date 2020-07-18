@@ -6,6 +6,14 @@
 
 #define NAME_LEN 40
 
+class FileIOInterface {
+    // An interface for interacting with the file system so that we can mock the interaction
+public:
+    virtual FILE* Open(const char* filename, const char* mode) = 0;
+    virtual char* Read(char *str, int n, FILE *stream) = 0;
+    virtual int Close(FILE* file) = 0;
+};
+
 // A row in the lookup file
 typedef struct LookupRow {
 	char name[NAME_LEN];	// Position name
@@ -24,7 +32,7 @@ typedef struct LookupTable {
 	LookupTable() : pRowRBV(NULL), pRowCurr(NULL) {}
 } LookupTable;
 
-void loadFile(const char *fname, const char *env_fname);
+void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname);
 LookupTable &getTable(const char *env_fname);
 
 void checkLoadFile(const char* env_fname);

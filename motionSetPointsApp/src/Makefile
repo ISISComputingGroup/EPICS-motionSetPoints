@@ -10,14 +10,10 @@ include $(TOP)/configure/CONFIG
 # Create test runner
 ifeq ($(findstring 10.0,$(VCVERSION)),)
 SRC_DIRS += $(TOP)/motionSetPointsApp/src/tests
-TESTPROD_HOST += runner
-USR_CPPFLAGS += -I$(GTEST)/googletest/include 
-runner_SRCS += run_all_tests.cc testSetPoint.cc
-runner_LIBS += gtest
-
-#runner_INC += CRYOSMSDriver.h
-#runner_LIBS += gtest $(EPICS_BASE_IOC_LIBS) asyn
-#runner_SRCS += run_all_tests.cc CRYOSMSTests.cc CRYOSMSDriver.cpp
+GTESTPROD_HOST += myTest
+myTest_SRCS += testSetPoint.cc setPoint.cpp
+myTest_LIBS += $(EPICS_BASE_IOC_LIBS)
+GTESTS += myTest 
 endif
 
 
@@ -45,4 +41,4 @@ motionSetPoints_LIBS += $(EPICS_BASE_IOC_LIBS)
 include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
-
+include $(GTEST)/cfg/compat.RULES_BUILD
