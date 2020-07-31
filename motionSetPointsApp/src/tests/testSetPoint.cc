@@ -102,7 +102,7 @@ namespace {
         auto table = getTable(envFilename);
 
         ASSERT_EQ(table.rows.size(), 1);
-        ASSERT_EQ(table.rows[0].x, 2);
+        ASSERT_EQ(table.rows[0].coordinates[0], 2);
 
         ASSERT_EQ(getNumCoords(envFilename), 1);
     }
@@ -120,8 +120,8 @@ namespace {
         auto table = getTable(envFilename);
 
         ASSERT_EQ(table.rows.size(), 1);
-        ASSERT_EQ(table.rows[0].x, 2);
-        ASSERT_EQ(table.rows[0].y, 9);
+        ASSERT_EQ(table.rows[0].coordinates[0], 2);
+        ASSERT_EQ(table.rows[0].coordinates[1], 9);
 
         ASSERT_EQ(getNumCoords(envFilename), 2);
     }
@@ -139,8 +139,8 @@ namespace {
         auto table = getTable(envFilename);
 
         ASSERT_EQ(table.rows.size(), 2);
-        ASSERT_EQ(table.rows[0].x, 2);
-        ASSERT_EQ(table.rows[1].x, 7);
+        ASSERT_EQ(table.rows[0].coordinates[0], 2);
+        ASSERT_EQ(table.rows[1].coordinates[0], 7);
 
         ASSERT_EQ(getNumCoords(envFilename), 1);
     }

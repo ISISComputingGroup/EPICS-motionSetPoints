@@ -17,9 +17,8 @@ public:
 // A row in the lookup file
 typedef struct LookupRow {
 	char name[NAME_LEN];	// Position name
-	double x;				// Coordinate
-	double y;				// y coord - optional
-	LookupRow() : x(0.0), y(0.0) { name[0] = '\0'; }
+	std::vector<double> coordinates;				// Coordinates
+	LookupRow() { name[0] = '\0'; }
 } LookupRow;
 
 // A lookup table

@@ -97,7 +97,10 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
 	while ( fileIO->Read(buff, ROW_LEN, fptr) ) {
 		if ( buff[0]!='#' ) {
 			LookupRow row;
-			int count = sscanf(buff, "%39s %lf %lf", row.name, &row.x, &row.y);
+            double x, y;
+			int count = sscanf(buff, "%39s %lf %lf", row.name, &x, &y);
+            row.coordinates.push_back(x);
+            row.coordinates.push_back(y);
 			if ( count<2 ) {
 				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d: %s\n", fname, table.rows.size()+1, buff);
 				fileIO->Close(fptr);
@@ -122,7 +125,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
 			}
 			for(int i = 0; i < table.rows.size(); ++i)
 			{
-				if (row.x == table.rows[i].x && row.y == table.rows[i].y)
+				if (row.coordinates[0] == table.rows[i].coordinates[0] && row.coordinates[1] == table.rows[i].coordinates[1])
 				{
 					errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
                     fileIO->Close(fptr);
@@ -189,7 +192,7 @@ int posn2name(double x, double tol, const char* env_fname, double& pos_diff) {
 
 	table.pRowCurr = NULL;
 	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
-		double diff = fabs(x - it->x);
+		double diff = fabs(x - it->coordinates[0]);
 		if ( diff < best ) {
 			best = diff;
 			table.pRowCurr = &(*it);
@@ -210,8 +213,8 @@ int posn2name(double x, double y, double tol, const char* env_fname, double& pos
 
 	table.pRowCurr = NULL;
 	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		double diff1 = fabs(x - it->x);
-		double diff2 = fabs(y - it->y);
+		double diff1 = fabs(x - it->coordinates[0]);
+		double diff2 = fabs(y - it->coordinates[1]);
 		double diffsq = diff1 * diff1 + diff2 * diff2;
 		if ( diffsq < best ) {
 			best = diffsq;
@@ -241,7 +244,7 @@ int getPosn(int bFirst, int isRBV, const char* env_fname, double& position) {
 		return -1;
 	}
 	else {
-		position = bFirst ? pRow->x : pRow->y;
+		position = bFirst ? pRow->coordinates[0] : pRow->coordinates[1];
 		return 0;
 	}
 }
