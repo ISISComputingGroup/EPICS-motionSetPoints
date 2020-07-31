@@ -190,4 +190,185 @@ namespace {
         ASSERT_EQ(table.rows.size(), 0);
     }
 
+    TEST(setPoint, GIVEN_single_coordinate_position_that_exactly_matches_existing_position_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42    42", "Position_39    39" };
+        MockFileIO mockFile;
+        double posDiff;
+        char positionName[200];
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = posn2name(42.0, 0.1, envFilename, posDiff);
+
+        ASSERT_EQ(positionFound, 0);
+        ASSERT_EQ(posDiff, 0.0);
+
+        getPosnName(positionName, 0, envFilename);
+        ASSERT_STREQ(positionName, "Position_42");
+    }
+
+    TEST(setPoint, GIVEN_single_coordinate_position_that_matches_existing_position_within_tolerance_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42    42", "Position_39    39" };
+        MockFileIO mockFile;
+        double posDiff;
+        char positionName[200];
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = posn2name(42.1, 0.2, envFilename, posDiff);
+
+        ASSERT_EQ(positionFound, 0);
+        ASSERT_NEAR(posDiff, 0.1, 0.0000001);
+
+        getPosnName(positionName, 0, envFilename);
+        ASSERT_STREQ(positionName, "Position_42");
+    }
+
+    TEST(setPoint, GIVEN_single_coordinate_position_that_does_not_match_existing_position_within_tolerance_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42    42", "Position_39    39" };
+        MockFileIO mockFile;
+        double posDiff;
+        char positionName[200];
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = posn2name(40.0, 0.1, envFilename, posDiff);
+
+        ASSERT_EQ(positionFound, -1);
+
+        getPosnName(positionName, 0, envFilename);
+        ASSERT_STREQ(positionName, "");
+    }
+
+    TEST(setPoint, GIVEN_two_coordinate_position_that_exactly_matches_existing_position_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42_78    42   78", "Position_39_63    39   63" };
+        MockFileIO mockFile;
+        double posDiff;
+        char positionName[200];
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = posn2name(42.0, 78.0, 0.1, envFilename, posDiff);
+
+        ASSERT_EQ(positionFound, 0);
+        ASSERT_EQ(posDiff, 0.0);
+
+        getPosnName(positionName, 0, envFilename);
+        ASSERT_STREQ(positionName, "Position_42_78");
+    }
+
+    TEST(setPoint, GIVEN_two_coordinate_position_that_matches_existing_position_within_tolerance_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42_78    42   78", "Position_39_63    39   63" };
+        MockFileIO mockFile;
+        double posDiff;
+        char positionName[200];
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = posn2name(42.1, 77.9, 0.2, envFilename, posDiff);
+
+        ASSERT_EQ(positionFound, 0);
+        ASSERT_NEAR(posDiff, pow(pow(0.1, 2) + pow(0.1, 2), 0.5), 0.0000001);
+
+        getPosnName(positionName, 0, envFilename);
+        ASSERT_STREQ(positionName, "Position_42_78");
+    }
+
+    TEST(setPoint, GIVEN_two_coordinate_position_that_does_not_match_existing_position_within_tolerance_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42_78    42   78", "Position_39_63    39   63" };
+        MockFileIO mockFile;
+        double posDiff;
+        char positionName[200];
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = posn2name(40.0, 77, 0.1, envFilename, posDiff);
+
+        ASSERT_EQ(positionFound, -1);
+
+        getPosnName(positionName, 0, envFilename);
+        ASSERT_STREQ(positionName, "");
+    }
+
+    TEST(setPoint, GIVEN_name_for_single_coord_position_WHEN_name2posn_called_THEN_RBV_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42    42", "Position_39    39" };
+        MockFileIO mockFile;
+        double position;
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = name2posn("Position_42", envFilename);
+
+        ASSERT_EQ(positionFound, 0);
+
+        getPosn(1, 1, envFilename, position);
+        ASSERT_DOUBLE_EQ(position, 42.0);
+    }
+
+    TEST(setPoint, GIVEN_lower_case_name_for_single_coord_position_WHEN_name2posn_called_THEN_RBV_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "PosItiOn_42    42", "Position_39    39" };
+        MockFileIO mockFile;
+        double position;
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = name2posn("position_42", envFilename);
+
+        ASSERT_EQ(positionFound, 0);
+
+        getPosn(1, 1, envFilename, position);
+        ASSERT_DOUBLE_EQ(position, 42.0);
+    }
+
+    TEST(setPoint, GIVEN_name_for_non_existant_single_coord_position_WHEN_name2posn_called_THEN_RBV_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42    42", "Position_39    39" };
+        MockFileIO mockFile;
+        double position;
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = name2posn("Position_89", envFilename);
+
+        ASSERT_EQ(positionFound, -1);
+
+        positionFound = getPosn(1, 1, envFilename, position);
+        ASSERT_EQ(positionFound, -1);
+    }
+
 } // namespace
