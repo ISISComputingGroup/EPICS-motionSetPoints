@@ -99,7 +99,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
 			LookupRow row;
 			int count = sscanf(buff, "%39s %lf %lf", row.name, &row.x, &row.y);
 			if ( count<2 ) {
-				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
+				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d: %s\n", fname, table.rows.size()+1, buff);
 				fileIO->Close(fptr);
 				table.rows.clear();
 				return;
