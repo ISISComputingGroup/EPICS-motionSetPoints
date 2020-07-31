@@ -9,9 +9,10 @@
 class FileIOInterface {
     // An interface for interacting with the file system so that we can mock the interaction
 public:
-    virtual FILE* Open(const char* filename, const char* mode) = 0;
-    virtual char* Read(char *str, int n, FILE *stream) = 0;
-    virtual int Close(FILE* file) = 0;
+    virtual void Open(const char* filename) = 0;
+    virtual bool ReadLine(std::string &str) = 0;
+    virtual void Close() = 0;
+    virtual bool isOpen() = 0;
 };
 
 // A row in the lookup file
