@@ -9,6 +9,7 @@ using ::testing::SetArgReferee;
 using ::testing::ReturnNull;
 using ::testing::InSequence;
 using ::testing::DoAll;
+using ::testing::ElementsAre;
 
 namespace {
     class MockFileIO : public FileIOInterface {
@@ -25,6 +26,33 @@ namespace {
         auto envFilename = "TEST";
         setNumCoords(envFilename, 10);
         ASSERT_EQ(getNumCoords(envFilename), 10);
+    }
+
+    TEST(setPoint, GIVEN_file_line_with_one_coord_WHEN_row_created_THEN_correct_name_and_coords) {
+        std::string fileLine = "Position    2";
+        auto row = createRowFromFileLine(fileLine);
+
+        ASSERT_STREQ(row.name, "Position");
+        ASSERT_EQ(row.coordinates.size(), 1);
+        ASSERT_EQ(row.coordinates[0], 2);
+    }
+
+    TEST(setPoint, GIVEN_file_line_with_two_coords_WHEN_row_created_THEN_correct_name_and_coords) {
+        std::string fileLine = "Position    2   7";
+        auto row = createRowFromFileLine(fileLine);
+
+        ASSERT_STREQ(row.name, "Position");
+        ASSERT_EQ(row.coordinates.size(), 2);
+        ASSERT_THAT(row.coordinates, ElementsAre(2, 7));
+    }
+
+    TEST(setPoint, GIVEN_file_line_with_7_coords_WHEN_row_created_THEN_correct_name_and_coords) {
+        std::string fileLine = "Position 1.8 2.9 3.7 4.5 5.9 6.8 7.1";
+        auto row = createRowFromFileLine(fileLine);
+
+        ASSERT_STREQ(row.name, "Position");
+        ASSERT_EQ(row.coordinates.size(), 7);
+        ASSERT_THAT(row.coordinates, ElementsAre(1.8, 2.9, 3.7, 4.5, 5.9, 6.8, 7.1));
     }
 
     TEST(setPoint, GIVEN_non_existant_file_WHEN_loadFile_called_THEN_file_not_read) {
@@ -102,10 +130,10 @@ namespace {
         ASSERT_EQ(getNumCoords(envFilename), 1);
     }
 
-    TEST(setPoint, GIVEN_file_with_single_row_and_two_coords_WHEN_loadFile_called_THEN_single_row_and_coord_with_correct_data) {
+    TEST(setPoint, GIVEN_file_with_single_row_and_three_coords_WHEN_loadFile_called_THEN_single_row_and_coord_with_correct_data) {
         auto testFilename = "my_file";
         auto envFilename = "TEST";
-        std::vector<std::string> fileLines = { "Position    2    9" };
+        std::vector<std::string> fileLines = { "Position    2    9   8" };
         MockFileIO mockFile;
         
         createMockFile(&mockFile, testFilename, fileLines);
@@ -115,10 +143,9 @@ namespace {
         auto table = getTable(envFilename);
 
         ASSERT_EQ(table.rows.size(), 1);
-        ASSERT_EQ(table.rows[0].coordinates[0], 2);
-        ASSERT_EQ(table.rows[0].coordinates[1], 9);
+        ASSERT_THAT(table.rows[0].coordinates, ElementsAre(2, 9, 8));
 
-        ASSERT_EQ(getNumCoords(envFilename), 2);
+        ASSERT_EQ(getNumCoords(envFilename), 3);
     }
 
     TEST(setPoint, GIVEN_file_with_multiple_rows_and_single_coord_WHEN_loadFile_called_THEN_multiple_rows_and_coord_with_correct_data) {

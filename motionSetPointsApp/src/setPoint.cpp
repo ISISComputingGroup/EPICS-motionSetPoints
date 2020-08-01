@@ -6,6 +6,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iterator>
+#include <algorithm>
 
 #include <map>
 #include <set>
@@ -84,6 +87,18 @@ LookupTable& getTable(const char *env_fname) {
 	return table;
 }
 
+LookupRow createRowFromFileLine(std::string fileLine) {
+    LookupRow row;
+    std::stringstream ss(fileLine);
+    std::istream_iterator<std::string> begin(ss);
+    std::istream_iterator<std::string> end;
+    std::vector<std::string> vstrings(begin, end);
+    std::strcpy(row.name, vstrings[0].c_str());
+    std::transform(std::next(vstrings.begin()), vstrings.end(), back_inserter(row.coordinates),
+        [](std::string const& val) {return std::stod(val); });
+    return row;
+}
+
 // Load a lookup file
 // Arguments
 //   FileIOInterface *fileIO    [in] Interface to interact with the file system
@@ -106,21 +121,18 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
     int numCoords = 0;
 	while ( fileIO->ReadLine(line) ) {
 		if ( line.rfind('#', 0) != 0) {
-			LookupRow row;
-            double x, y;
-			int count = sscanf(line.c_str(), "%39s %lf %lf", row.name, &x, &y);
-            row.coordinates.push_back(x);
-            row.coordinates.push_back(y);
-			if ( count<2 ) {
+			LookupRow row = createRowFromFileLine(line);
+            int numberOfCoordsInLine = row.coordinates.size();
+			if (numberOfCoordsInLine == 0) {
 				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d: %s\n", fname, table.rows.size()+1, line);
 				fileIO->Close();
 				table.rows.clear();
 				return;
 			}
             else if ( numCoords==0 ) {
-                numCoords = count - 1;
+                numCoords = numberOfCoordsInLine;
             }
-            else if ( numCoords!=count-1 ) {
+            else if ( numCoords != numberOfCoordsInLine) {
 				errlogSevPrintf(errlogMajor, "motionSetPoints: Inconsistent column count in %s line %d\n", fname, table.rows.size()+1);
                 fileIO->Close();
 				table.rows.clear();

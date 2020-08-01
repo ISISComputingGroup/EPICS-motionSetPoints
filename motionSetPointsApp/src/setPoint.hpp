@@ -32,6 +32,7 @@ typedef struct LookupTable {
 	LookupTable() : pRowRBV(NULL), pRowCurr(NULL) {}
 } LookupTable;
 
+LookupRow    createRowFromFileLine(std::string fileLine);
 void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname);
 LookupTable &getTable(const char *env_fname);
 
