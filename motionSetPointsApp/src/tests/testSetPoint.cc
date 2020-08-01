@@ -336,6 +336,29 @@ namespace {
         ASSERT_STREQ(positionName, "");
     }
 
+    TEST(setPoint, GIVEN_three_coordinate_position_that_matches_existing_position_within_tolerance_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42_78_98    42   78  98", "Position_39_63_15    39   63   15" };
+        MockFileIO mockFile;
+        double posDiff;
+        char positionName[200];
+        std::vector<double> position {39.1, 63.1, 14.9};
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+
+        int positionFound = posn2name(position, 0.2, envFilename, posDiff);
+
+        ASSERT_EQ(positionFound, 0);
+        ASSERT_NEAR(posDiff, pow(3 * pow(0.1, 2), 0.5), 0.0000001);
+
+        getPosnName(positionName, 0, envFilename);
+        ASSERT_STREQ(positionName, "Position_39_63_15");
+    }
+
     TEST(setPoint, GIVEN_name_for_single_coord_position_WHEN_name2posn_called_THEN_RBV_table_row_pointer_set_correctly) {
         auto testFilename = "my_file";
         auto envFilename = "TEST";

@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
+#include <numeric>
 
 #include <map>
 #include <set>
@@ -201,6 +202,32 @@ int getPositionIndexByName(const char* name, const char* env_fname)
 	return -1;
 }
 
+// Get the name that best corresponds to the current position 
+int posn2name(std::vector<double> searchCoords, double tol, const char* env_fname, double& pos_diff) {
+    double best = tol * tol;
+    LookupTable& table = getTable(env_fname);
+
+    table.pRowCurr = NULL;
+    for (std::vector<LookupRow>::iterator it = table.rows.begin(); it != table.rows.end(); it++) {
+        std::vector<double> squaredDiffs;
+        std::transform(it->coordinates.begin(), it->coordinates.end(), searchCoords.begin(), std::back_inserter(squaredDiffs), 
+                       [](double val, double searchVal) -> double {return pow(fabs(searchVal - val), 2);});
+        double totalDiff = std::accumulate(squaredDiffs.begin(), squaredDiffs.end(), 0.0);
+
+        if (totalDiff < best) {
+            best = totalDiff;
+            table.pRowCurr = &(*it);
+        }
+    }
+    if (table.pRowCurr != NULL) {
+        pos_diff = sqrt(best);
+        return 0;
+    }
+    else {
+        return -1;
+    }
+}
+
 
 /* Get the name that best corresponds to the current position, sets the current position row pointer
  * Arguments:
@@ -209,46 +236,14 @@ int getPositionIndexByName(const char* name, const char* env_fname)
 //   const char *env_fname [in] Key to identify file
  */
 int posn2name(double x, double tol, const char* env_fname, double& pos_diff) {
-	double best = tol;
-	LookupTable &table = getTable(env_fname);
-
-	table.pRowCurr = NULL;
-	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
-		double diff = fabs(x - it->coordinates[0]);
-		if ( diff < best ) {
-			best = diff;
-			table.pRowCurr = &(*it);
-		}
-	}
-	if (table.pRowCurr != NULL) {
-	    pos_diff = best;
-		return 0;
-	} else {
-		return -1;
-	}
+    std::vector<double> coords{ x };
+    return posn2name(coords, tol, env_fname, pos_diff);
 }
 
 // Get the name that best corresponds to the current position 
 int posn2name(double x, double y, double tol, const char* env_fname, double& pos_diff) {
-	double best = tol * tol;
-	LookupTable& table = getTable(env_fname);
-
-	table.pRowCurr = NULL;
-	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		double diff1 = fabs(x - it->coordinates[0]);
-		double diff2 = fabs(y - it->coordinates[1]);
-		double diffsq = diff1 * diff1 + diff2 * diff2;
-		if ( diffsq < best ) {
-			best = diffsq;
-			table.pRowCurr = &(*it);
-		}
-	}
-	if (table.pRowCurr != NULL) {
-	    pos_diff = sqrt(best);
-		return 0;
-	} else {
-		return -1;
-	}
+    std::vector<double> coords {x, y};
+    return posn2name(coords, tol, env_fname, pos_diff);
 }
 
 // Return the requested coordinate
