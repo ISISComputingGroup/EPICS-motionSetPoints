@@ -271,7 +271,7 @@ record(ai, "$(P)COORD2:NO_OFFSET")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
-	field(INP,"@asyn($(LOOKUP),0,0)COORD2RBV")
+	field(INP,"@asyn($(LOOKUP),1,0)COORD1RBV")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
@@ -341,7 +341,7 @@ record(ao, "$(P)COORD2:LOOKUP:SET:RBV")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
-	field(OUT,"@asyn($(LOOKUP),0,0)COORD2")
+	field(OUT,"@asyn($(LOOKUP),1,0)COORD1")
 }
 
 

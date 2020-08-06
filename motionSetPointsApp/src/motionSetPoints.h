@@ -17,6 +17,7 @@ private:
 	double m_coord2;
 	double m_tol; // tolerance to use for position match
 
+    // Parameters for general control, only used on the 0th address
     int P_positions; // string - list of posibble positions
     int P_posnSPRBV; // string - requested position readback
     int P_iposnSPRBV; // int - index of requested position readback 
@@ -26,23 +27,27 @@ private:
     int P_iposn; // int - index of current position
     int P_nposn; // string - nearest current position
     int P_niposn; // int - index of nearest current position
-    int P_coord1; // double - current position in coordinate 1
-    int P_coord2; // double - current position in coordinate 2
-    int P_coord1RBV;  // double - requested position coordinate 
-    int P_coord2RBV;  // double - requested position coordinate
     int P_reset; // double
     int P_numpos; // int
 	int P_tol; // double
 	int P_posDiff; // double - position difference (< m_tol) for current position (if there is a valid current position)
     int P_numAxes; // double
+
+    // Parameters for each coordinate, these will be set on each of the addresses
+    int P_coord1; // double - current position in coordinate 1
+    int P_coord2; // double - current position in coordinate 2
+    int P_coord1RBV;  // double - requested position coordinate 
+    int P_coord2RBV;  // double - requested position coordinate
 #define FIRST_MSP_PARAM P_positions
-#define LAST_MSP_PARAM P_numAxes
+#define LAST_MSP_PARAM P_coord2RBV
 
 	void updatePositions();
 	void updateCurrPosn(double coord1, double coord2);
     int gotoPosition(const char* value);
 	
 };
+
+#define NUM_AXES 2
 
 #define NUM_MSP_PARAMS (&LAST_MSP_PARAM - &FIRST_MSP_PARAM + 1)
 

@@ -29,7 +29,7 @@ static const char *driverName = "motionSetPoints";
 
 motionSetPoints::motionSetPoints(const char *portName, const char* fileName) 
    : asynPortDriver(portName, 
-                    0, /* maxAddr */ 
+                    NUM_AXES, /* maxAddr */ 
                     NUM_MSP_PARAMS, /* num parameters */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask | asynDrvUserMask, /* Interface mask */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask,  /* Interrupt mask */
@@ -38,6 +38,7 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
                     0,
                     0), m_fileName(fileName), m_coord1(0.0), m_coord2(0.0), m_tol(1.e10)
 {
+    // Parameters for general control, only used on the 0th address
    	createParam(P_positionsString, asynParamOctet, &P_positions);
     createParam(P_posnSPRBVString, asynParamOctet, &P_posnSPRBV);
     createParam(P_iposnSPRBVString, asynParamInt32, &P_iposnSPRBV);
@@ -47,15 +48,18 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     createParam(P_iposnString, asynParamInt32, &P_iposn);
     createParam(P_nposnString, asynParamOctet, &P_nposn);
     createParam(P_niposnString, asynParamInt32, &P_niposn);
-	createParam(P_coord1String, asynParamFloat64, &P_coord1);
-    createParam(P_coord1RBVString, asynParamFloat64, &P_coord1RBV);
-    createParam(P_coord2String, asynParamFloat64, &P_coord2);
-    createParam(P_coord2RBVString, asynParamFloat64, &P_coord2RBV);
     createParam(P_resetString, asynParamFloat64, &P_reset);
     createParam(P_numPosString, asynParamInt32, &P_numpos);
     createParam(P_numAxesString, asynParamFloat64, &P_numAxes);
     createParam(P_tolString, asynParamFloat64, &P_tol);
     createParam(P_posDiffString, asynParamFloat64, &P_posDiff);
+
+    // Parameters for each coordinate, these will be set on each of the addresses
+	createParam(P_coord1String, asynParamFloat64, &P_coord1);
+    createParam(P_coord1RBVString, asynParamFloat64, &P_coord1RBV);
+    //createParam(P_coord2String, asynParamFloat64, &P_coord2);
+    //createParam(P_coord2RBVString, asynParamFloat64, &P_coord2RBV);
+
 	// initial values
     setStringParam(P_posn, "");
     setStringParam(P_nposn, "");
@@ -65,12 +69,16 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     setIntegerParam(P_niposn, -1);
     setIntegerParam(P_iposnSP, -1);
     setIntegerParam(P_iposnSPRBV, -1);
-    setDoubleParam(P_coord1, 0.0);
-    setDoubleParam(P_coord2, 0.0);
-    setDoubleParam(P_coord1RBV, 0.0);
-    setDoubleParam(P_coord2RBV, 0.0);
     setIntegerParam(P_numpos, 0);
     setDoubleParam(P_tol, m_tol);
+
+    for (int i = 0; i < NUM_AXES; i++) {
+        setDoubleParam(i, P_coord1, 0.0);
+        setDoubleParam(i, P_coord1RBV, 0.0);
+        setDoubleParam(i, P_coord2, 0.0);
+        setDoubleParam(i, P_coord2RBV, 0.0);
+    }
+
     loadDefFile(m_fileName.c_str());
 	updatePositions();
 }
@@ -130,13 +138,16 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
     const char* functionName = "writeFloat64";
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
+    int coordinate;
+
 	getParamName(function, &paramName);
-    if (function == P_coord1)
+    getAddress(pasynUser, &coordinate);
+    if (coordinate == 0 && function == P_coord1)
 	{
 		// Motor 1 has moved
 		updateCurrPosn(value, m_coord2);
 	}
-    else if (function == P_coord2)
+    else if (coordinate == 1 && function == P_coord1)
 	{
 		// Motor 2 has moved
 		updateCurrPosn(m_coord1, value);
@@ -187,9 +198,9 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
         if (posn2name(coord1, coord2, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
 		    getPosn(0, false, m_fileName.c_str(), position);
-            setDoubleParam(P_coord1, position);
+            setDoubleParam(0, P_coord1, position);
 		    getPosn(1, false, m_fileName.c_str(), position);
-            setDoubleParam(P_coord2, position);
+            setDoubleParam(1, P_coord1, position);
 			pos_ok = true;
 		}
 	}
@@ -202,7 +213,7 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
         if (posn2name(coord1, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
 		    getPosn(0, false, m_fileName.c_str(), position);
-            setDoubleParam(P_coord1, position);
+            setDoubleParam(0, P_coord1, position);
 			pos_ok = true;
 		}
 	}
@@ -234,11 +245,11 @@ int motionSetPoints::gotoPosition(const char* value)
             setIntegerParam(P_iposnSPRBV, getPositionIndexByName(positionName, m_fileName.c_str()));
 			if (getPosn(0, true, m_fileName.c_str(), position) == 0)
 			{
-                setDoubleParam(P_coord1RBV, position);
+                setDoubleParam(0, P_coord1RBV, position);
 			}
             if ( getNumCoords(m_fileName.c_str()) == 2 && getPosn(1, true, m_fileName.c_str(), position) == 0 ) 
             {
-                setDoubleParam(P_coord2RBV, position);
+                setDoubleParam(1, P_coord1RBV, position);
             }
             return 0;
     }
