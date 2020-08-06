@@ -171,7 +171,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
 	}
 }
 
-/* Get the position for a name - also sets the requested position row pointer
+/* Set the row RBV to the specified position, if the position exists.
  * Arguments:
 //   const char *name      [in] Name to look up
 //   const char *env_fname [in] Key to identify file
@@ -246,14 +246,16 @@ int posn2name(double x, double y, double tol, const char* env_fname, double& pos
     return posn2name(coords, tol, env_fname, pos_diff);
 }
 
-// Return the requested coordinate
+// Return the requested coordinate for the current or readback row.
 // Arguments:
-//         int   bFirst    [in] Whether to return the 1st coord (x)
-//   const char *env_fname [in] Key to identify file
+//         int   coordinate [in] Which co-ordinate to get
+//         bool   isRBV     [in] if true requesting the readback, else the current row
+//   const char *env_fname  [in] Key to identify file
+//      double   position   [out] The position of the requested co-ordinate
 // Return:
 //   0 if found and position set, -1 if not
 //   
-int getPosn(int bFirst, int isRBV, const char* env_fname, double& position) {
+int getPosn(int coordinate, bool isRBV, const char* env_fname, double& position) {
 	LookupTable& table = getTable(env_fname);
 
 	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
@@ -261,7 +263,7 @@ int getPosn(int bFirst, int isRBV, const char* env_fname, double& position) {
 		return -1;
 	}
 	else {
-		position = bFirst ? pRow->coordinates[0] : pRow->coordinates[1];
+		position = pRow->coordinates[coordinate];
 		return 0;
 	}
 }

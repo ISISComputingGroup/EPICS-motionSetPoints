@@ -186,9 +186,9 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
         setIntegerParam(P_niposn, getPositionIndexByName(buffer, m_fileName.c_str()));
         if (posn2name(coord1, coord2, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
-		    getPosn(1, 0, m_fileName.c_str(), position);
+		    getPosn(0, false, m_fileName.c_str(), position);
             setDoubleParam(P_coord1, position);
-		    getPosn(0, 0, m_fileName.c_str(), position);
+		    getPosn(1, false, m_fileName.c_str(), position);
             setDoubleParam(P_coord2, position);
 			pos_ok = true;
 		}
@@ -201,7 +201,7 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
         setIntegerParam(P_niposn, getPositionIndexByName(buffer, m_fileName.c_str()));
         if (posn2name(coord1, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
-		    getPosn(1, 0, m_fileName.c_str(), position);
+		    getPosn(0, false, m_fileName.c_str(), position);
             setDoubleParam(P_coord1, position);
 			pos_ok = true;
 		}
@@ -226,17 +226,17 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 int motionSetPoints::gotoPosition(const char* value)
 {
 	double position;
-    char buffer2[256];
+    char positionName[256];
 	if ( name2posn(value, m_fileName.c_str()) == 0 )
     {
-			getPosnName(buffer2, 1, m_fileName.c_str());
-            setStringParam(P_posnSPRBV, buffer2);  
-            setIntegerParam(P_iposnSPRBV, getPositionIndexByName(buffer2, m_fileName.c_str()));
-			if (getPosn(1, 1, m_fileName.c_str(), position) == 0)
+			getPosnName(positionName, 1, m_fileName.c_str());
+            setStringParam(P_posnSPRBV, positionName);  
+            setIntegerParam(P_iposnSPRBV, getPositionIndexByName(positionName, m_fileName.c_str()));
+			if (getPosn(0, true, m_fileName.c_str(), position) == 0)
 			{
                 setDoubleParam(P_coord1RBV, position);
 			}
-            if ( getNumCoords(m_fileName.c_str()) == 2 && getPosn(0, 1, m_fileName.c_str(), position) == 0 ) 
+            if ( getNumCoords(m_fileName.c_str()) == 2 && getPosn(1, true, m_fileName.c_str(), position) == 0 ) 
             {
                 setDoubleParam(P_coord2RBV, position);
             }

@@ -17,18 +17,18 @@ private:
 	double m_coord2;
 	double m_tol; // tolerance to use for position match
 
-    int P_positions; // string
+    int P_positions; // string - list of posibble positions
     int P_posnSPRBV; // string - requested position readback
-    int P_iposnSPRBV; // int - requested position readback
+    int P_iposnSPRBV; // int - index of requested position readback 
     int P_posnSP; // string - requested position
-    int P_iposnSP; // int - requested position
+    int P_iposnSP; // int - requested position (by index)
     int P_posn; // string - current position
-    int P_iposn; // int - current position
+    int P_iposn; // int - index of current position
     int P_nposn; // string - nearest current position
-    int P_niposn; // int - nearest current position
-    int P_coord1; // double - current position coordinate
-    int P_coord2; // double - current position coordinate
-    int P_coord1RBV;  // double - requested position coordinate
+    int P_niposn; // int - index of nearest current position
+    int P_coord1; // double - current position in coordinate 1
+    int P_coord2; // double - current position in coordinate 2
+    int P_coord1RBV;  // double - requested position coordinate 
     int P_coord2RBV;  // double - requested position coordinate
     int P_reset; // double
     int P_numpos; // int

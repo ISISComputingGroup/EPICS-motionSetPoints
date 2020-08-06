@@ -359,6 +359,29 @@ namespace {
         ASSERT_STREQ(positionName, "Position_39_63_15");
     }
 
+    TEST(setPoint, GIVEN_name_for_three_coordinate_position_WHEN_name2posn_called_THEN_RBV_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42_78_98    42   78  98", "Position_39_63_15    39   63   15" };
+        MockFileIO mockFile;
+        double position;
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename);
+
+        int positionFound = name2posn("Position_42_78_98", envFilename);
+
+        ASSERT_EQ(positionFound, 0);
+
+        getPosn(0, true, envFilename, position);
+        ASSERT_DOUBLE_EQ(position, 42.0);
+        getPosn(1, true, envFilename, position);
+        ASSERT_DOUBLE_EQ(position, 78.0);
+        getPosn(2, true, envFilename, position);
+        ASSERT_DOUBLE_EQ(position, 98.0);
+    }
+
     TEST(setPoint, GIVEN_name_for_single_coord_position_WHEN_name2posn_called_THEN_RBV_table_row_pointer_set_correctly) {
         auto testFilename = "my_file";
         auto envFilename = "TEST";
@@ -374,7 +397,7 @@ namespace {
 
         ASSERT_EQ(positionFound, 0);
 
-        getPosn(1, 1, envFilename, position);
+        getPosn(0, true, envFilename, position);
         ASSERT_DOUBLE_EQ(position, 42.0);
     }
 
@@ -393,7 +416,7 @@ namespace {
 
         ASSERT_EQ(positionFound, 0);
 
-        getPosn(1, 1, envFilename, position);
+        getPosn(0, true, envFilename, position);
         ASSERT_DOUBLE_EQ(position, 42.0);
     }
 
@@ -412,7 +435,7 @@ namespace {
 
         ASSERT_EQ(positionFound, -1);
 
-        positionFound = getPosn(1, 1, envFilename, position);
+        positionFound = getPosn(0, true, envFilename, position);
         ASSERT_EQ(positionFound, -1);
     }
 
