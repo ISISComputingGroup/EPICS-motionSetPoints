@@ -34,12 +34,10 @@ private:
     int P_numAxes; // double
 
     // Parameters for each coordinate, these will be set on each of the addresses
-    int P_coord1; // double - current position in coordinate 1
-    int P_coord2; // double - current position in coordinate 2
-    int P_coord1RBV;  // double - requested position coordinate 
-    int P_coord2RBV;  // double - requested position coordinate
+    int P_coord; // double - current position of co-ordinate
+    int P_coordRBV;  // double - requested position of co-ordinate
 #define FIRST_MSP_PARAM P_positions
-#define LAST_MSP_PARAM P_coord2RBV
+#define LAST_MSP_PARAM P_coordRBV
 
 	void updatePositions();
 	void updateCurrPosn(double coord1, double coord2);
@@ -60,10 +58,8 @@ private:
 #define P_iposnString	    "IPOSN"
 #define P_nposnString	    "NPOSN"
 #define P_niposnString	    "NIPOSN"
-#define P_coord1String	    "COORD1"
-#define P_coord2String	    "COORD2"
-#define P_coord1RBVString	"COORD1RBV"
-#define P_coord2RBVString	"COORD2RBV"
+#define P_coordString	    "COORD"
+#define P_coordRBVString	"COORDRBV"
 #define P_resetString	    "RESET"
 #define P_numPosString      "NUMPOS"
 #define P_numAxesString     "NUMAXES"
