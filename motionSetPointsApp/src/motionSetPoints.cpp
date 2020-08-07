@@ -36,7 +36,7 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
                     ASYN_CANBLOCK, /* asynFlags.  This driver can block but it is not multi-device */
                     1, /* Autoconnect */
                     0,
-                    0), m_fileName(fileName), m_coord1(0.0), m_coord2(0.0), m_tol(1.e10)
+                    0), m_fileName(fileName), m_tol(1.e10)
 {
     // Parameters for general control, only used on the 0th address
    	createParam(P_positionsString, asynParamOctet, &P_positions);
@@ -73,10 +73,11 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     for (int i = 0; i < NUM_AXES; i++) {
         setDoubleParam(i, P_coord, 0.0);
         setDoubleParam(i, P_coordRBV, 0.0);
+        m_coordinates.push_back(0.0);
     }
 
     loadDefFile(m_fileName.c_str());
-	updatePositions();
+	updateAvailablePositions();
 }
 
 // new position requsted
@@ -117,7 +118,7 @@ asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 }
 
 // Update the list of available setpoint names
-void motionSetPoints::updatePositions() 
+void motionSetPoints::updateAvailablePositions() 
 {
     const int buffer_size = 8192;
 	char* buffer = new char[buffer_size];
@@ -141,24 +142,24 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
     if (coordinate == 0 && function == P_coord)
 	{
 		// Motor 1 has moved
-		updateCurrPosn(value, m_coord2);
+		updateCurrPosn(value, m_coordinates.at(1));
 	}
     else if (coordinate == 1 && function == P_coord)
 	{
 		// Motor 2 has moved
-		updateCurrPosn(m_coord1, value);
+		updateCurrPosn(m_coordinates.at(0), value);
 	}
 	else if (function == P_reset)
 	{
 		// Been asked to reload the files
     	loadDefFile(m_fileName.c_str());
-		updatePositions();
+		updateAvailablePositions();
 	}
     else if (function == P_tol)
 	{
 		m_tol = value;
 		setDoubleParam(P_tol, value);
-		updateCurrPosn(m_coord1, m_coord2); // as tolerance has changed, this may no longer count as a valid position 
+		updateCurrPosn(m_coordinates.at(0), m_coordinates.at(1)); // as tolerance has changed, this may no longer count as a valid position 
 	}
 	else
 	{
@@ -174,7 +175,9 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 	return status;
 }
 
-// Update the current position name based on the current motor coordinates
+/* Update the current position name based on the current motor coordinates.
+ * 
+*/
 void motionSetPoints::updateCurrPosn(double coord1, double coord2) 
 {
 	char buffer[256];
@@ -183,8 +186,8 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 	int ncoords = getNumCoords(m_fileName.c_str());
 	static const double max_tol = sqrt(std::numeric_limits<double>::max());
 
-	m_coord1 = coord1;
-	m_coord2 = coord2;
+    m_coordinates[0] = coord1;
+    m_coordinates[1] = coord2;
 	if ( ncoords == 2 )
 	{
         posn2name(coord1, coord2, max_tol, m_fileName.c_str(), pos_diff);

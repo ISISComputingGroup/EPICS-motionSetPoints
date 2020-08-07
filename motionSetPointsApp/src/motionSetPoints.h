@@ -13,8 +13,7 @@ public:
                  
 private:
     std::string m_fileName; // Lookup file name - used as a key to identify this lookup instance
-	double m_coord1; // Last values of the current motor positions
-	double m_coord2;
+    std::vector<double> m_coordinates; // Last values of the current motor positions
 	double m_tol; // tolerance to use for position match
 
     // Parameters for general control, only used on the 0th address
@@ -39,7 +38,8 @@ private:
 #define FIRST_MSP_PARAM P_positions
 #define LAST_MSP_PARAM P_coordRBV
 
-	void updatePositions();
+	void updateAvailablePositions();
+    //void updateCurrPosn();
 	void updateCurrPosn(double coord1, double coord2);
     int gotoPosition(const char* value);
 	
