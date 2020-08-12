@@ -212,7 +212,8 @@ namespace {
 
         loadFile(&mockFile, testFilename, envFilename, 1);
 
-        int positionFound = posn2name(42.0, 0.1, envFilename, posDiff);
+        std::vector<double> coords{ 42.0 };
+        int positionFound = posn2name(coords, 0.1, envFilename, posDiff);
 
         ASSERT_EQ(positionFound, 0);
         ASSERT_EQ(posDiff, 0.0);
@@ -233,7 +234,8 @@ namespace {
 
         loadFile(&mockFile, testFilename, envFilename, 1);
 
-        int positionFound = posn2name(42.1, 0.2, envFilename, posDiff);
+        std::vector<double> coords{ 42.1 };
+        int positionFound = posn2name(coords, 0.2, envFilename, posDiff);
 
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, 0.1, 0.0000001);
@@ -254,7 +256,8 @@ namespace {
 
         loadFile(&mockFile, testFilename, envFilename, 1);
 
-        int positionFound = posn2name(40.0, 0.1, envFilename, posDiff);
+        std::vector<double> coords{ 40.0 };
+        int positionFound = posn2name(coords, 0.1, envFilename, posDiff);
 
         ASSERT_EQ(positionFound, -1);
 
@@ -274,7 +277,8 @@ namespace {
 
         loadFile(&mockFile, testFilename, envFilename, 2);
 
-        int positionFound = posn2name(42.0, 78.0, 0.1, envFilename, posDiff);
+        std::vector<double> coords{ 42.0, 78.0 };
+        int positionFound = posn2name(coords, 0.1, envFilename, posDiff);
 
         ASSERT_EQ(positionFound, 0);
         ASSERT_EQ(posDiff, 0.0);
@@ -295,7 +299,8 @@ namespace {
 
         loadFile(&mockFile, testFilename, envFilename, 2);
 
-        int positionFound = posn2name(42.1, 77.9, 0.2, envFilename, posDiff);
+        std::vector<double> coords{ 42.1, 77.9 };
+        int positionFound = posn2name(coords, 0.2, envFilename, posDiff);
 
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, pow(pow(0.1, 2) + pow(0.1, 2), 0.5), 0.0000001);
@@ -316,7 +321,8 @@ namespace {
 
         loadFile(&mockFile, testFilename, envFilename, 2);
 
-        int positionFound = posn2name(40.0, 77, 0.1, envFilename, posDiff);
+        std::vector<double> coords{ 40.0, 77 };
+        int positionFound = posn2name(coords, 0.1, envFilename, posDiff);
 
         ASSERT_EQ(positionFound, -1);
 
@@ -336,7 +342,6 @@ namespace {
         createMockFile(&mockFile, testFilename, fileLines);
 
         loadFile(&mockFile, testFilename, envFilename, 3);
-
 
         int positionFound = posn2name(position, 0.2, envFilename, posDiff);
 

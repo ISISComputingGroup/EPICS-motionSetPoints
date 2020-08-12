@@ -187,7 +187,13 @@ int getPositionIndexByName(const char* name, const char* env_fname)
 	return -1;
 }
 
-// Get the name that best corresponds to the current position 
+/* Get the name that best corresponds to the given position and sets the current position row pointer to this
+ * Arguments:
+ *   vector<double>  searchCoords    [in]  The coordinates to find the position for
+ *   double          tol             [in]  Tolerence for match
+ *   const char *    env_fname       [in]  Key to identify file
+ *   double          pos_diff        [out] The difference between the searched for coordinates and the best match
+ */
 int posn2name(std::vector<double> searchCoords, double tol, const char* env_fname, double& pos_diff) {
     double best = tol * tol;
     LookupTable& table = getTable(env_fname);
@@ -211,24 +217,6 @@ int posn2name(std::vector<double> searchCoords, double tol, const char* env_fnam
     else {
         return -1;
     }
-}
-
-
-/* Get the name that best corresponds to the current position, sets the current position row pointer
- * Arguments:
- *   double  x    [in]  Coord
- *   double  tol  [in]  Tolerence for match
-//   const char *env_fname [in] Key to identify file
- */
-int posn2name(double x, double tol, const char* env_fname, double& pos_diff) {
-    std::vector<double> coords{ x };
-    return posn2name(coords, tol, env_fname, pos_diff);
-}
-
-// Get the name that best corresponds to the current position 
-int posn2name(double x, double y, double tol, const char* env_fname, double& pos_diff) {
-    std::vector<double> coords {x, y};
-    return posn2name(coords, tol, env_fname, pos_diff);
 }
 
 // Return the requested coordinate for the current or readback row.

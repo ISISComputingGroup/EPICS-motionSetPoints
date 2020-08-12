@@ -13,7 +13,7 @@ public:
                  
 private:
     std::string m_fileName; // Lookup file name - used as a key to identify this lookup instance
-    std::vector<double> m_coordinates; // Last values of the current motor positions
+    std::vector<double> m_currentCoordinates; // Last values of the current motor positions
 	double m_tol; // tolerance to use for position match
 
     // Parameters for general control, only used on the 0th address
@@ -23,9 +23,9 @@ private:
     int P_posnSP; // string - requested position
     int P_iposnSP; // int - requested position (by index)
     int P_posn; // string - current position
-    int P_iposn; // int - index of current position
-    int P_nposn; // string - nearest current position
-    int P_niposn; // int - index of nearest current position
+    int P_posnIndex; // int - index of current position
+    int P_nearestPosn; // string - nearest current position
+    int P_nearestPosnIndex; // int - index of nearest current position
     int P_reset; // double
     int P_numpos; // int
 	int P_tol; // double

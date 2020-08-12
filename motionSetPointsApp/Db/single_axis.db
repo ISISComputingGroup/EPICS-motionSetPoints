@@ -104,3 +104,13 @@ record(dfanout, "$(P)INT:READ$(AXIS_NUM)")
 	field(SELN, "1")
 	field(FLNK, "$(P)COORD$(AXIS_NUM):RBV")
 }
+
+record(ai, "$(P)STATIONARY$(AXIS_NUM)")
+{
+    field(DESC, "Is sample in position")
+	field(SCAN, "1 second")
+	field(INP, "$(TARGET_DONE=$(AXIS=$(P)):DMOV)")
+	field(FLNK, "$(P)POSITIONED")
+	field(EGU, "")
+    info(INTEREST, "HIGH")
+}

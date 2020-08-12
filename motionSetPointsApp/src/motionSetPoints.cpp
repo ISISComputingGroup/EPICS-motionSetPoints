@@ -46,9 +46,9 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
 	createParam(P_posnSPString, asynParamOctet, &P_posnSP);
 	createParam(P_iposnSPString, asynParamInt32, &P_iposnSP);
     createParam(P_posnString, asynParamOctet, &P_posn);
-    createParam(P_iposnString, asynParamInt32, &P_iposn);
-    createParam(P_nposnString, asynParamOctet, &P_nposn);
-    createParam(P_niposnString, asynParamInt32, &P_niposn);
+    createParam(P_iposnString, asynParamInt32, &P_posnIndex);
+    createParam(P_nposnString, asynParamOctet, &P_nearestPosn);
+    createParam(P_niposnString, asynParamInt32, &P_nearestPosnIndex);
     createParam(P_resetString, asynParamFloat64, &P_reset);
     createParam(P_numPosString, asynParamInt32, &P_numpos);
     createParam(P_numAxesString, asynParamFloat64, &P_numAxes);
@@ -61,11 +61,11 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
 
 	// initial values
     setStringParam(P_posn, "");
-    setStringParam(P_nposn, "");
+    setStringParam(P_nearestPosn, "");
     setStringParam(P_posnSP, "");
     setStringParam(P_posnSPRBV, "");
-    setIntegerParam(P_iposn, -1);
-    setIntegerParam(P_niposn, -1);
+    setIntegerParam(P_posnIndex, -1);
+    setIntegerParam(P_nearestPosnIndex, -1);
     setIntegerParam(P_iposnSP, -1);
     setIntegerParam(P_iposnSPRBV, -1);
     setIntegerParam(P_numpos, 0);
@@ -74,7 +74,7 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
     for (int i = 0; i < numberOfCoordinates; i++) {
         setDoubleParam(i, P_coord, 0.0);
         setDoubleParam(i, P_coordRBV, 0.0);
-        m_coordinates.push_back(0.0);
+        m_currentCoordinates.push_back(0.0);
     }
 
     loadDefFile(m_fileName.c_str(), numberOfCoordinates);
@@ -126,7 +126,7 @@ void motionSetPoints::updateAvailablePositions()
 	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
 	setStringParam(P_positions, buffer);
     setIntegerParam(P_numpos, static_cast<int>(numPositions(m_fileName.c_str())));
-    setDoubleParam(P_numAxes, m_coordinates.size());
+    setDoubleParam(P_numAxes, m_currentCoordinates.size());
 	delete[] buffer;
 }
 
@@ -140,16 +140,16 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 
 	getParamName(function, &paramName);
     getAddress(pasynUser, &coordinate);
-    if ((function == P_coord) && (coordinate < m_coordinates.size()))
+    if ((function == P_coord) && (coordinate < m_currentCoordinates.size()))
 	{
 		// Motor has moved
-        m_coordinates[coordinate] = value;
+        m_currentCoordinates[coordinate] = value;
 		updateCurrPosn();
 	}
 	else if (function == P_reset)
 	{
 		// Been asked to reload the files
-    	loadDefFile(m_fileName.c_str(), m_coordinates.size());
+    	loadDefFile(m_fileName.c_str(), m_currentCoordinates.size());
 		updateAvailablePositions();
 	}
     else if (function == P_tol)
@@ -179,55 +179,38 @@ void motionSetPoints::updateCurrPosn()
 	char currentPosition[256];
 	double position, pos_diff;
 	bool pos_ok = false;
-	int ncoords = m_coordinates.size();
 	static const double max_tol = sqrt(std::numeric_limits<double>::max());
-    int coord1, coord2;
     int iposn;
-    coord1 = m_coordinates.at(0);
-	if ( ncoords == 2 )
-	{
-        coord2 = m_coordinates.at(1);
-        posn2name(coord1, coord2, max_tol, m_fileName.c_str(), pos_diff);
-        getPosnName(currentPosition, 0, m_fileName.c_str());
-        setStringParam(P_nposn, currentPosition);  
-        setIntegerParam(P_niposn, getPositionIndexByName(currentPosition, m_fileName.c_str()));
-        if (posn2name(coord1, coord2, m_tol, m_fileName.c_str(), pos_diff) == 0)
-		{
-		    getPosn(0, false, m_fileName.c_str(), position);
-            setDoubleParam(0, P_coord, position);
-		    getPosn(1, false, m_fileName.c_str(), position);
-            setDoubleParam(1, P_coord, position);
-			pos_ok = true;
-		}
-	}
-	else if ( ncoords == 1 )
-	{
-        posn2name(coord1, max_tol, m_fileName.c_str(), pos_diff);
-        getPosnName(currentPosition, 0, m_fileName.c_str());
-        setStringParam(P_nposn, currentPosition);
-        iposn = getPositionIndexByName(currentPosition, m_fileName.c_str());
-        setIntegerParam(P_niposn, iposn);
-        if (posn2name(coord1, m_tol, m_fileName.c_str(), pos_diff) == 0)
-		{
-		    getPosn(0, false, m_fileName.c_str(), position);
-            setDoubleParam(0, P_coord, position);
-			pos_ok = true;
-		}
-	}
+    posn2name(m_currentCoordinates, max_tol, m_fileName.c_str(), pos_diff);
+    getPosnName(currentPosition, 0, m_fileName.c_str());
+    setStringParam(P_nearestPosn, currentPosition);
+
+    iposn = getPositionIndexByName(currentPosition, m_fileName.c_str());
+    setIntegerParam(P_nearestPosnIndex, iposn);
+
+    if (posn2name(m_currentCoordinates, m_tol, m_fileName.c_str(), pos_diff) == 0)
+    {
+        for (int i = 0; i < m_currentCoordinates.size(); i++) {
+            getPosn(i, false, m_fileName.c_str(), position);
+            setDoubleParam(i, P_coord, position);
+        }
+        pos_ok = true;
+    }
+
     if (pos_ok)
 	{
         setDoubleParam(P_posDiff, pos_diff);
         getPosnName(currentPosition, 0, m_fileName.c_str());
         setStringParam(P_posn, currentPosition);  
         iposn = getPositionIndexByName(currentPosition, m_fileName.c_str());
-        setIntegerParam(P_iposn, iposn);
+        setIntegerParam(P_posnIndex, iposn);
 	}
 	else
 	{
 		// if no position is within tolerance, should we blank out current position or leave it unchanged?
 		// we will blank it out as (iposn == iposnSP) is now a test in the DB file.
         setStringParam(P_posn, "");
-        setIntegerParam(P_iposn, -1);
+        setIntegerParam(P_posnIndex, -1);
 		// note: P_coord and P_posDiff will now refer to last valid position, not sure of sensible reset values
 	}
 }
@@ -241,13 +224,11 @@ int motionSetPoints::gotoPosition(const char* value)
 			getPosnName(positionName, 1, m_fileName.c_str());
             setStringParam(P_posnSPRBV, positionName);  
             setIntegerParam(P_iposnSPRBV, getPositionIndexByName(positionName, m_fileName.c_str()));
-			if (getPosn(0, true, m_fileName.c_str(), position) == 0)
-			{
-                setDoubleParam(0, P_coordRBV, position);
-			}
-            if ( m_coordinates.size() == 2 && getPosn(1, true, m_fileName.c_str(), position) == 0 ) 
-            {
-                setDoubleParam(1, P_coordRBV, position);
+            for (int i = 0; i < m_currentCoordinates.size(); i++) {
+                if (getPosn(i, true, m_fileName.c_str(), position) == 0)
+                {
+                    setDoubleParam(i, P_coordRBV, position);
+                }
             }
             return 0;
     }
