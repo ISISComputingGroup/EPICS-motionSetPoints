@@ -13,6 +13,7 @@ include $(TOP)/configure/CONFIG
 DB += motionSetPoints.db
 DB += inPos.db
 DB += analyserPolariser.db
+DB += single_axis.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

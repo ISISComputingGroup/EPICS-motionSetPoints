@@ -1,13 +1,7 @@
-record(stringin, "$(P)COORD1:NAME")
+record(stringin, "$(P)COORD0:NAME")
 {
 	field(DESC, "Name of the first coord")
 	field(VAL, "$(NAME1=$(TARGET_PV1=$(AXIS1=)))")
-}
-
-record(stringin, "$(P)COORD2:NAME")
-{
-	field(DESC, "Name of the first coord")
-	field(VAL, "$(NAME2=$(TARGET_PV2=$(AXIS2=No Axis 2)))")
 }
 
 # colon in :MTR is needed because it is a dummy for $(P):MTR in alias
@@ -16,14 +10,13 @@ record(ai, "$(P):MTR")
 	field(DESC, "Dummy record to help with mtr alias")
 }
 
-alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD1:MTR")
-alias("$(TARGET_PV2=$(AXIS2=$(P)):MTR)","$(P)COORD2:MTR")
+alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD0:MTR")
 
 record(stringin, "$(P)POSN:SP:RBV")
 {
 	field(DESC, "Current target")
 	field(DTYP,"asynOctetRead")
-	field(INP,"@asyn($(LOOKUP),0,0)POSNSPRBV")
+	field(INP,"@asyn($(LOOKUP),0)POSNSPRBV")
 	field(SCAN, "I/O Intr")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
@@ -34,7 +27,7 @@ record(stringout, "$(P)POSN:SP")
 	field(DESC, "Set target")
 	field(DTYP,"asynOctetWrite")
 	field(FLNK, "$(P)INT:POSN:SP")
-	field(OUT,"@asyn($(LOOKUP),0,0)POSNSP")
+	field(OUT,"@asyn($(LOOKUP),0)POSNSP")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
@@ -43,7 +36,7 @@ record(longin, "$(P)IPOSN:SP:RBV")
 {
 	field(DESC, "Current target index")
 	field(DTYP,"asynInt32")
-	field(INP,"@asyn($(LOOKUP),0,0)IPOSNSPRBV")
+	field(INP,"@asyn($(LOOKUP),0)IPOSNSPRBV")
 	field(EGU, "")
 	field(SCAN, "I/O Intr")
 }
@@ -53,15 +46,15 @@ record(longout, "$(P)IPOSN:SP")
 	field(DESC, "Set target by index")
 	field(DTYP,"asynInt32")
 	field(FLNK, "$(P)INT:POSN:SP")
-	field(OUT,"@asyn($(LOOKUP),0,0)IPOSNSP")
+	field(OUT,"@asyn($(LOOKUP),0)IPOSNSP")
 	field(EGU, "")
 }
 
 record(fanout, "$(P)INT:POSN:SP")
 {
 	field(DESC, "Propagate set")
-	field(LNK1, "$(P)COORD1:NO_OFFSET")
-	field(LNK2, "$(P)COORD2:NO_OFFSET")
+	field(LNK1, "$(P)COORD0:NO_OFFSET")
+	field(LNK2, "$(P)COORD1:NO_OFFSET")
 }
 
 record(stringin, "$(P)POSN_NO_ERR")
@@ -69,7 +62,7 @@ record(stringin, "$(P)POSN_NO_ERR")
 	field(DESC, "Current position with no error")
 	field(SCAN, "1 second")
 	field(DTYP,"asynOctetRead")
-	field(INP,"@asyn($(LOOKUP),0,0)POSN")
+	field(INP,"@asyn($(LOOKUP),0)POSN")
     field(FLNK, "$(P)POSN_CALC")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
@@ -98,7 +91,7 @@ record(stringin, "$(P)NPOSN")
 {
 	field(DESC, "Current nearest position")
 	field(DTYP,"asynOctetRead")
-	field(INP,"@asyn($(LOOKUP),0,0)NPOSN")
+	field(INP,"@asyn($(LOOKUP),0)NPOSN")
 	field(SCAN, "I/O Intr")
 	info(INTEREST, "HIGH")
     info(archive, "VAL")
@@ -108,7 +101,7 @@ record(longin, "$(P)IPOSN")
 {
 	field(DESC, "Current position index")
 	field(DTYP,"asynInt32")
-	field(INP,"@asyn($(LOOKUP),0,0)IPOSN")
+	field(INP,"@asyn($(LOOKUP),0)IPOSN")
 	field(EGU, "")
 	field(SCAN, "I/O Intr")
 }
@@ -117,7 +110,7 @@ record(longin, "$(P)NIPOSN")
 {
 	field(DESC, "Current nearest position index")
 	field(DTYP,"asynInt32")
-	field(INP,"@asyn($(LOOKUP),0,0)NIPOSN")
+	field(INP,"@asyn($(LOOKUP),0)NIPOSN")
 	field(EGU, "")
 	field(SCAN, "I/O Intr")
 }
@@ -150,23 +143,23 @@ record(ai, "$(P)STATIONARY2")
     info(INTEREST, "HIGH")
 }
 
-record(ai, "$(P)COORD1:NO_OFFSET")
+record(ai, "$(P)COORD0:NO_OFFSET")
 {
 	field(DESC, "Target position 1 no offset")
 	field(DTYP,"asynFloat64")
-    field(FLNK, "$(P)COORD1")
+    field(FLNK, "$(P)COORD0")
 	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
-	field(INP,"@asyn($(LOOKUP),0,0)COORDRBV")
+	field(INP,"@asyn($(LOOKUP),0)COORDRBV")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
 
-record(ai, "$(P)COORD1:OFFSET")
+record(ai, "$(P)COORD0:OFFSET")
 {
-    field(DESC, "Offset for coord 1")
-    field(FLNK, "$(P)COORD1")
+    field(DESC, "Offset for coord 0")
+    field(FLNK, "$(P)COORD0")
   	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
@@ -175,15 +168,15 @@ record(ai, "$(P)COORD1:OFFSET")
     info(autosaveFields, "VAL")
 }
 
-alias("$(P)COORD1:OFFSET", "$(P)COORD1:OFFSET:SP")
+alias("$(P)COORD0:OFFSET", "$(P)COORD0:OFFSET:SP")
 
-record(calc, "$(P)COORD1")
+record(calc, "$(P)COORD0")
 {
-    field(DESC, "Position 1 with offset")
-    field(INPA, "$(P)COORD1:NO_OFFSET MS")
-    field(INPB, "$(P)COORD1:OFFSET")
+    field(DESC, "Position 0 with offset")
+    field(INPA, "$(P)COORD0:NO_OFFSET MS")
+    field(INPB, "$(P)COORD0:OFFSET")
     field(CALC, "A+B")
-    field(FLNK, "$(P)INT:WRITE1")
+    field(FLNK, "$(P)INT:WRITE0")
   	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
@@ -193,10 +186,10 @@ record(calc, "$(P)COORD1")
 }
 
 
-record(dfanout, "$(P)INT:WRITE1")
+record(dfanout, "$(P)INT:WRITE0")
 {
-	field(DESC, "Pushes COORD1 to motor")
-	field(DOL, "$(P)COORD1")
+	field(DESC, "Pushes COORD0 to motor")
+	field(DOL, "$(P)COORD0")
 	field(OMSL, "closed_loop")
 	field(OUTA, "$(TARGET_PV1=$(AXIS1):SP)")
 	field(SELM, "Mask")
@@ -204,91 +197,50 @@ record(dfanout, "$(P)INT:WRITE1")
 	field(FLNK, "$(TARGET_PV1=$(AXIS1):SP)")
 }
 
-record(ao, "$(P)COORD1:RBV")
+record(ao, "$(P)COORD0:RBV")
 {
-	field(DESC, "Current motor1 position")
-	field(FLNK, "$(P)COORD1:RBV:OFFSET")
+	field(DESC, "Current motor 0 position")
+	field(FLNK, "$(P)COORD0:RBV:OFFSET")
 	field(EGU,"mm")
 	field(PREC,"1")
-	field(OUT,"$(P)COORD1:RBV:OFFSET.A")
+	field(OUT,"$(P)COORD0:RBV:OFFSET.A")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
 
-record(calcout, "$(P)COORD1:RBV:OFFSET")
+record(calcout, "$(P)COORD0:RBV:OFFSET")
 {
-    field(DESC, "Motor1 position with offset")
-	field(FLNK, "$(P)COORD1:LOOKUP:SET:RBV")
+    field(DESC, "Motor 0 position with offset")
+	field(FLNK, "$(P)COORD0:LOOKUP:SET:RBV")
 	field(EGU, "mm")
 	field(PREC,"1")
-    # A is set by COORD1:RBV
+    # A is set by COORD0:RBV
     field(INPA, "0") 
-    field(INPB, "$(P)COORD1:OFFSET")
+    field(INPB, "$(P)COORD0:OFFSET")
     field(CALC, "A-B")
-	field(OUT,"$(P)COORD1:LOOKUP:SET:RBV")
+	field(OUT,"$(P)COORD0:LOOKUP:SET:RBV")
 }
 
-record(ao, "$(P)COORD1:LOOKUP:SET:RBV")
+record(ao, "$(P)COORD0:LOOKUP:SET:RBV")
 {
-	field(DESC, "Send motor1 position to lookup")
+	field(DESC, "Send motor 0 position to lookup")
 	field(DTYP,"asynFloat64")
 	field(FLNK, "$(P)POSN_NO_ERR")
 	field(EGU,"mm")
 	field(PREC,"1")
-	field(OUT,"@asyn($(LOOKUP),0,0)COORD")
+	field(OUT,"@asyn($(LOOKUP),0)COORD")
 }
 
-record(dfanout, "$(P)INT:READ1")
+record(dfanout, "$(P)INT:READ0")
 {
-	field(DESC, "Updates COORD1:RBV")
+	field(DESC, "Updates COORD0:RBV")
 	field(SCAN, "1 second")
 	field(DOL, "$(TARGET_RBV1=$(AXIS1)) MS")
 	field(OMSL, "closed_loop")
-	field(OUTA, "$(P)COORD1:RBV MS")
+	field(OUTA, "$(P)COORD0:RBV MS")
 	field(SELM, "Mask")
 	field(SELN, "1")
-	field(FLNK, "$(P)COORD1:RBV")
-}
-
-record(ai, "$(P)COORD2:OFFSET")
-{
-    field(DESC, "Offset for coord 2")
-    field(VAL, "0")    
-    field(FLNK, "$(P)COORD2")
-  	field(EGU,"mm")
-	field(PREC,"1")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
-    info(autosaveFields, "VAL")
-}
-alias("$(P)COORD2:OFFSET", "$(P)COORD2:OFFSET:SP")
-
-record(ai, "$(P)COORD2:NO_OFFSET")
-{
-	field(DESC, "Target position 2 no offset")
-	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)COORD2")
-	field(EGU,"mm")
-	field(PREC,"1")
-	field(VAL,"0")
-	field(INP,"@asyn($(LOOKUP),1,0)COORDRBV")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
-}
-
-record(calc, "$(P)COORD2")
-{
-	field(DESC, "Target position 2 with offset")
-    field(INPA, "$(P)COORD2:NO_OFFSET MS")
-    field(INPB, "$(P)COORD2:OFFSET")
-    field(CALC, "A+B")
-    field(FLNK, "$(P)INT:WRITE2")
-  	field(EGU,"mm")
-	field(PREC,"1")
-	field(VAL,"0")
-    field(ASG, "READONLY")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
+	field(FLNK, "$(P)COORD0:RBV")
 }
 
 # colon in :SP is needed because it is a dummy for $(P):SP in alias
@@ -299,70 +251,12 @@ record(ai, "$(P):SP")
     field(PINI, "YES")
 }
 
-record(dfanout, "$(P)INT:WRITE2")
-{
-	field(DESC, "Pushes COORD2 to motor")
-	field(DOL, "$(P)COORD2")
-	field(OMSL, "closed_loop")
-	field(OUTA, "$(TARGET_PV2=$(AXIS2=$(P)):SP)")
-	field(SELM, "Mask")
-	field(SELN, "1")
-	field(FLNK, "$(TARGET_PV2=$(AXIS2=$(P)):SP)")
-}
-
-record(ao, "$(P)COORD2:RBV")
-{
-	field(DESC, "Current motor2 position")
-	field(FLNK, "$(P)COORD2:RBV:OFFSET")
-	field(EGU,"mm")
-	field(PREC,"1")
-	field(OUT,"$(P)COORD2:RBV:OFFSET.A")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
-}
-
-record(calcout, "$(P)COORD2:RBV:OFFSET")
-{
-    field(DESC, "Motor2 position with offset")
-	field(FLNK, "$(P)COORD2:LOOKUP:SET:RBV")
-	field(EGU, "mm")
-	field(PREC,"1")
-    # A is set by COORD2:RBV
-    field(INPA, "0") 
-    field(INPB, "$(P)COORD2:OFFSET")
-    field(CALC, "A-B")
-	field(OUT,"$(P)COORD2:LOOKUP:SET:RBV")
-}
-
-record(ao, "$(P)COORD2:LOOKUP:SET:RBV")
-{
-	field(DESC, "Send motor2 position to lookup")
-	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)POSN_NO_ERR")
-	field(EGU,"mm")
-	field(PREC,"1")
-	field(OUT,"@asyn($(LOOKUP),1,0)COORD")
-}
-
-
-record(dfanout, "$(P)INT:READ2")
-{
-	field(DESC, "Updates COORD2:RBV")
-	field(SCAN, "1 second")
-	field(DOL, "$(TARGET_RBV2=$(AXIS2=)) MS")
-	field(OMSL, "closed_loop")
-	field(OUTA, "$(P)COORD2:RBV MS")
-	field(SELM, "Mask")
-	field(SELN, "1")
-	field(FLNK, "$(P)COORD2:RBV")
-}
-
 record(ao, "$(P)RESET")
 {
 	field(DESC, "Reread the lookup file")
 	field(DTYP,"asynFloat64")
 	field(FLNK, "$(P)INT:RESET")
-	field(OUT,"@asyn($(LOOKUP),0,0)RESET")
+	field(OUT,"@asyn($(LOOKUP),0)RESET")
 	field(PINI,"YES")
 }
 
@@ -370,7 +264,7 @@ record(fanout, "$(P)INT:RESET")
 {
 	field(DESC, "Propagate reset")
 	field(LNK1, "$(P)_POSITIONS")
-	field(LNK2, "$(P)INT:READ1")
+	field(LNK2, "$(P)INT:READ0")
 }
 
 record(ai, "$(P)NUMAXES")
@@ -380,7 +274,7 @@ record(ai, "$(P)NUMAXES")
     field(SCAN, "I/O Intr")
 	field(EGU,"")
 	field(PREC,"1")
-	field(INP,"@asyn($(LOOKUP),0,0)NUMAXES")
+	field(INP,"@asyn($(LOOKUP),0)NUMAXES")
 }
 
 record(longin, "$(P)POSN:NUM")
@@ -388,7 +282,7 @@ record(longin, "$(P)POSN:NUM")
 	field(DESC, "Number of positions")
 	field(DTYP,"asynInt32")
     field(SCAN, "I/O Intr")
-	field(INP,"@asyn($(LOOKUP),0,0)NUMPOS")
+	field(INP,"@asyn($(LOOKUP),0)NUMPOS")
 	field(EGU, "")
 }
 
@@ -401,7 +295,7 @@ record(ao, "$(P)TOLERENCE")
     field(DESC, "Position tolerance")
 	field(DTYP,"asynFloat64")
 	field(VAL, "$(TOL=1e10)")
-	field(OUT,"@asyn($(LOOKUP),0,0)TOL")
+	field(OUT,"@asyn($(LOOKUP),0)TOL")
 	field(EGU,"")
 	field(PREC,"3")
 	field(PINI, "YES")
@@ -412,7 +306,7 @@ record(ai, "$(P)POSDIFF")
 {
 	field(DESC, "distance from current position")
 	field(DTYP,"asynFloat64")
-	field(INP,"@asyn($(LOOKUP),0,0)POSDIFF")
+	field(INP,"@asyn($(LOOKUP),0)POSDIFF")
     field(SCAN, "I/O Intr")
 	field(EGU,"")
 	field(PREC,"3")
@@ -446,7 +340,7 @@ record(waveform,"$(P)_POSITIONS")
 	field(DTYP,"asynOctetRead")
 	field(FTVL,"CHAR")
 	field(NELM,"8000")
-	field(INP,"@asyn($(LOOKUP),0,0)POSITIONS")
+	field(INP,"@asyn($(LOOKUP),0)POSITIONS")
 	field(FLNK, "$(P)_WFCTOS")
 }
 alias("$(P)_POSITIONS", "$(P)POSITIONS_C")

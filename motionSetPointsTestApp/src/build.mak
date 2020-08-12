@@ -23,12 +23,13 @@ $(APPNAME)_DBD += asyn.dbd
 $(APPNAME)_DBD += motorSupport.dbd
 $(APPNAME)_DBD += motorSimSupport.dbd
 $(APPNAME)_DBD += asubFunctions.dbd
+$(APPNAME)_DBD += utilities.dbd
 
 # Add all the support libraries needed by this IOC
 $(APPNAME)_LIBS += motorSimSupport
 $(APPNAME)_LIBS += motor calc sscan
 $(APPNAME)_LIBS += motionSetPoints asubFunctions asyn
-$(APPNAME)_LIBS += seq pv
+$(APPNAME)_LIBS += seq utilities pv
 
 # motionSetPointsTest_registerRecordDeviceDriver.cpp derives from motionSetPointsTest.dbd
 $(APPNAME)_SRCS += $(APPNAME)_registerRecordDeviceDriver.cpp

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <limits>
 
+#include <errlog.h>
 #include <epicsTypes.h>
 #include <epicsTime.h>
 #include <epicsThread.h>
@@ -27,9 +28,9 @@
 
 static const char *driverName = "motionSetPoints";
 
-motionSetPoints::motionSetPoints(const char *portName, const char* fileName) 
+motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int numberOfCoordinates) 
    : asynPortDriver(portName, 
-                    NUM_AXES, /* maxAddr */ 
+                    numberOfCoordinates, /* maxAddr */ 
                     NUM_MSP_PARAMS, /* num parameters */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask | asynDrvUserMask, /* Interface mask */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask,  /* Interrupt mask */
@@ -70,13 +71,13 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName)
     setIntegerParam(P_numpos, 0);
     setDoubleParam(P_tol, m_tol);
 
-    for (int i = 0; i < NUM_AXES; i++) {
+    for (int i = 0; i < numberOfCoordinates; i++) {
         setDoubleParam(i, P_coord, 0.0);
         setDoubleParam(i, P_coordRBV, 0.0);
         m_coordinates.push_back(0.0);
     }
 
-    loadDefFile(m_fileName.c_str());
+    loadDefFile(m_fileName.c_str(), numberOfCoordinates);
 	updateAvailablePositions();
 }
 
@@ -125,7 +126,7 @@ void motionSetPoints::updateAvailablePositions()
 	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
 	setStringParam(P_positions, buffer);
     setIntegerParam(P_numpos, static_cast<int>(numPositions(m_fileName.c_str())));
-    setDoubleParam(P_numAxes, getNumCoords(m_fileName.c_str()));
+    setDoubleParam(P_numAxes, m_coordinates.size());
 	delete[] buffer;
 }
 
@@ -135,31 +136,27 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
     const char* functionName = "writeFloat64";
     asynStatus status = asynSuccess;
     const char *paramName = NULL;
-    int coordinate;
+    int coordinate = 0;
 
 	getParamName(function, &paramName);
     getAddress(pasynUser, &coordinate);
-    if (coordinate == 0 && function == P_coord)
+    if ((function == P_coord) && (coordinate < m_coordinates.size()))
 	{
-		// Motor 1 has moved
-		updateCurrPosn(value, m_coordinates.at(1));
-	}
-    else if (coordinate == 1 && function == P_coord)
-	{
-		// Motor 2 has moved
-		updateCurrPosn(m_coordinates.at(0), value);
+		// Motor has moved
+        m_coordinates[coordinate] = value;
+		updateCurrPosn();
 	}
 	else if (function == P_reset)
 	{
 		// Been asked to reload the files
-    	loadDefFile(m_fileName.c_str());
+    	loadDefFile(m_fileName.c_str(), m_coordinates.size());
 		updateAvailablePositions();
 	}
     else if (function == P_tol)
 	{
 		m_tol = value;
 		setDoubleParam(P_tol, value);
-		updateCurrPosn(m_coordinates.at(0), m_coordinates.at(1)); // as tolerance has changed, this may no longer count as a valid position 
+		updateCurrPosn(); // as tolerance has changed, this may no longer count as a valid position 
 	}
 	else
 	{
@@ -176,24 +173,24 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 }
 
 /* Update the current position name based on the current motor coordinates.
- * 
 */
-void motionSetPoints::updateCurrPosn(double coord1, double coord2) 
+void motionSetPoints::updateCurrPosn() 
 {
-	char buffer[256];
+	char currentPosition[256];
 	double position, pos_diff;
 	bool pos_ok = false;
-	int ncoords = getNumCoords(m_fileName.c_str());
+	int ncoords = m_coordinates.size();
 	static const double max_tol = sqrt(std::numeric_limits<double>::max());
-
-    m_coordinates[0] = coord1;
-    m_coordinates[1] = coord2;
+    int coord1, coord2;
+    int iposn;
+    coord1 = m_coordinates.at(0);
 	if ( ncoords == 2 )
 	{
+        coord2 = m_coordinates.at(1);
         posn2name(coord1, coord2, max_tol, m_fileName.c_str(), pos_diff);
-        getPosnName(buffer, 0, m_fileName.c_str());
-        setStringParam(P_nposn, buffer);  
-        setIntegerParam(P_niposn, getPositionIndexByName(buffer, m_fileName.c_str()));
+        getPosnName(currentPosition, 0, m_fileName.c_str());
+        setStringParam(P_nposn, currentPosition);  
+        setIntegerParam(P_niposn, getPositionIndexByName(currentPosition, m_fileName.c_str()));
         if (posn2name(coord1, coord2, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
 		    getPosn(0, false, m_fileName.c_str(), position);
@@ -206,9 +203,10 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
 	else if ( ncoords == 1 )
 	{
         posn2name(coord1, max_tol, m_fileName.c_str(), pos_diff);
-        getPosnName(buffer, 0, m_fileName.c_str());
-        setStringParam(P_nposn, buffer);  
-        setIntegerParam(P_niposn, getPositionIndexByName(buffer, m_fileName.c_str()));
+        getPosnName(currentPosition, 0, m_fileName.c_str());
+        setStringParam(P_nposn, currentPosition);
+        iposn = getPositionIndexByName(currentPosition, m_fileName.c_str());
+        setIntegerParam(P_niposn, iposn);
         if (posn2name(coord1, m_tol, m_fileName.c_str(), pos_diff) == 0)
 		{
 		    getPosn(0, false, m_fileName.c_str(), position);
@@ -219,9 +217,10 @@ void motionSetPoints::updateCurrPosn(double coord1, double coord2)
     if (pos_ok)
 	{
         setDoubleParam(P_posDiff, pos_diff);
-        getPosnName(buffer, 0, m_fileName.c_str());
-        setStringParam(P_posn, buffer);  
-        setIntegerParam(P_iposn, getPositionIndexByName(buffer, m_fileName.c_str()));
+        getPosnName(currentPosition, 0, m_fileName.c_str());
+        setStringParam(P_posn, currentPosition);  
+        iposn = getPositionIndexByName(currentPosition, m_fileName.c_str());
+        setIntegerParam(P_iposn, iposn);
 	}
 	else
 	{
@@ -246,7 +245,7 @@ int motionSetPoints::gotoPosition(const char* value)
 			{
                 setDoubleParam(0, P_coordRBV, position);
 			}
-            if ( getNumCoords(m_fileName.c_str()) == 2 && getPosn(1, true, m_fileName.c_str(), position) == 0 ) 
+            if ( m_coordinates.size() == 2 && getPosn(1, true, m_fileName.c_str(), position) == 0 ) 
             {
                 setDoubleParam(1, P_coordRBV, position);
             }
@@ -301,11 +300,12 @@ extern "C" {
 // called from the ioc shell to configure this ioc
 // portName - a unique name
 // fileName - environment variable name containing the lookup file name
-int motionSetPointsConfigure(const char *portName, const char* fileName)
+// numberOfCoordinates - number of coordinates in the system
+int motionSetPointsConfigure(const char *portName, const char* fileName, int numberOfCoordinates)
 {
 	try
 	{
-		new motionSetPoints(portName, fileName);
+		new motionSetPoints(portName, fileName, numberOfCoordinates);
 		return(asynSuccess);
 	}
 	catch(const std::exception& ex)
@@ -317,16 +317,17 @@ int motionSetPointsConfigure(const char *portName, const char* fileName)
 
 // EPICS iocsh shell commands 
 
-static const iocshArg initArg0 = { "portName", iocshArgString};			///< The name of the asyn driver port we will create
-static const iocshArg initArg1 = { "fileName", iocshArgString};			///< The name of the lookup file
+static const iocshArg initArg0 = { "portName", iocshArgString };			    ///< The name of the asyn driver port we will create
+static const iocshArg initArg1 = { "fileName", iocshArgString };			    ///< The name of the lookup file
+static const iocshArg initArg2 = { "numberOfCoordinates", iocshArgInt };	///< The number of coordinates of the system
 
-static const iocshArg * const initArgs[] = { &initArg0, &initArg1 };
+static const iocshArg * const initArgs[] = { &initArg0, &initArg1, &initArg2 };
 
 static const iocshFuncDef initFuncDef = {"motionSetPointsConfigure", sizeof(initArgs) / sizeof(iocshArg*), initArgs};
 
 static void initCallFunc(const iocshArgBuf *args)
 {
-    motionSetPointsConfigure(args[0].sval, args[1].sval);
+    motionSetPointsConfigure(args[0].sval, args[1].sval, args[2].ival);
 }
 
 static void motionSetPointsRegister(void)

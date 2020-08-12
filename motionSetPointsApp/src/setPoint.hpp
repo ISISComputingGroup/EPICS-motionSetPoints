@@ -33,11 +33,10 @@ typedef struct LookupTable {
 } LookupTable;
 
 LookupRow    createRowFromFileLine(std::string fileLine);
-void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname);
+void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname, int expectedNumberOfCoords);
 LookupTable &getTable(const char *env_fname);
 
-void checkLoadFile(const char* env_fname);
-void loadDefFile(const char* env_fname);
+void loadDefFile(const char* env_fname, int expectedNumberOfCoords);
 int name2posn(const char *name, const char* env_fname);
 int posn2name(double x, double tol, const char* env_fname, double& pos_diff);
 int posn2name(double x, double y, double tol, const char* env_fname, double& pos_diff);
@@ -45,8 +44,6 @@ int posn2name(std::vector<double> coordinates, double tol, const char* env_fname
 int getPosn(int coordinate, bool isRBV, const char* env_fname, double& position);
 int getPosnName(char *target, int isRBV, const char* env_fname);
 int getPositions(char *target, int elem_size, int max_count, const char* env_fname);
-int getNumCoords(const char *env_fname);
-void setNumCoords(const char *env_fname, int numCoords);
 std::string getPositionByIndex(int pos, const char* env_fname);
 int getPositionIndexByName(const char* name, const char* env_fname);
 size_t numPositions(const char* env_fname);

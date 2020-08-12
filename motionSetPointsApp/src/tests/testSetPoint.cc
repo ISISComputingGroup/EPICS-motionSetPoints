@@ -22,12 +22,6 @@ namespace {
         MOCK_METHOD0(isOpen, bool());
     };
 
-    TEST(setPoint, GIVEN_number_of_coords_set_to_10_WHEN_get_number_of_coords_THEN_return_10){
-        auto envFilename = "TEST";
-        setNumCoords(envFilename, 10);
-        ASSERT_EQ(getNumCoords(envFilename), 10);
-    }
-
     TEST(setPoint, GIVEN_file_line_with_one_coord_WHEN_row_created_THEN_correct_name_and_coords) {
         std::string fileLine = "Position    2";
         auto row = createRowFromFileLine(fileLine);
@@ -67,7 +61,7 @@ namespace {
             EXPECT_CALL(mockFile, ReadLine(_)).Times(0);
         }
 
-        loadFile(&mockFile, testFilename, "TEST");
+        loadFile(&mockFile, testFilename, "TEST", 1);
     }
 
     void createMockFile(MockFileIO* mockFile, std::string testFileName, std::vector<std::string> linesInFile, bool expectedToGetToEnd=true) {
@@ -94,7 +88,7 @@ namespace {
         
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 0);
     }
 
     TEST(setPoint, GIVEN_file_with_comments_in_header_WHEN_loadFile_called_THEN_comments_not_read) {
@@ -105,7 +99,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         auto table = getTable(envFilename);
 
@@ -120,14 +114,12 @@ namespace {
         
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         auto table = getTable(envFilename);
 
         ASSERT_EQ(table.rows.size(), 1);
-        ASSERT_EQ(table.rows[0].coordinates[0], 2);
-
-        ASSERT_EQ(getNumCoords(envFilename), 1);
+        ASSERT_THAT(table.rows[0].coordinates, ElementsAre(2));
     }
 
     TEST(setPoint, GIVEN_file_with_single_row_and_three_coords_WHEN_loadFile_called_THEN_single_row_and_coord_with_correct_data) {
@@ -138,14 +130,12 @@ namespace {
         
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 3);
 
         auto table = getTable(envFilename);
 
         ASSERT_EQ(table.rows.size(), 1);
         ASSERT_THAT(table.rows[0].coordinates, ElementsAre(2, 9, 8));
-
-        ASSERT_EQ(getNumCoords(envFilename), 3);
     }
 
     TEST(setPoint, GIVEN_file_with_multiple_rows_and_single_coord_WHEN_loadFile_called_THEN_multiple_rows_and_coord_with_correct_data) {
@@ -156,15 +146,13 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         auto table = getTable(envFilename);
 
         ASSERT_EQ(table.rows.size(), 2);
-        ASSERT_EQ(table.rows[0].coordinates[0], 2);
-        ASSERT_EQ(table.rows[1].coordinates[0], 7);
-
-        ASSERT_EQ(getNumCoords(envFilename), 1);
+        ASSERT_THAT(table.rows[0].coordinates, ElementsAre(2));
+        ASSERT_THAT(table.rows[1].coordinates, ElementsAre(7));
     }
 
     TEST(setPoint, GIVEN_file_with_inconsistent_coord_WHEN_loadFile_called_THEN_table_cleared) {
@@ -175,7 +163,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines, false);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         auto table = getTable(envFilename);
 
@@ -190,7 +178,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines, false);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         auto table = getTable(envFilename);
 
@@ -205,7 +193,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines, false);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 2);
 
         auto table = getTable(envFilename);
 
@@ -222,7 +210,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         int positionFound = posn2name(42.0, 0.1, envFilename, posDiff);
 
@@ -243,7 +231,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         int positionFound = posn2name(42.1, 0.2, envFilename, posDiff);
 
@@ -264,7 +252,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         int positionFound = posn2name(40.0, 0.1, envFilename, posDiff);
 
@@ -284,7 +272,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 2);
 
         int positionFound = posn2name(42.0, 78.0, 0.1, envFilename, posDiff);
 
@@ -305,7 +293,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 2);
 
         int positionFound = posn2name(42.1, 77.9, 0.2, envFilename, posDiff);
 
@@ -326,7 +314,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 2);
 
         int positionFound = posn2name(40.0, 77, 0.1, envFilename, posDiff);
 
@@ -347,7 +335,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 3);
 
 
         int positionFound = posn2name(position, 0.2, envFilename, posDiff);
@@ -368,7 +356,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 3);
 
         int positionFound = name2posn("Position_42_78_98", envFilename);
 
@@ -391,7 +379,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         int positionFound = name2posn("Position_42", envFilename);
 
@@ -410,7 +398,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         int positionFound = name2posn("position_42", envFilename);
 
@@ -429,7 +417,7 @@ namespace {
 
         createMockFile(&mockFile, testFilename, fileLines);
 
-        loadFile(&mockFile, testFilename, envFilename);
+        loadFile(&mockFile, testFilename, envFilename, 1);
 
         int positionFound = name2posn("Position_89", envFilename);
 

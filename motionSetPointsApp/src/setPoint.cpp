@@ -52,7 +52,6 @@ private:
 // Global map of lookup tables, keyed by their environment vars
 static std::map<const std::string, LookupTable> gTables;
 static epicsMutex g_lock;
-static std::map<const std::string, int> g_numCoords;
 
 // implementation of std::less<> for caseless string comparison
 struct CaselessCompare {
@@ -61,23 +60,15 @@ struct CaselessCompare {
 	}
 };
 
-/* Load the lookup file if it is not already loaded */
-void checkLoadFile(const char* env_fname) {
-	std::string key(env_fname);
-	if ( gTables.count(key)==0 ) {
-		loadDefFile(env_fname);
-	}
-}
-
 /* Load the lookup file named by the environment variable */
-void loadDefFile(const char* env_fname) {
+void loadDefFile(const char* env_fname, int expectedNumberOfCoords) {
     FileIO fileIO;
 	const char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
 		errlogSevPrintf(errlogMajor, "motionSetPoints: Environment variable \"%s\" not set\n", env_fname);
 		return;
 	}
-	loadFile(&fileIO, fname, env_fname);
+	loadFile(&fileIO, fname, env_fname, expectedNumberOfCoords);
 }
 
 // Find the table structure for a key
@@ -105,7 +96,8 @@ LookupRow createRowFromFileLine(std::string fileLine) {
 //   FileIOInterface *fileIO    [in] Interface to interact with the file system
 //   const char *fname          [in] File to load
 //   const char *env_fname      [in] Key to identify file
-void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname) {
+//   int expectedNumberOfCoords [in] Expected number of coordinates
+void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname, int expectedNumberOfCoords) {
 	std::set<std::string, CaselessCompare> read_names; // for checking uniqueness
 	fileIO->Open(fname);
 	int rowCount = 0;
@@ -117,9 +109,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
 	LookupTable& table = getTable(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
-	
-    setNumCoords(env_fname, 0);
-    int numCoords = 0;
+
 	while ( fileIO->ReadLine(line) ) {
 		if ( line.rfind('#', 0) != 0) {
 			LookupRow row = createRowFromFileLine(line);
@@ -130,11 +120,8 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
 				table.rows.clear();
 				return;
 			}
-            else if ( numCoords==0 ) {
-                numCoords = numberOfCoordsInLine;
-            }
-            else if ( numCoords != numberOfCoordsInLine) {
-				errlogSevPrintf(errlogMajor, "motionSetPoints: Inconsistent column count in %s line %d\n", fname, table.rows.size()+1);
+            if ( numberOfCoordsInLine != expectedNumberOfCoords) {
+				errlogSevPrintf(errlogMajor, "motionSetPoints: Unexpected number of columns in %s line %d\n", fname, table.rows.size()+1);
                 fileIO->Close();
 				table.rows.clear();
 				return;
@@ -161,8 +148,6 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname)
 		}
 	}
     fileIO->Close();
-    
-    setNumCoords(env_fname, numCoords);
 
 	if ( table.rows.size()==0 ) {
 		errlogSevPrintf(errlogMinor, "motionSetPoints: Lookup file %s contains no rows\n", fname);
@@ -257,7 +242,6 @@ int posn2name(double x, double y, double tol, const char* env_fname, double& pos
 //   
 int getPosn(int coordinate, bool isRBV, const char* env_fname, double& position) {
 	LookupTable& table = getTable(env_fname);
-
 	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
 	if ( pRow == NULL ) {
 		return -1;
@@ -344,24 +328,4 @@ size_t numPositions(const char* env_fname)
 {
 	LookupTable &table = getTable(env_fname);
     return table.rows.size();
- }
-
-// Return the number of coordinates in the current lookup
-// Arguments:
-//   const char *env_fname [in]  Key to identify file
-int getNumCoords(const char *env_fname) {
-                std::string key(env_fname);
-                epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
-                int numCoords = g_numCoords[key];
-                return numCoords;
-}
-
-// Set the number of coordinates in the current lookup
-// Arguments:
-//   const char *env_fname [in]  Key to identify file
-//         int   numCoords [in]  Number of coordinates
-void setNumCoords(const char *env_fname, int numCoords) {
-                std::string key(env_fname);
-                epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
-                g_numCoords[key] = numCoords;
 }

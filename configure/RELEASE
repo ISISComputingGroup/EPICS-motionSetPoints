@@ -8,6 +8,7 @@ MOTOR=$(SUPPORT)/motor/master
 ONCRPC=$(SUPPORT)/oncrpc/master
 SNCSEQ=$(SUPPORT)/seq/master
 SSCAN=$(SUPPORT)/sscan/master
+UTILITIES=$(SUPPORT)/utilities/master
 
 # optional extra local definitions here
 -include $(TOP)/configure/RELEASE.private

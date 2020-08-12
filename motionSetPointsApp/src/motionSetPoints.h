@@ -6,7 +6,7 @@
 class motionSetPoints : public asynPortDriver 
 {
 public:
-    motionSetPoints(const char* portName, const char* fileName);
+    motionSetPoints(const char* portName, const char* fileName, int numberOfCoordinates);
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
     virtual asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
 	virtual asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual);
@@ -39,13 +39,10 @@ private:
 #define LAST_MSP_PARAM P_coordRBV
 
 	void updateAvailablePositions();
-    //void updateCurrPosn();
-	void updateCurrPosn(double coord1, double coord2);
+    void updateCurrPosn();
     int gotoPosition(const char* value);
 	
 };
-
-#define NUM_AXES 2
 
 #define NUM_MSP_PARAMS (&LAST_MSP_PARAM - &FIRST_MSP_PARAM + 1)
 

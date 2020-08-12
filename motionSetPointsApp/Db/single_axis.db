@@ -1,0 +1,106 @@
+record(stringin, "$(P)COORD$(AXIS_NUM):NAME")
+{
+	field(DESC, "Name of the first coord")
+	field(VAL, "$(NAME=$(TARGET_PV=$(AXIS=)))")
+}
+
+alias("$(TARGET_PV=$(AXIS):MTR)","$(P)COORD$(AXIS_NUM):MTR")
+
+record(ai, "$(P)COORD$(AXIS_NUM):NO_OFFSET")
+{
+	field(DESC, "Target position $(AXIS_NUM) no offset")
+	field(DTYP,"asynFloat64")
+    field(FLNK, "$(P)COORD$(AXIS_NUM)")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+	field(INP,"@asyn($(LOOKUP),$(AXIS_NUM))COORDRBV")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(ai, "$(P)COORD$(AXIS_NUM):OFFSET")
+{
+    field(DESC, "Offset for coord $(AXIS_NUM)")
+    field(FLNK, "$(P)COORD$(AXIS_NUM)")
+  	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+    info(autosaveFields, "VAL")
+}
+
+alias("$(P)COORD$(AXIS_NUM):OFFSET", "$(P)COORD$(AXIS_NUM):OFFSET:SP")
+
+record(calc, "$(P)COORD$(AXIS_NUM)")
+{
+    field(DESC, "Position $(AXIS_NUM) with offset")
+    field(INPA, "$(P)COORD$(AXIS_NUM):NO_OFFSET MS")
+    field(INPB, "$(P)COORD$(AXIS_NUM):OFFSET")
+    field(CALC, "A+B")
+    field(FLNK, "$(P)INT:WRITE$(AXIS_NUM)")
+  	field(EGU,"mm")
+	field(PREC,"1")
+	field(VAL,"0")
+    field(ASG, "READONLY")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+
+record(dfanout, "$(P)INT:WRITE$(AXIS_NUM)")
+{
+	field(DESC, "Pushes COORD$(AXIS_NUM) to motor")
+	field(DOL, "$(P)COORD$(AXIS_NUM)")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(TARGET_PV=$(AXIS):SP)")
+	field(SELM, "Mask")
+	field(SELN, "1")
+	field(FLNK, "$(TARGET_PV=$(AXIS):SP)")
+}
+
+record(ao, "$(P)COORD$(AXIS_NUM):RBV")
+{
+	field(DESC, "Current motor $(AXIS_NUM) position")
+	field(FLNK, "$(P)COORD$(AXIS_NUM):RBV:OFFSET")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(OUT,"$(P)COORD$(AXIS_NUM):RBV:OFFSET.A")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(calcout, "$(P)COORD$(AXIS_NUM):RBV:OFFSET")
+{
+    field(DESC, "Motor $(AXIS_NUM) position with offset")
+	field(FLNK, "$(P)COORD$(AXIS_NUM):LOOKUP:SET:RBV")
+	field(EGU, "mm")
+	field(PREC,"1")
+    field(INPA, "0") 
+    field(INPB, "$(P)COORD$(AXIS_NUM):OFFSET")
+    field(CALC, "A-B")
+	field(OUT,"$(P)COORD$(AXIS_NUM):LOOKUP:SET:RBV")
+}
+
+record(ao, "$(P)COORD$(AXIS_NUM):LOOKUP:SET:RBV")
+{
+	field(DESC, "Send motor $(AXIS_NUM) position to lookup")
+	field(DTYP,"asynFloat64")
+	field(FLNK, "$(P)POSN_NO_ERR")
+	field(EGU,"mm")
+	field(PREC,"1")
+	field(OUT,"@asyn($(LOOKUP),$(AXIS_NUM))COORD")
+}
+
+record(dfanout, "$(P)INT:READ$(AXIS_NUM)")
+{
+	field(DESC, "Updates COORD$(AXIS_NUM):RBV")
+	field(SCAN, "1 second")
+	field(DOL, "$(TARGET_RBV=$(AXIS)) MS")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(P)COORD$(AXIS_NUM):RBV MS")
+	field(SELM, "Mask")
+	field(SELN, "1")
+	field(FLNK, "$(P)COORD$(AXIS_NUM):RBV")
+}
