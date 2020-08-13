@@ -10,7 +10,9 @@ record(ai, "$(P):MTR")
 	field(DESC, "Dummy record to help with mtr alias")
 }
 
-alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD0:MTR")
+alias("$(MTR_PV)","$(P)COORD0:MTR")
+
+#alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD0:MTR")
 
 record(stringin, "$(P)POSN:SP:RBV")
 {
