@@ -1,8 +1,6 @@
 file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
-	pattern{ P, LOOKUP, TARGET_RBV1, TARGET_RBV2, TARGET_DONE, TARGET_DONE2 }
-
-	pattern{ P, LOOKUP, TARGET_RBV1, TARGET_RBV2, TARGET_DONE, TARGET_DONE2 }
-	{ "\$(P)", "\$(LOOKUP)", "\$(TARGET_RBV1=$(AXIS1))", "\$(TARGET_RBV2=$(AXIS2))", "\$(TARGET_DONE=$(AXIS1):DMOV)", "\$(TARGET_DONE2=$(AXIS2):DMOV)" }
+	pattern{ P, LOOKUP, TARGET_RBV1, TARGET_RBV2, TARGET_DONE1, TARGET_DONE2 }
+	{ "\$(P)", "\$(LOOKUP)", "\$(TARGET_RBV1=$(AXIS1))", "\$(TARGET_RBV2=$(AXIS2))", "\$(TARGET_DONE1=$(AXIS1):DMOV)", "\$(TARGET_DONE2=$(AXIS2):DMOV)" }
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {

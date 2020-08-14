@@ -1,9 +1,3 @@
-# colon in :MTR is needed because it is a dummy for $(P):MTR in alias
-record(ai, "$(P):MTR")
-{
-	field(DESC, "Dummy record to help with mtr alias")
-}
-
 record(stringin, "$(P)POSN:SP:RBV")
 {
 	field(DESC, "Current target")
@@ -65,7 +59,7 @@ record(scalcout, "$(P)POSN_CALC")
 	field(DESC, "Add alarm to current position")
 	field(INAA, "$(P)POSN_NO_ERR")
 	field(INPA, "$(TARGET_RBV1) MS")
-	field(INPB, "$(TARGET_RBV2) MS")
+	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1)) MS")
 
     field(CALC, "AA")
     field(OUT, "$(P)POSN MS")
@@ -111,26 +105,10 @@ record(ai, "$(P)STATIONARY")
 {
     field(DESC, "Is sample in position")
 	field(SCAN, "1 second")
-	field(INP, "$(TARGET_DONE)")
+	field(INP, "$(TARGET_DONE1)")
 	field(FLNK, "$(P)POSITIONED")
 	field(EGU, "")
     info(INTEREST, "HIGH")
-}
-
-# colon in :DMOV is needed because it is a dummy for $(P):DMOV in alias
-record(ai, "$(P):DMOV")
-{
-    field(DESC, "Dummy record for when there is no axis 2")
-    field(VAL, 0)
-    field(PINI, "YES")
-}
-
-# colon in :SP is needed because it is a dummy for $(P):SP in alias
-record(ai, "$(P):SP")
-{
-    field(DESC, "Dummy record for when there is no axis 2")
-    field(VAL, 0)
-    field(PINI, "YES")
 }
 
 record(ao, "$(P)RESET")
@@ -197,8 +175,8 @@ record(ai, "$(P)POSDIFF")
 ## when are we in position? When position names match and we have stopped moving
 record(calc, "$(P)POSITIONED")
 {
-	field(INPA, "$(TARGET_DONE) MS")
-    field(INPB, "$(TARGET_DONE2) MS")   
+	field(INPA, "$(TARGET_DONE1) MS")
+    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE1)) MS")   
     field(INPC, "$(P)NUMAXES")
 	field(INPD, "$(P)IPOSN:SP:RBV")
 	field(INPE, "$(P)IPOSN")
