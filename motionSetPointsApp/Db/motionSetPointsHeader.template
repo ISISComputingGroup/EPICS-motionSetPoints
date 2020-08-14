@@ -1,18 +1,8 @@
-record(stringin, "$(P)COORD0:NAME")
-{
-	field(DESC, "Name of the first coord")
-	field(VAL, "$(NAME1=$(TARGET_PV1=$(AXIS1=)))")
-}
-
 # colon in :MTR is needed because it is a dummy for $(P):MTR in alias
 record(ai, "$(P):MTR")
 {
 	field(DESC, "Dummy record to help with mtr alias")
 }
-
-alias("$(MTR_PV)","$(P)COORD0:MTR")
-
-#alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD0:MTR")
 
 record(stringin, "$(P)POSN:SP:RBV")
 {
@@ -74,8 +64,8 @@ record(scalcout, "$(P)POSN_CALC")
 {
 	field(DESC, "Add alarm to current position")
 	field(INAA, "$(P)POSN_NO_ERR")
-	field(INPA, "$(TARGET_RBV1=$(AXIS1)) MS")
-	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1=$(AXIS2=$(AXIS1)))) MS")
+	field(INPA, "$(TARGET_RBV1) MS")
+	field(INPB, "$(TARGET_RBV2) MS")
 
     field(CALC, "AA")
     field(OUT, "$(P)POSN MS")
@@ -121,7 +111,7 @@ record(ai, "$(P)STATIONARY")
 {
     field(DESC, "Is sample in position")
 	field(SCAN, "1 second")
-	field(INP, "$(TARGET_DONE=$(AXIS1):DMOV)")
+	field(INP, "$(TARGET_DONE)")
 	field(FLNK, "$(P)POSITIONED")
 	field(EGU, "")
     info(INTEREST, "HIGH")
@@ -133,106 +123,6 @@ record(ai, "$(P):DMOV")
     field(DESC, "Dummy record for when there is no axis 2")
     field(VAL, 0)
     field(PINI, "YES")
-}
-
-record(ai, "$(P)COORD0:NO_OFFSET")
-{
-	field(DESC, "Target position 1 no offset")
-	field(DTYP,"asynFloat64")
-    field(FLNK, "$(P)COORD0")
-	field(EGU,"mm")
-	field(PREC,"1")
-	field(VAL,"0")
-	field(INP,"@asyn($(LOOKUP),0)COORDRBV")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
-}
-
-record(ai, "$(P)COORD0:OFFSET")
-{
-    field(DESC, "Offset for coord 0")
-    field(FLNK, "$(P)COORD0")
-  	field(EGU,"mm")
-	field(PREC,"1")
-	field(VAL,"0")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
-    info(autosaveFields, "VAL")
-}
-
-alias("$(P)COORD0:OFFSET", "$(P)COORD0:OFFSET:SP")
-
-record(calc, "$(P)COORD0")
-{
-    field(DESC, "Position 0 with offset")
-    field(INPA, "$(P)COORD0:NO_OFFSET MS")
-    field(INPB, "$(P)COORD0:OFFSET")
-    field(CALC, "A+B")
-    field(FLNK, "$(P)INT:WRITE0")
-  	field(EGU,"mm")
-	field(PREC,"1")
-	field(VAL,"0")
-    field(ASG, "READONLY")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
-}
-
-
-record(dfanout, "$(P)INT:WRITE0")
-{
-	field(DESC, "Pushes COORD0 to motor")
-	field(DOL, "$(P)COORD0")
-	field(OMSL, "closed_loop")
-	field(OUTA, "$(TARGET_PV1=$(AXIS1):SP)")
-	field(SELM, "Mask")
-	field(SELN, "1")
-	field(FLNK, "$(TARGET_PV1=$(AXIS1):SP)")
-}
-
-record(ao, "$(P)COORD0:RBV")
-{
-	field(DESC, "Current motor 0 position")
-	field(FLNK, "$(P)COORD0:RBV:OFFSET")
-	field(EGU,"mm")
-	field(PREC,"1")
-	field(OUT,"$(P)COORD0:RBV:OFFSET.A")
-    info(INTEREST, "HIGH")
-    info(archive, "VAL")
-}
-
-record(calcout, "$(P)COORD0:RBV:OFFSET")
-{
-    field(DESC, "Motor 0 position with offset")
-	field(FLNK, "$(P)COORD0:LOOKUP:SET:RBV")
-	field(EGU, "mm")
-	field(PREC,"1")
-    # A is set by COORD0:RBV
-    field(INPA, "0") 
-    field(INPB, "$(P)COORD0:OFFSET")
-    field(CALC, "A-B")
-	field(OUT,"$(P)COORD0:LOOKUP:SET:RBV")
-}
-
-record(ao, "$(P)COORD0:LOOKUP:SET:RBV")
-{
-	field(DESC, "Send motor 0 position to lookup")
-	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)POSN_NO_ERR")
-	field(EGU,"mm")
-	field(PREC,"1")
-	field(OUT,"@asyn($(LOOKUP),0)COORD")
-}
-
-record(dfanout, "$(P)INT:READ0")
-{
-	field(DESC, "Updates COORD0:RBV")
-	field(SCAN, "1 second")
-	field(DOL, "$(TARGET_RBV1=$(AXIS1)) MS")
-	field(OMSL, "closed_loop")
-	field(OUTA, "$(P)COORD0:RBV MS")
-	field(SELM, "Mask")
-	field(SELN, "1")
-	field(FLNK, "$(P)COORD0:RBV")
 }
 
 # colon in :SP is needed because it is a dummy for $(P):SP in alias
@@ -307,8 +197,8 @@ record(ai, "$(P)POSDIFF")
 ## when are we in position? When position names match and we have stopped moving
 record(calc, "$(P)POSITIONED")
 {
-	field(INPA, "$(TARGET_DONE=$(AXIS1):DMOV) MS")
-    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE=$(AXIS2=$(AXIS1)):DMOV)) MS")   
+	field(INPA, "$(TARGET_DONE) MS")
+    field(INPB, "$(TARGET_DONE2) MS")   
     field(INPC, "$(P)NUMAXES")
 	field(INPD, "$(P)IPOSN:SP:RBV")
 	field(INPE, "$(P)IPOSN")
