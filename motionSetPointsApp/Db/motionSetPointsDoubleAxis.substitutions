@@ -1,10 +1,10 @@
 file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
-	pattern{ P, LOOKUP, TARGET_RBV1, TARGET_RBV2, TARGET_DONE1, TARGET_DONE2 }
-	{ "\$(P)", "\$(LOOKUP)", "\$(TARGET_RBV1=$(AXIS1))", "\$(TARGET_RBV2=$(AXIS2))", "\$(TARGET_DONE1=$(AXIS1):DMOV)", "\$(TARGET_DONE2=$(AXIS2):DMOV)" }
+	pattern{ P, LOOKUP, AXIS1, AXIS2 }
+	{ "\$(P)", "\$(LOOKUP)", "\$(AXIS1)", "\$(AXIS2)" }
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
-	pattern{ P, AXIS_NUM, AXIS, LOOKUP, TARGET_PV, TARGET_RBV, TARGET_DONE, MTR_PV }
-	{ "\$(P)", "0", "\$(AXIS1)", "\$(LOOKUP)", "\$(TARGET_PV1=$(AXIS1):SP)", "\$(TARGET_RBV1=$(AXIS1))", "\$(TARGET_DONE1=$(AXIS1):DMOV)", "\$(TARGET_PV1=$(AXIS1):MTR)"}
-	{ "\$(P)", "1", "\$(AXIS2)", "\$(LOOKUP)", "\$(TARGET_PV2=$(AXIS2):SP)", "\$(TARGET_RBV2=$(AXIS2))", "\$(TARGET_DONE2=$(AXIS2):DMOV)", "\$(TARGET_PV2=$(AXIS2):MTR)"}
+	pattern{ P, AXIS_NUM, AXIS, LOOKUP }
+	{ "\$(P)", "0", "\$(AXIS1)", "\$(LOOKUP)" }
+	{ "\$(P)", "1", "\$(AXIS2)", "\$(LOOKUP)" }
 }

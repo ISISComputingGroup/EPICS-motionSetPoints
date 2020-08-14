@@ -1,10 +1,10 @@
 file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
-	pattern{ P, LOOKUP, TARGET_RBV1, TARGET_DONE }
-	{ "\$(P)", "\$(LOOKUP)", "\$(TARGET_RBV1=$(AXIS1))", "\$(TARGET_DONE1=$(AXIS1):DMOV)" }
+	pattern{ P, LOOKUP, AXIS1 }
+	{ "\$(P)", "\$(LOOKUP)", "\$(AXIS1)" }
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
-	pattern{ P, AXIS_NUM, AXIS, LOOKUP, TARGET_PV, TARGET_RBV, TARGET_DONE, MTR_PV }
-	{ "\$(P)", "0", "\$(AXIS1)", "\$(LOOKUP)", "\$(TARGET_PV1=$(AXIS1):SP)", "\$(TARGET_RBV1=$(AXIS1))", "\$(TARGET_DONE1=$(AXIS1):DMOV)", "\$(TARGET_PV1=$(AXIS1):MTR)"}
+	pattern{ P, AXIS_NUM, AXIS, LOOKUP }
+	{ "\$(P)", "0", "\$(AXIS1)", "\$(LOOKUP)" }
 }
 

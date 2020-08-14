@@ -1,10 +1,10 @@
 record(stringin, "$(P)COORD$(AXIS_NUM):NAME")
 {
 	field(DESC, "Name of the first coord")
-	field(VAL, "$(NAME=$(TARGET_PV=$(AXIS=)))")
+	field(VAL, "$(NAME=$(AXIS=))")
 }
 
-alias("$(MTR_PV)","$(P)COORD$(AXIS_NUM):MTR")
+alias("$(AXIS):MTR","$(P)COORD$(AXIS_NUM):MTR")
 
 record(ai, "$(P)COORD$(AXIS_NUM):NO_OFFSET")
 {
@@ -54,10 +54,10 @@ record(dfanout, "$(P)INT:WRITE$(AXIS_NUM)")
 	field(DESC, "Pushes COORD$(AXIS_NUM) to motor")
 	field(DOL, "$(P)COORD$(AXIS_NUM)")
 	field(OMSL, "closed_loop")
-	field(OUTA, "$(TARGET_PV=$(AXIS):SP)")
+	field(OUTA, "$(AXIS):SP")
 	field(SELM, "Mask")
 	field(SELN, "1")
-	field(FLNK, "$(TARGET_PV=$(AXIS):SP)")
+	field(FLNK, "$(AXIS):SP")
 }
 
 record(ao, "$(P)COORD$(AXIS_NUM):RBV")
@@ -97,7 +97,7 @@ record(dfanout, "$(P)INT:READ$(AXIS_NUM)")
 {
 	field(DESC, "Updates COORD$(AXIS_NUM):RBV")
 	field(SCAN, "1 second")
-	field(DOL, "$(TARGET_RBV=$(AXIS)) MS")
+	field(DOL, "$(AXIS) MS")
 	field(OMSL, "closed_loop")
 	field(OUTA, "$(P)COORD$(AXIS_NUM):RBV MS")
 	field(SELM, "Mask")
@@ -109,7 +109,7 @@ record(ai, "$(P)STATIONARY$(AXIS_NUM)")
 {
     field(DESC, "Is sample in position")
 	field(SCAN, "1 second")
-	field(INP, "$(TARGET_DONE=$(AXIS=$(P)):DMOV)")
+	field(INP, "$(AXIS):DMOV")
 	field(FLNK, "$(P)POSITIONED")
 	field(EGU, "")
     info(INTEREST, "HIGH")

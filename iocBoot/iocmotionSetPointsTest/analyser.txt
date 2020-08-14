@@ -1,3 +1,0 @@
-# Lookup file for analyser
-In -1 -2.0
-Out -5 -10.0

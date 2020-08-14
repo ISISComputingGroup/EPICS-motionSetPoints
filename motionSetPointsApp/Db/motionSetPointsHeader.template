@@ -58,8 +58,8 @@ record(scalcout, "$(P)POSN_CALC")
 {
 	field(DESC, "Add alarm to current position")
 	field(INAA, "$(P)POSN_NO_ERR")
-	field(INPA, "$(TARGET_RBV1) MS")
-	field(INPB, "$(TARGET_RBV2=$(TARGET_RBV1)) MS")
+	field(INPA, "$(AXIS1) MS")
+	field(INPB, "$(AXIS2=$(AXIS1)) MS")
 
     field(CALC, "AA")
     field(OUT, "$(P)POSN MS")
@@ -99,16 +99,6 @@ record(longin, "$(P)NIPOSN")
 	field(INP,"@asyn($(LOOKUP),0)NIPOSN")
 	field(EGU, "")
 	field(SCAN, "I/O Intr")
-}
-
-record(ai, "$(P)STATIONARY")
-{
-    field(DESC, "Is sample in position")
-	field(SCAN, "1 second")
-	field(INP, "$(TARGET_DONE1)")
-	field(FLNK, "$(P)POSITIONED")
-	field(EGU, "")
-    info(INTEREST, "HIGH")
 }
 
 record(ao, "$(P)RESET")
@@ -175,8 +165,8 @@ record(ai, "$(P)POSDIFF")
 ## when are we in position? When position names match and we have stopped moving
 record(calc, "$(P)POSITIONED")
 {
-	field(INPA, "$(TARGET_DONE1) MS")
-    field(INPB, "$(TARGET_DONE2=$(TARGET_DONE1)) MS")   
+	field(INPA, "$(AXIS1):DMOV MS")
+    field(INPB, "$(AXIS2=$(AXIS1)):DMOV MS")   
     field(INPC, "$(P)NUMAXES")
 	field(INPD, "$(P)IPOSN:SP:RBV")
 	field(INPE, "$(P)IPOSN")
