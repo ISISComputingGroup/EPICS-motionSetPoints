@@ -1,6 +1,6 @@
 file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
-	pattern{ P, LOOKUP, COORD0 }
-	{ "\$(P)", "\$(LOOKUP)", "0" }
+	pattern{ P, LOOKUP, AXIS1 }
+	{ "\$(P)", "\$(LOOKUP)", "\$(AXIS1)" }
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {

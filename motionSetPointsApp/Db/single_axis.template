@@ -4,8 +4,6 @@ record(stringin, "$(P)COORD$(AXIS_NUM):NAME")
 	field(VAL, "$(NAME=$(AXIS=))")
 }
 
-alias("$(AXIS):MTR","$(P)COORD$(AXIS_NUM):MTR")
-
 record(ai, "$(P)COORD$(AXIS_NUM):NO_OFFSET")
 {
 	field(DESC, "Target position $(AXIS_NUM) no offset")
