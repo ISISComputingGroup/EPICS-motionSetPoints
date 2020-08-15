@@ -1,3 +1,0 @@
-
-dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX)MOT:,AXIS=SAMPLE:LIN,mAXIS=MTR$(MTRCTRL)01")
-dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX)MOT:,AXIS=SAMPLE:ROT,mAXIS=MTR$(MTRCTRL)02")
