@@ -14,6 +14,7 @@ DB += inPos.db
 DB += analyserPolariser.db
 DB += motionSetPointsSingleAxis.db
 DB += motionSetPointsDoubleAxis.db
+DB += motionSetPoints10Axis.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

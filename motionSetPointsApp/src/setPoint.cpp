@@ -111,7 +111,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 	table.rows.clear();
 
 	while ( fileIO->ReadLine(line) ) {
-		if ( line.rfind('#', 0) != 0) {
+		if ( line.rfind('#', 0) != 0 && line.length() > 0 ) {
 			LookupRow row = createRowFromFileLine(line);
             int numberOfCoordsInLine = row.coordinates.size();
 			if (numberOfCoordsInLine == 0) {

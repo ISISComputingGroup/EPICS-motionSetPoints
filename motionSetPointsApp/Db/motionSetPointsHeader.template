@@ -12,7 +12,7 @@ record(stringout, "$(P)POSN:SP")
 {
 	field(DESC, "Set target")
 	field(DTYP,"asynOctetWrite")
-	field(FLNK, "$(P)INT:POSN:SP")
+	field(FLNK, "$(P)INT:POSN:SP_FANOUT")
 	field(OUT,"@asyn($(LOOKUP),0)POSNSP")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
@@ -31,16 +31,30 @@ record(longout, "$(P)IPOSN:SP")
 {
 	field(DESC, "Set target by index")
 	field(DTYP,"asynInt32")
-	field(FLNK, "$(P)INT:POSN:SP")
+	field(FLNK, "$(P)INT:POSN:SP_FANOUT")
 	field(OUT,"@asyn($(LOOKUP),0)IPOSNSP")
 	field(EGU, "")
 }
 
-record(fanout, "$(P)INT:POSN:SP")
+record(fanout, "$(P)INT:POSN:SP_FANOUT")
 {
 	field(DESC, "Propagate set")
-	field(LNK1, "$(P)COORD0:NO_OFFSET")
-	field(LNK2, "$(P)COORD1:NO_OFFSET")
+	field(LNK1, "$(P)COORD0:NO_OFFSET.PROC")
+	field(LNK2, "$(P)COORD1:NO_OFFSET.PROC")
+	field(LNK3, "$(P)COORD2:NO_OFFSET.PROC")
+	field(LNK4, "$(P)COORD3:NO_OFFSET.PROC")
+	field(LNK5, "$(P)COORD4:NO_OFFSET.PROC")
+	field(LNK6, "$(P)INT:POSN:SP_FANOUT2.PROC")
+}
+
+record(fanout, "$(P)INT:POSN:SP_FANOUT2")
+{
+	field(DESC, "Propagate set")
+	field(LNK1, "$(P)COORD5:NO_OFFSET.PROC")
+	field(LNK2, "$(P)COORD6:NO_OFFSET.PROC")
+	field(LNK3, "$(P)COORD7:NO_OFFSET.PROC")
+	field(LNK4, "$(P)COORD8:NO_OFFSET.PROC")
+	field(LNK5, "$(P)COORD9:NO_OFFSET.PROC")
 }
 
 record(stringin, "$(P)POSN_NO_ERR")
