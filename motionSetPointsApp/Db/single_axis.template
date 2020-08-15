@@ -110,7 +110,7 @@ record(ai, "$(P)STATIONARY$(AXIS_NUM)")
     field(DESC, "Is sample in position")
 	field(SCAN, "1 second")
 	field(INP, "$(AXIS):DMOV")
-	field(FLNK, "$(P)POSITIONED")
+	field(FLNK, "$(P)STATIONARY")
 	field(EGU, "")
     info(INTEREST, "HIGH")
 }

@@ -58,9 +58,8 @@ record(scalcout, "$(P)POSN_CALC")
 {
 	field(DESC, "Add alarm to current position")
 	field(INAA, "$(P)POSN_NO_ERR")
-	field(INPA, "$(AXIS1) MS")
-	field(INPB, "$(AXIS2=$(AXIS1)) MS")
-
+	field(INPA, "$(P)FORWARD_ALARM MS")
+	
     field(CALC, "AA")
     field(OUT, "$(P)POSN MS")
     field(FLNK, "$(P)POSN")
@@ -162,15 +161,48 @@ record(ai, "$(P)POSDIFF")
 	field(PREC,"3")
 }
 
+record(calc, "$(P)FORWARD_ALARM")
+{
+	field(DESC, "Forwards the alarm from axes")
+	field(INPA, "$(P)COORD$(COORD0):MTR CP MS")
+	field(INPB, "$(P)COORD$(COORD1=0):MTR CP MS")   
+	field(INPC, "$(P)COORD$(COORD2=0):MTR CP MS")   
+	field(INPD, "$(P)COORD$(COORD3=0):MTR CP MS")   
+	field(INPE, "$(P)COORD$(COORD4=0):MTR CP MS")   
+	field(INPF, "$(P)COORD$(COORD5=0):MTR CP MS")   
+	field(INPG, "$(P)COORD$(COORD6=0):MTR CP MS")   
+	field(INPH, "$(P)COORD$(COORD7=0):MTR CP MS")   
+	field(INPI, "$(P)COORD$(COORD8=0):MTR CP MS")   
+	field(INPJ, "$(P)COORD$(COORD9=0):MTR CP MS")  
+	
+}
+record(calc, "$(P)STATIONARY")
+{
+    field(DESC, "Is sample in position")
+	field(INPA, "$(P)STATIONARY$(COORD0)")
+	field(INPB, "$(P)STATIONARY$(COORD1=0)")   
+	field(INPC, "$(P)STATIONARY$(COORD2=0)")   
+	field(INPD, "$(P)STATIONARY$(COORD3=0)")   
+	field(INPE, "$(P)STATIONARY$(COORD4=0)")   
+	field(INPF, "$(P)STATIONARY$(COORD5=0)")   
+	field(INPG, "$(P)STATIONARY$(COORD6=0)")   
+	field(INPH, "$(P)STATIONARY$(COORD7=0)")   
+	field(INPI, "$(P)STATIONARY$(COORD8=0)")   
+	field(INPJ, "$(P)STATIONARY$(COORD9=0)")   
+	field(CALC, "(A&&B&&C&&D&&E&&F&&G&&H&&I&&J)")
+	field(FLNK, "$(P)POSITIONED")
+	field(EGU, "")
+    info(INTEREST, "HIGH")
+}
+
 ## when are we in position? When position names match and we have stopped moving
 record(calc, "$(P)POSITIONED")
 {
-	field(INPA, "$(AXIS1):DMOV MS")
-    field(INPB, "$(AXIS2=$(AXIS1)):DMOV MS")   
-    field(INPC, "$(P)NUMAXES")
-	field(INPD, "$(P)IPOSN:SP:RBV")
-	field(INPE, "$(P)IPOSN")
-	field(CALC, "(D==E)&&(C==1?A:A&&B)")
+	field(INPA, "$(P)STATIONARY")
+	field(INPB, "$(P)IPOSN:SP:RBV")
+	field(INPC, "$(P)IPOSN")
+	field(INPD, "$(P)FORWARD_ALARM MS")
+	field(CALC, "(B==C)&&A")
 }
 # The DMOV for POSN is the same as POSITIONED
 alias("$(P)POSITIONED", "$(P)POSN:DMOV")
