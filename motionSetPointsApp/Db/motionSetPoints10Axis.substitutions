@@ -1,0 +1,18 @@
+file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
+	pattern{ P, LOOKUP, COORD0, COORD1, COORD2, COORD3, COORD4, COORD5, COORD6, COORD7, COORD8, COORD9 }
+	{ "\$(P)", "\$(LOOKUP)", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }
+}
+
+file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
+	pattern{ P, AXIS_NUM, AXIS, LOOKUP }
+	{ "\$(P)", "0", "\$(AXIS1)", "\$(LOOKUP)" }
+	{ "\$(P)", "1", "\$(AXIS2)", "\$(LOOKUP)" }
+	{ "\$(P)", "2", "\$(AXIS3)", "\$(LOOKUP)" }
+	{ "\$(P)", "3", "\$(AXIS4)", "\$(LOOKUP)" }
+	{ "\$(P)", "4", "\$(AXIS5)", "\$(LOOKUP)" }
+	{ "\$(P)", "5", "\$(AXIS6)", "\$(LOOKUP)" }
+	{ "\$(P)", "6", "\$(AXIS7)", "\$(LOOKUP)" }
+	{ "\$(P)", "7", "\$(AXIS8)", "\$(LOOKUP)" }
+	{ "\$(P)", "8", "\$(AXIS9)", "\$(LOOKUP)" }
+	{ "\$(P)", "9", "\$(AXIS10)", "\$(LOOKUP)" }
+}
