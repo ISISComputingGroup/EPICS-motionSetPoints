@@ -262,41 +262,17 @@ int getPosnName(char *target, int isRBV, const char* env_fname) {
 
 // Return a list of available positions
 // Arguments:
-//         char *target    [out] Char array to which to write
-//         int   elem_size [in]  target is treated as a 2D array with each string of length elem_size
+//  std::string *target    [out] String to write the available positions into
 //   const char *env_fname [in]  Key to identify file
 // Return: 0
-int getPositions(char *target, int elem_size, int max_count, const char* env_fname) {
+void getPositions(std::string *target, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
-	
-	// Initialise to spaces because nulls confuse caget and python
-	memset(target, ' ', elem_size*max_count);
-	
-	int count = 0;
-    std::cout << "There are " << table.rows.size() << " targets\n";
-	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
-		if ( count==max_count ) {
-			errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to return all positions\n");
-			break;
-		}
-		size_t len = strlen(it->name);
-		if ( len>elem_size ) {
-			len = elem_size;
-		}
-		memcpy(target + elem_size*count, it->name, len);
-        std::cout << "Targets: " << target << "\n";
-		count++;
-	}
-	
-	if ( count<max_count ) {
-		// Need to append an end marker because NORD is not being passed by the gateway
-		strcpy(target + elem_size*count, "END");
 
-		// Have to include END in the count, or it is lost
-		count++;
+	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
+        std::string name = std::string(it->name);
+        name += std::string(40-name.size(), ' ');
+        target->append(name);
 	}
-	
-	return count;
 }
 
 

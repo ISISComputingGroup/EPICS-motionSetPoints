@@ -41,7 +41,7 @@ int name2posn(const char *name, const char* env_fname);
 int posn2name(std::vector<double> coordinates, double tol, const char* env_fname, double& pos_diff);
 int getPosn(int coordinate, bool isRBV, const char* env_fname, double& position);
 int getPosnName(char *target, int isRBV, const char* env_fname);
-int getPositions(char *target, int elem_size, int max_count, const char* env_fname);
+void getPositions(std::string *target, const char* env_fname);
 std::string getPositionByIndex(int pos, const char* env_fname);
 int getPositionIndexByName(const char* name, const char* env_fname);
 size_t numPositions(const char* env_fname);

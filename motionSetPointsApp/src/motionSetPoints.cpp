@@ -121,13 +121,11 @@ asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 // Update the list of available setpoint names
 void motionSetPoints::updateAvailablePositions() 
 {
-    const int buffer_size = 8192;
-	char* buffer = new char[buffer_size];
-	getPositions(buffer, MAX_STRING_SIZE, buffer_size / MAX_STRING_SIZE, m_fileName.c_str());
+	std::string buffer;
+	getPositions(&buffer, m_fileName.c_str());
 	setStringParam(P_positions, buffer);
     setIntegerParam(P_numpos, static_cast<int>(numPositions(m_fileName.c_str())));
     setDoubleParam(P_numAxes, m_currentCoordinates.size());
-	delete[] buffer;
 }
 
 asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
