@@ -39,22 +39,22 @@ record(longout, "$(P)IPOSN:SP")
 record(fanout, "$(P)INT:POSN:SP_FANOUT")
 {
 	field(DESC, "Propagate set")
-	field(LNK1, "$(P)COORD0:NO_OFFSET.PROC")
-	field(LNK2, "$(P)COORD1:NO_OFFSET.PROC")
-	field(LNK3, "$(P)COORD2:NO_OFFSET.PROC")
-	field(LNK4, "$(P)COORD3:NO_OFFSET.PROC")
-	field(LNK5, "$(P)COORD4:NO_OFFSET.PROC")
+	field(LNK1, "$(P)COORD0:NO_OFF.PROC")
+	field(LNK2, "$(P)COORD1:NO_OFF.PROC")
+	field(LNK3, "$(P)COORD2:NO_OFF.PROC")
+	field(LNK4, "$(P)COORD3:NO_OFF.PROC")
+	field(LNK5, "$(P)COORD4:NO_OFF.PROC")
 	field(LNK6, "$(P)INT:POSN:SP_FANOUT2.PROC")
 }
 
 record(fanout, "$(P)INT:POSN:SP_FANOUT2")
 {
 	field(DESC, "Propagate set")
-	field(LNK1, "$(P)COORD5:NO_OFFSET.PROC")
-	field(LNK2, "$(P)COORD6:NO_OFFSET.PROC")
-	field(LNK3, "$(P)COORD7:NO_OFFSET.PROC")
-	field(LNK4, "$(P)COORD8:NO_OFFSET.PROC")
-	field(LNK5, "$(P)COORD9:NO_OFFSET.PROC")
+	field(LNK1, "$(P)COORD5:NO_OFF.PROC")
+	field(LNK2, "$(P)COORD6:NO_OFF.PROC")
+	field(LNK3, "$(P)COORD7:NO_OFF.PROC")
+	field(LNK4, "$(P)COORD8:NO_OFF.PROC")
+	field(LNK5, "$(P)COORD9:NO_OFF.PROC")
 }
 
 record(stringin, "$(P)POSN_NO_ERR")

@@ -1,16 +1,16 @@
-$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILE1DAXIS","${MOTIONSETPOINTS}/settings/system_tests/lookup1D.txt")
+$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILE1DAXIS","${MOTIONSETPOINTS}/settings/lookup1D.txt")
 $(IFIOC_GALIL_01) motionSetPointsConfigure("LOOKUPFILE1DAXIS","LOOKUPFILE1DAXIS", 1)
 
-$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILE2DAXIS","${MOTIONSETPOINTS}/settings/system_tests/lookup2D.txt")
+$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILE2DAXIS","${MOTIONSETPOINTS}/settings/lookup2D.txt")
 $(IFIOC_GALIL_01) motionSetPointsConfigure("LOOKUPFILE2DAXIS","LOOKUPFILE2DAXIS", 2)
 
-$(IFIOC_GALIL_02) epicsEnvSet("LOOKUPFILE10DAXIS","${MOTIONSETPOINTS}/settings/system_tests/lookup10D.txt")
+$(IFIOC_GALIL_02) epicsEnvSet("LOOKUPFILE10DAXIS","${MOTIONSETPOINTS}/settings/lookup10D.txt")
 $(IFIOC_GALIL_02) motionSetPointsConfigure("LOOKUPFILE10DAXIS","LOOKUPFILE10DAXIS", 10)
 
-$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILEDN","${MOTIONSETPOINTS}/settings/system_tests/duplicate_names.txt")
+$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILEDN","${MOTIONSETPOINTS}/settings/duplicate_names.txt")
 $(IFIOC_GALIL_01) motionSetPointsConfigure("LOOKUPFILEDN","LOOKUPFILEDN", 1)
 
-$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILEDP","${MOTIONSETPOINTS}/settings/system_tests/duplicate_positions.txt")
+$(IFIOC_GALIL_01) epicsEnvSet("LOOKUPFILEDP","${MOTIONSETPOINTS}/settings/duplicate_positions.txt")
 $(IFIOC_GALIL_01) motionSetPointsConfigure("LOOKUPFILEDP","LOOKUPFILEDP", 2)
 
 # 1D with axis

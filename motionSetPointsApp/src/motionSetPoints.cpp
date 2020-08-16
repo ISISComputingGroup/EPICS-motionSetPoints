@@ -227,7 +227,6 @@ int motionSetPoints::gotoPosition(const char* value)
             for (int i = 0; i < m_currentCoordinates.size(); i++) {
                 if (getPosn(i, true, m_fileName.c_str(), position) == 0)
                 {
-                    std::cout << "Setting " << i << " to " << position << "\n";
                     setDoubleParam(i, P_coordRBV, position);
                 }
             }

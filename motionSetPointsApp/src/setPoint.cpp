@@ -273,6 +273,7 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 	memset(target, ' ', elem_size*max_count);
 	
 	int count = 0;
+    std::cout << "There are " << table.rows.size() << " targets\n";
 	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
 		if ( count==max_count ) {
 			errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to return all positions\n");
@@ -283,6 +284,7 @@ int getPositions(char *target, int elem_size, int max_count, const char* env_fna
 			len = elem_size;
 		}
 		memcpy(target + elem_size*count, it->name, len);
+        std::cout << "Targets: " << target << "\n";
 		count++;
 	}
 	
