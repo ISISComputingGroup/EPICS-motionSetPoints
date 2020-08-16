@@ -218,7 +218,7 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_EQ(posDiff, 0.0);
 
-        getPosnName(positionName, 0, envFilename);
+        getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "Position_42");
     }
 
@@ -240,7 +240,7 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, 0.1, 0.0000001);
 
-        getPosnName(positionName, 0, envFilename);
+        getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "Position_42");
     }
 
@@ -261,7 +261,7 @@ namespace {
 
         ASSERT_EQ(positionFound, -1);
 
-        getPosnName(positionName, 0, envFilename);
+        getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "");
     }
 
@@ -283,7 +283,7 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_EQ(posDiff, 0.0);
 
-        getPosnName(positionName, 0, envFilename);
+        getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "Position_42_78");
     }
 
@@ -305,7 +305,7 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, pow(pow(0.1, 2) + pow(0.1, 2), 0.5), 0.0000001);
 
-        getPosnName(positionName, 0, envFilename);
+        getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "Position_42_78");
     }
 
@@ -326,7 +326,7 @@ namespace {
 
         ASSERT_EQ(positionFound, -1);
 
-        getPosnName(positionName, 0, envFilename);
+        getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "");
     }
 
@@ -348,7 +348,7 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, pow(3 * pow(0.1, 2), 0.5), 0.0000001);
 
-        getPosnName(positionName, 0, envFilename);
+        getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "Position_39_63_15");
     }
 

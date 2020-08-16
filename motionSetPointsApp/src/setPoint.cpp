@@ -60,7 +60,11 @@ struct CaselessCompare {
 	}
 };
 
-/* Load the lookup file named by the environment variable */
+/* Load the lookup file named by the environment variable.
+   Arguments:
+     const char *env_fname              [in] The environment variable that contains the path to the file
+            int  expectedNumberOfCoords [in] The number of coordinates expected in the file
+ */
 void loadDefFile(const char* env_fname, int expectedNumberOfCoords) {
     FileIO fileIO;
 	const char *fname = getenv(env_fname);
@@ -71,7 +75,12 @@ void loadDefFile(const char* env_fname, int expectedNumberOfCoords) {
 	loadFile(&fileIO, fname, env_fname, expectedNumberOfCoords);
 }
 
-// Find the table structure for a key
+/* Get the table structure for a key.
+   Arguments:
+     const char *env_fname [in] Key to identify file
+   Return:
+     A reference to the lookup table
+ */
 LookupTable& getTable(const char *env_fname) {
 	std::string key(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry	
@@ -79,6 +88,12 @@ LookupTable& getTable(const char *env_fname) {
 	return table;
 }
 
+/* Create a table row from a line in the lookup file.
+   Arguments:
+     string fileLine [in] Line from file
+   Return:
+     The created row
+ */
 LookupRow createRowFromFileLine(std::string fileLine) {
     LookupRow row;
     std::stringstream ss(fileLine);
@@ -91,12 +106,13 @@ LookupRow createRowFromFileLine(std::string fileLine) {
     return row;
 }
 
-// Load a lookup file
-// Arguments
-//   FileIOInterface *fileIO    [in] Interface to interact with the file system
-//   const char *fname          [in] File to load
-//   const char *env_fname      [in] Key to identify file
-//   int expectedNumberOfCoords [in] Expected number of coordinates
+/* Load a lookup file
+   Arguments:
+     FileIOInterface *fileIO                  [in] Interface to interact with the file system
+     const char      *fname                   [in] File to load
+     const char      *env_fname               [in] Key to identify file
+     int              expectedNumberOfCoords  [in] Expected number of coordinates
+ */
 void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname, int expectedNumberOfCoords) {
 	std::set<std::string, CaselessCompare> read_names; // for checking uniqueness
 	fileIO->Open(fname);
@@ -157,11 +173,11 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 }
 
 /* Set the row RBV to the specified position, if the position exists.
- * Arguments:
-//   const char *name      [in] Name to look up
-//   const char *env_fname [in] Key to identify file
- * Return:
- *   int - 0=OK, -1=Name not found
+   Arguments:
+     const char *name      [in] Name to look up
+     const char *env_fname [in] Key to identify file
+   Return:
+     int - 0=OK, -1=Name not found
  */
 int name2posn(const char *name, const char* env_fname) {
 	LookupTable& table = getTable(env_fname);
@@ -174,7 +190,13 @@ int name2posn(const char *name, const char* env_fname) {
 	return (table.pRowRBV != NULL ? 0 : -1);
 }
 
-// return position, -1 if not found
+/* Return the index of the position with the given name
+   Arguments:
+     const char *name      [in]  The name of the position to search for
+     const char *env_fname [in]  Key to identify file
+   Return:
+         position index if found, -1 if none found
+ */
 int getPositionIndexByName(const char* name, const char* env_fname)
 {
 	LookupTable& table = getTable(env_fname);
@@ -188,11 +210,13 @@ int getPositionIndexByName(const char* name, const char* env_fname)
 }
 
 /* Get the name that best corresponds to the given position and sets the current position row pointer to this
- * Arguments:
- *   vector<double>  searchCoords    [in]  The coordinates to find the position for
- *   double          tol             [in]  Tolerence for match
- *   const char *    env_fname       [in]  Key to identify file
- *   double          pos_diff        [out] The difference between the searched for coordinates and the best match
+   Arguments:
+     vector<double>  searchCoords    [in]  The coordinates to find the position for
+     double          tol             [in]  Tolerence for match
+     const char *    env_fname       [in]  Key to identify file
+     double          pos_diff        [out] The difference between the searched for coordinates and the best match
+   Return:
+     0 if found, -1 if not
  */
 int posn2name(std::vector<double> searchCoords, double tol, const char* env_fname, double& pos_diff) {
     double best = tol * tol;
@@ -219,15 +243,15 @@ int posn2name(std::vector<double> searchCoords, double tol, const char* env_fnam
     }
 }
 
-// Return the requested coordinate for the current or readback row.
-// Arguments:
-//         int   coordinate [in] Which co-ordinate to get
-//         bool   isRBV     [in] if true requesting the readback, else the current row
-//   const char *env_fname  [in] Key to identify file
-//      double   position   [out] The position of the requested co-ordinate
-// Return:
-//   0 if found and position set, -1 if not
-//   
+/* Return the requested coordinate for the current or readback row.
+   Arguments:
+           int   coordinate [in] Which co-ordinate to get
+           bool   isRBV     [in] if true requesting the readback, else the current row
+     const char *env_fname  [in] Key to identify file
+        double   position   [out] The position of the requested co-ordinate
+   Return:
+     0 if found and position set, -1 if not
+ */   
 int getPosn(int coordinate, bool isRBV, const char* env_fname, double& position) {
 	LookupTable& table = getTable(env_fname);
 	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
@@ -240,13 +264,15 @@ int getPosn(int coordinate, bool isRBV, const char* env_fname, double& position)
 	}
 }
 
-// Return the position name
-// Arguments:
-//         char *target    [out] Char array to which to write
-//         int   isRBV     [in]  Whether to return readback (or current)
-//   const char *env_fname [in]  Key to identify file
-// Return: 0
-int getPosnName(char *target, int isRBV, const char* env_fname) {
+/* Return the position name
+   Arguments:
+           char *target    [out] Char array to which to write
+           bool  isRBV     [in]  True to return readback, False to return current
+     const char *env_fname [in]  Key to identify file
+   Return: 
+     0 if found, -1 if not
+ */
+int getPosnName(char *target, bool isRBV, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 
 	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
@@ -260,11 +286,11 @@ int getPosnName(char *target, int isRBV, const char* env_fname) {
 	}
 }
 
-// Return a list of available positions
-// Arguments:
-//  std::string *target    [out] String to write the available positions into
-//   const char *env_fname [in]  Key to identify file
-// Return: 0
+/* Return a list of available positions
+   Arguments:
+    std::string *target    [out] String to write the available positions into
+     const char *env_fname [in]  Key to identify file
+ */
 void getPositions(std::string *target, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 
@@ -275,7 +301,13 @@ void getPositions(std::string *target, const char* env_fname) {
 	}
 }
 
-
+/* Return the name of the position at the given index
+   Arguments:
+            int pos        [in]  The index of the position that you want the name for
+     const char *env_fname [in]  Key to identify file
+   Return:
+         string, name of the position at requested index 
+ */
 std::string getPositionByIndex(int pos, const char* env_fname) 
 {
 	LookupTable &table = getTable(env_fname);
@@ -290,6 +322,12 @@ std::string getPositionByIndex(int pos, const char* env_fname)
     }
 }
 
+/* Return the number of positions available
+   Arguments:
+     const char *env_fname [in]  Key to identify file
+   Return:
+     size_t, the number of positions
+ */
 size_t numPositions(const char* env_fname)
 {
 	LookupTable &table = getTable(env_fname);

@@ -81,7 +81,8 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
 	updateAvailablePositions();
 }
 
-// new position requsted
+/* Asyn driver entry point for any writeInt32 PVs.
+*/
 asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
     int function = pasynUser->reason;
@@ -91,6 +92,7 @@ asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	getParamName(function, &paramName);
     if (function == P_iposnSP)
     {
+        // New position requsted by index
         setIntegerParam(P_iposnSP, value);
         std::string posn = getPositionByIndex(value, m_fileName.c_str());
         if ( (posn.size() > 0) && (gotoPosition(posn.c_str()) == 0) )
@@ -128,6 +130,8 @@ void motionSetPoints::updateAvailablePositions()
     setDoubleParam(P_numAxes, m_currentCoordinates.size());
 }
 
+/* Asyn driver entry point for any writeFloat64 PVs.
+*/
 asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 {
     int function = pasynUser->reason;
@@ -152,6 +156,7 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 	}
     else if (function == P_tol)
 	{
+        // Tolerance changed
 		m_tol = value;
 		setDoubleParam(P_tol, value);
 		updateCurrPosn(); // as tolerance has changed, this may no longer count as a valid position 
@@ -179,13 +184,15 @@ void motionSetPoints::updateCurrPosn()
 	bool pos_ok = false;
 	static const double max_tol = sqrt(std::numeric_limits<double>::max());
     int iposn;
+    // Set the nearest position
     posn2name(m_currentCoordinates, max_tol, m_fileName.c_str(), pos_diff);
-    getPosnName(currentPosition, 0, m_fileName.c_str());
+    getPosnName(currentPosition, false, m_fileName.c_str());
     setStringParam(P_nearestPosn, currentPosition);
 
     iposn = getPositionIndexByName(currentPosition, m_fileName.c_str());
     setIntegerParam(P_nearestPosnIndex, iposn);
 
+    // Set the position if within tolerance
     if (posn2name(m_currentCoordinates, m_tol, m_fileName.c_str(), pos_diff) == 0)
     {
         for (int i = 0; i < m_currentCoordinates.size(); i++) {
@@ -198,28 +205,32 @@ void motionSetPoints::updateCurrPosn()
     if (pos_ok)
 	{
         setDoubleParam(P_posDiff, pos_diff);
-        getPosnName(currentPosition, 0, m_fileName.c_str());
+        getPosnName(currentPosition, false, m_fileName.c_str());
         setStringParam(P_posn, currentPosition);  
         iposn = getPositionIndexByName(currentPosition, m_fileName.c_str());
         setIntegerParam(P_posnIndex, iposn);
 	}
 	else
 	{
-		// if no position is within tolerance, should we blank out current position or leave it unchanged?
-		// we will blank it out as (iposn == iposnSP) is now a test in the DB file.
+		// Blank out position if none if found within tolerance
         setStringParam(P_posn, "");
         setIntegerParam(P_posnIndex, -1);
-		// note: P_coord and P_posDiff will now refer to last valid position, not sure of sensible reset values
 	}
 }
 
+/*  Move to a new position.
+    Arguments:
+      const char* value [in] The name of the position to move to
+    Returns:
+      0 if successful, -1 otherwise
+*/
 int motionSetPoints::gotoPosition(const char* value)
 {
 	double position;
     char positionName[256];
 	if ( name2posn(value, m_fileName.c_str()) == 0 )
     {
-			getPosnName(positionName, 1, m_fileName.c_str());
+			getPosnName(positionName, true, m_fileName.c_str());
             setStringParam(P_posnSPRBV, positionName);  
             setIntegerParam(P_iposnSPRBV, getPositionIndexByName(positionName, m_fileName.c_str()));
             for (int i = 0; i < m_currentCoordinates.size(); i++) {
@@ -236,6 +247,8 @@ int motionSetPoints::gotoPosition(const char* value)
     }
 }
 
+/* Asyn driver entry point for any writeOctet PVs.
+*/
 asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, size_t maxChars, size_t *nActual)
 {
     int function = pasynUser->reason;
@@ -276,10 +289,12 @@ asynStatus motionSetPoints::writeOctet(asynUser *pasynUser, const char *value, s
 
 extern "C" {
 
-// called from the ioc shell to configure this ioc
-// portName - a unique name
-// fileName - environment variable name containing the lookup file name
-// numberOfCoordinates - number of coordinates in the system
+/* Called from the ioc shell to configure this IOC.
+ * Arguments:
+ *     const char * portName            [in] A unique name for this asyn driver
+ *     const char * fileName            [in] Name of the environment variable that contains the path to the lookup file name
+ *              int numberOfCoordinates [in] Expected number of coordinates in the system
+*/
 int motionSetPointsConfigure(const char *portName, const char* fileName, int numberOfCoordinates)
 {
 	try
