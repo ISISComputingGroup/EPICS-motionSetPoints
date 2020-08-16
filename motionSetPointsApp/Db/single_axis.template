@@ -4,7 +4,7 @@ record(stringin, "$(P)COORD$(AXIS_NUM):NAME")
 	field(VAL, "$(NAME=$(AXIS=))")
 }
 
-record(ai, "$(P)COORD$(AXIS_NUM):NO_OFFSET")
+record(ai, "$(P)COORD$(AXIS_NUM):NO_OFF")
 {
 	field(DESC, "Target position $(AXIS_NUM) no offset")
 	field(DTYP,"asynFloat64")
@@ -34,7 +34,7 @@ alias("$(P)COORD$(AXIS_NUM):OFFSET", "$(P)COORD$(AXIS_NUM):OFFSET:SP")
 record(calc, "$(P)COORD$(AXIS_NUM)")
 {
     field(DESC, "Position $(AXIS_NUM) with offset")
-    field(INPA, "$(P)COORD$(AXIS_NUM):NO_OFFSET MS")
+    field(INPA, "$(P)COORD$(AXIS_NUM):NO_OFF MS")
     field(INPB, "$(P)COORD$(AXIS_NUM):OFFSET")
     field(CALC, "A+B")
     field(FLNK, "$(P)INT:WRITE$(AXIS_NUM)")
@@ -61,27 +61,27 @@ record(dfanout, "$(P)INT:WRITE$(AXIS_NUM)")
 record(ao, "$(P)COORD$(AXIS_NUM):RBV")
 {
 	field(DESC, "Current motor $(AXIS_NUM) position")
-	field(FLNK, "$(P)COORD$(AXIS_NUM):RBV:OFFSET")
+	field(FLNK, "$(P)COORD$(AXIS_NUM):RBV:OFF")
 	field(EGU,"mm")
 	field(PREC,"1")
-	field(OUT,"$(P)COORD$(AXIS_NUM):RBV:OFFSET.A")
+	field(OUT,"$(P)COORD$(AXIS_NUM):RBV:OFF.A")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
 
-record(calcout, "$(P)COORD$(AXIS_NUM):RBV:OFFSET")
+record(calcout, "$(P)COORD$(AXIS_NUM):RBV:OFF")
 {
     field(DESC, "Motor $(AXIS_NUM) position with offset")
-	field(FLNK, "$(P)COORD$(AXIS_NUM):LOOKUP:SET:RBV")
+	field(FLNK, "$(P)COORD$(AXIS_NUM):SET:RBV")
 	field(EGU, "mm")
 	field(PREC,"1")
     field(INPA, "0") 
     field(INPB, "$(P)COORD$(AXIS_NUM):OFFSET")
     field(CALC, "A-B")
-	field(OUT,"$(P)COORD$(AXIS_NUM):LOOKUP:SET:RBV")
+	field(OUT,"$(P)COORD$(AXIS_NUM):SET:RBV")
 }
 
-record(ao, "$(P)COORD$(AXIS_NUM):LOOKUP:SET:RBV")
+record(ao, "$(P)COORD$(AXIS_NUM):SET:RBV")
 {
 	field(DESC, "Send motor $(AXIS_NUM) position to lookup")
 	field(DTYP,"asynFloat64")

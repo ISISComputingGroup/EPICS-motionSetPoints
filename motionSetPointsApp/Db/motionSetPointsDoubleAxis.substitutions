@@ -8,3 +8,22 @@ file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
 	{ "\$(P)", "0", "\$(AXIS1)", "\$(LOOKUP)" }
 	{ "\$(P)", "1", "\$(AXIS2)", "\$(LOOKUP)" }
 }
+
+file $(UTILITIES)/db/unit_setter.template { 
+  pattern 
+    {P,    FROM, TO}
+
+    {"", "\$(AXIS1).EGU", "\$(P)COORD0:NO_OFF"}
+    {"", "\$(AXIS1).EGU", "\$(P)COORD0:OFFSET"}
+	{"", "\$(AXIS1).EGU", "\$(P)COORD0"}
+	{"", "\$(AXIS1).EGU", "\$(P)COORD0:RBV"}
+	{"", "\$(AXIS1).EGU", "\$(P)COORD0:RBV:OFF"}
+	{"", "\$(AXIS1).EGU", "\$(P)COORD0:SET:RBV"}
+	                   
+	{"", "\$(AXIS2).EGU", "\$(P)COORD1:NO_OFF"}
+    {"", "\$(AXIS2).EGU", "\$(P)COORD1:OFFSET"}
+	{"", "\$(AXIS2).EGU", "\$(P)COORD1"}
+	{"", "\$(AXIS2).EGU", "\$(P)COORD1:RBV"}
+	{"", "\$(AXIS2).EGU", "\$(P)COORD1:RBV:OFF"}
+	{"", "\$(AXIS2).EGU", "\$(P)COORD1:SET:RBV"}
+}
