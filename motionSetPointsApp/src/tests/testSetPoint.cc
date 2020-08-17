@@ -200,6 +200,22 @@ namespace {
         ASSERT_EQ(table.rows.size(), 0);
     }
 
+    TEST(setPoint, GIVEN_three_coordinate_position_which_differs_by_final_coordinate_WHEN_loaded_THEN_RBV_table_row_pointer_set_correctly) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position_42_78_98    42   78  98", "Position_42_78_15    42   78   15" };
+        MockFileIO mockFile;
+        double position;
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename, 3);
+
+        auto table = getTable(envFilename);
+
+        ASSERT_EQ(table.rows.size(), 2);
+    }
+
     TEST(setPoint, GIVEN_single_coordinate_position_that_exactly_matches_existing_position_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
         auto testFilename = "my_file";
         auto envFilename = "TEST";

@@ -151,7 +151,11 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 			}
 			for(int i = 0; i < table.rows.size(); ++i)
 			{
-				if (row.coordinates[0] == table.rows[i].coordinates[0] && row.coordinates[1] == table.rows[i].coordinates[1])
+                bool rows_same = true;
+                for (int j = 0; j < row.coordinates.size(); ++j) {
+                    rows_same &= row.coordinates[j] == table.rows[i].coordinates[j];
+                }
+				if (rows_same)
 				{
 					errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
                     fileIO->Close();
