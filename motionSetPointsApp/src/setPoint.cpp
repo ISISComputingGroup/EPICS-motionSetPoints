@@ -29,23 +29,23 @@
 class FileIO : public FileIOInterface {
 public:
     virtual void Open(const char* filename) {
-        file.open(filename);
+        m_file.open(filename);
     }
 
     virtual bool ReadLine(std::string &str) {
-        return (bool)std::getline(file, str);
+        return (bool)std::getline(m_file, str);
     }
 
     virtual void Close() {
-        file.close();
+        m_file.close();
     }
 
     virtual bool isOpen() {
-        return file.is_open();
+        return m_file.is_open();
     }
 
 private:
-    std::ifstream file;
+    std::ifstream m_file;
 };
 
 
@@ -101,7 +101,7 @@ LookupRow createRowFromFileLine(std::string fileLine) {
     std::istream_iterator<std::string> end;
     std::vector<std::string> vstrings(begin, end);
     std::strcpy(row.name, vstrings[0].c_str());
-    std::transform(std::next(vstrings.begin()), vstrings.end(), back_inserter(row.coordinates),
+    std::transform(std::next(vstrings.begin()), vstrings.end(), std::back_inserter(row.coordinates),
         [](std::string const& val) {return std::stod(val); });
     return row;
 }
@@ -230,7 +230,7 @@ int posn2name(std::vector<double> searchCoords, double tol, const char* env_fnam
     for (std::vector<LookupRow>::iterator it = table.rows.begin(); it != table.rows.end(); it++) {
         std::vector<double> squaredDiffs;
         std::transform(it->coordinates.begin(), it->coordinates.end(), searchCoords.begin(), std::back_inserter(squaredDiffs), 
-                       [](double val, double searchVal) -> double {return pow(fabs(searchVal - val), 2);});
+                       [](double val, double searchVal) -> double {return pow(searchVal - val, 2);});
         double totalDiff = std::accumulate(squaredDiffs.begin(), squaredDiffs.end(), 0.0);
 
         if (totalDiff < best) {

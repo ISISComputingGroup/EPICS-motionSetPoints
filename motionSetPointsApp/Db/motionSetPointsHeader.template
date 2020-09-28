@@ -177,6 +177,7 @@ record(ai, "$(P)POSDIFF")
 
 record(calc, "$(P)FORWARD_ALARM")
 {
+	# This record is just used for forwarding alarm statuses, we don't care about it's actual VAL
 	field(DESC, "Forwards the alarm from axes")
 	field(INPA, "$(AXIS1):MTR CP MS")
 	field(INPB, "$(AXIS2=$(AXIS1)):MTR CP MS")   
@@ -216,7 +217,7 @@ record(calc, "$(P)POSITIONED")
 	field(INPB, "$(P)IPOSN:SP:RBV")
 	field(INPC, "$(P)IPOSN")
 	field(INPD, "$(P)FORWARD_ALARM MS")
-	field(CALC, "(B==C)&&A")
+	field(CALC, "(B == C) && A")
 }
 # The DMOV for POSN is the same as POSITIONED
 alias("$(P)POSITIONED", "$(P)POSN:DMOV")

@@ -120,6 +120,7 @@ namespace {
 
         ASSERT_EQ(table.rows.size(), 1);
         ASSERT_THAT(table.rows[0].coordinates, ElementsAre(2));
+        ASSERT_STREQ(table.rows[0].name, "Position");
     }
 
     TEST(setPoint, GIVEN_file_with_single_row_and_three_coords_WHEN_loadFile_called_THEN_single_row_and_coord_with_correct_data) {
@@ -136,6 +137,7 @@ namespace {
 
         ASSERT_EQ(table.rows.size(), 1);
         ASSERT_THAT(table.rows[0].coordinates, ElementsAre(2, 9, 8));
+        ASSERT_STREQ(table.rows[0].name, "Position");
     }
 
     TEST(setPoint, GIVEN_file_with_multiple_rows_and_single_coord_WHEN_loadFile_called_THEN_multiple_rows_and_coord_with_correct_data) {
@@ -152,7 +154,9 @@ namespace {
 
         ASSERT_EQ(table.rows.size(), 2);
         ASSERT_THAT(table.rows[0].coordinates, ElementsAre(2));
+        ASSERT_STREQ(table.rows[0].name, "Position");
         ASSERT_THAT(table.rows[1].coordinates, ElementsAre(7));
+        ASSERT_STREQ(table.rows[1].name, "Position_2");
     }
 
     TEST(setPoint, GIVEN_file_with_inconsistent_coord_WHEN_loadFile_called_THEN_table_cleared) {
@@ -234,8 +238,9 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_EQ(posDiff, 0.0);
 
-        getPosnName(positionName, false, envFilename);
+        positionFound = getPosnName(positionName, false, envFilename);
         ASSERT_STREQ(positionName, "Position_42");
+        ASSERT_EQ(positionFound, 0);
     }
 
     TEST(setPoint, GIVEN_single_coordinate_position_that_matches_existing_position_within_tolerance_WHEN_posn2name_called_THEN_current_table_row_pointer_set_correctly) {
@@ -256,7 +261,8 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, 0.1, 0.0000001);
 
-        getPosnName(positionName, false, envFilename);
+        positionFound = getPosnName(positionName, false, envFilename);
+        ASSERT_EQ(positionFound, 0);
         ASSERT_STREQ(positionName, "Position_42");
     }
 
@@ -277,7 +283,8 @@ namespace {
 
         ASSERT_EQ(positionFound, -1);
 
-        getPosnName(positionName, false, envFilename);
+        positionFound = getPosnName(positionName, false, envFilename);
+        ASSERT_EQ(positionFound, -1);
         ASSERT_STREQ(positionName, "");
     }
 
@@ -299,7 +306,8 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_EQ(posDiff, 0.0);
 
-        getPosnName(positionName, false, envFilename);
+        positionFound = getPosnName(positionName, false, envFilename);
+        ASSERT_EQ(positionFound, 0);
         ASSERT_STREQ(positionName, "Position_42_78");
     }
 
@@ -321,7 +329,8 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, pow(pow(0.1, 2) + pow(0.1, 2), 0.5), 0.0000001);
 
-        getPosnName(positionName, false, envFilename);
+        positionFound = getPosnName(positionName, false, envFilename);
+        ASSERT_EQ(positionFound, 0);
         ASSERT_STREQ(positionName, "Position_42_78");
     }
 
@@ -342,7 +351,8 @@ namespace {
 
         ASSERT_EQ(positionFound, -1);
 
-        getPosnName(positionName, false, envFilename);
+        positionFound = getPosnName(positionName, false, envFilename);
+        ASSERT_EQ(positionFound, -1);
         ASSERT_STREQ(positionName, "");
     }
 
@@ -364,7 +374,8 @@ namespace {
         ASSERT_EQ(positionFound, 0);
         ASSERT_NEAR(posDiff, pow(3 * pow(0.1, 2), 0.5), 0.0000001);
 
-        getPosnName(positionName, false, envFilename);
+        positionFound = getPosnName(positionName, false, envFilename);
+        ASSERT_EQ(positionFound, 0);
         ASSERT_STREQ(positionName, "Position_39_63_15");
     }
 
@@ -373,7 +384,7 @@ namespace {
         auto envFilename = "TEST";
         std::vector<std::string> fileLines = { "Position_42_78_98    42   78  98", "Position_39_63_15    39   63   15" };
         MockFileIO mockFile;
-        double position;
+        double position1, position2, position3;
 
         createMockFile(&mockFile, testFilename, fileLines);
 
@@ -383,12 +394,12 @@ namespace {
 
         ASSERT_EQ(positionFound, 0);
 
-        getPosn(0, true, envFilename, position);
-        ASSERT_DOUBLE_EQ(position, 42.0);
-        getPosn(1, true, envFilename, position);
-        ASSERT_DOUBLE_EQ(position, 78.0);
-        getPosn(2, true, envFilename, position);
-        ASSERT_DOUBLE_EQ(position, 98.0);
+        getPosn(0, true, envFilename, position1);
+        ASSERT_DOUBLE_EQ(position1, 42.0);
+        getPosn(1, true, envFilename, position2);
+        ASSERT_DOUBLE_EQ(position2, 78.0);
+        getPosn(2, true, envFilename, position3);
+        ASSERT_DOUBLE_EQ(position3, 98.0);
     }
 
     TEST(setPoint, GIVEN_name_for_single_coord_position_WHEN_name2posn_called_THEN_RBV_table_row_pointer_set_correctly) {

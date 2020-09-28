@@ -1,22 +1,24 @@
+global {P="\$(P)", LOOKUP="\$(LOOKUP)"}
 file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
-	pattern{ P, LOOKUP, AXIS1 }
-	{ "\$(P)", "\$(LOOKUP)", "\$(AXIS1)" }
+	pattern{ AXIS1 }
+	{ "\$(AXIS1)" }
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
-	pattern{ P, AXIS_NUM, AXIS, LOOKUP }
-	{ "\$(P)", "0", "\$(AXIS1)", "\$(LOOKUP)" }
+	pattern{ AXIS_NUM, AXIS }
+	{ "0", "\$(AXIS1)" }
 }
 
+global {P=""}
 file $(UTILITIES)/db/unit_setter.template { 
   pattern 
-    {P,    FROM, TO}
+    { FROM, TO }
 
-    {"", "\$(AXIS1).EGU", "\$(P)COORD0:NO_OFF"}
-    {"", "\$(AXIS1).EGU", "\$(P)COORD0:OFFSET"}
-	{"", "\$(AXIS1).EGU", "\$(P)COORD0"}
-	{"", "\$(AXIS1).EGU", "\$(P)COORD0:RBV"}
-	{"", "\$(AXIS1).EGU", "\$(P)COORD0:RBV:OFF"}
-	{"", "\$(AXIS1).EGU", "\$(P)COORD0:SET:RBV"}
+    { "\$(AXIS1).EGU", "\$(P)COORD0:NO_OFF" }
+    { "\$(AXIS1).EGU", "\$(P)COORD0:OFFSET" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD0" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD0:RBV" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD0:RBV:OFF" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD0:SET:RBV" }
 	
 }
