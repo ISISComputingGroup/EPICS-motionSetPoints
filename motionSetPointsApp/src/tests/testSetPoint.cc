@@ -159,6 +159,21 @@ namespace {
         ASSERT_STREQ(table.rows[1].name, "Position_2");
     }
 
+    TEST(setPoint, GIVEN_file_with_unconvertable_decimals_WHEN_loadFile_called_THEN_table_cleared) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "Position    2,8" };
+        MockFileIO mockFile;
+
+        createMockFile(&mockFile, testFilename, fileLines, false);       
+
+        loadFile(&mockFile, testFilename, envFilename, 1);
+
+        auto table = getTable(envFilename);
+
+        ASSERT_EQ(table.rows.size(), 0);
+    }
+
     TEST(setPoint, GIVEN_file_with_inconsistent_coord_WHEN_loadFile_called_THEN_table_cleared) {
         auto testFilename = "my_file";
         auto envFilename = "TEST";

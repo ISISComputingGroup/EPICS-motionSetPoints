@@ -102,7 +102,14 @@ LookupRow createRowFromFileLine(std::string fileLine) {
     std::vector<std::string> vstrings(begin, end);
     std::strcpy(row.name, vstrings[0].c_str());
     std::transform(std::next(vstrings.begin()), vstrings.end(), std::back_inserter(row.coordinates),
-        [](std::string const& val) {return std::stod(val); });
+        [](std::string const& val) {
+            size_t numProcessed;
+            double value = std::stod(val, &numProcessed);
+            if (numProcessed != val.length()) {
+                throw std::runtime_error("Could not convert " + val + " into a decimal");
+            }
+            return value; 
+        });
     return row;
 }
 
@@ -128,43 +135,39 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 
 	while ( fileIO->ReadLine(line) ) {
 		if ( line.rfind('#', 0) != 0 && line.length() > 0 ) {
-			LookupRow row = createRowFromFileLine(line);
-            int numberOfCoordsInLine = row.coordinates.size();
-			if (numberOfCoordsInLine == 0) {
-				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d: %s\n", fname, table.rows.size()+1, line);
-				fileIO->Close();
-				table.rows.clear();
-				return;
-			}
-            if ( numberOfCoordsInLine != expectedNumberOfCoords) {
-				errlogSevPrintf(errlogMajor, "motionSetPoints: Unexpected number of columns in %s line %d\n", fname, table.rows.size()+1);
-                fileIO->Close();
-				table.rows.clear();
-				return;
-            }
-			if (read_names.count(row.name) != 0)
-			{
-				errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-                fileIO->Close();
-				table.rows.clear();
-				return;
-			}
-			for(int i = 0; i < table.rows.size(); ++i)
-			{
-                bool rows_same = true;
-                for (int j = 0; j < row.coordinates.size(); ++j) {
-                    rows_same &= row.coordinates[j] == table.rows[i].coordinates[j];
+            try {
+                LookupRow row = createRowFromFileLine(line);
+                int numberOfCoordsInLine = row.coordinates.size();
+                if (numberOfCoordsInLine == 0) {
+                    throw std::runtime_error("Error parsing " + std::string(fname) + " line " + std::to_string(table.rows.size() + 1) + ": " + line);
                 }
-				if (rows_same)
-				{
-					errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-                    fileIO->Close();
-					table.rows.clear();
-					return;
-				}
-			}
-			table.rows.push_back(row);
-			read_names.insert(row.name);
+                if (numberOfCoordsInLine != expectedNumberOfCoords) {
+                    throw std::runtime_error("Unexpected number of columns in " + std::string(fname) + "line " + std::to_string(table.rows.size() + 1));
+                }
+                if (read_names.count(row.name) != 0)
+                {
+                    throw std::runtime_error("duplicate name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line " + std::to_string(table.rows.size() + 1));
+                }
+                for (int i = 0; i < table.rows.size(); ++i)
+                {
+                    bool rows_same = true;
+                    for (int j = 0; j < row.coordinates.size(); ++j) {
+                        rows_same &= row.coordinates[j] == table.rows[i].coordinates[j];
+                    }
+                    if (rows_same)
+                    {
+                        throw std::runtime_error("duplicate coordinates for name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line" + std::to_string(table.rows.size() + 1));
+                    }
+                }
+                table.rows.push_back(row);
+                read_names.insert(row.name);
+            }
+            catch (std::runtime_error e) {
+                errlogSevPrintf(errlogMajor, "motionSetPoints: %s\n", e.what());
+                fileIO->Close();
+                table.rows.clear();
+                return;
+            }
 		}
 	}
     fileIO->Close();
