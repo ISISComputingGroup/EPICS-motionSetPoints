@@ -466,12 +466,46 @@ namespace {
 
         loadFile(&mockFile, testFilename, envFilename, 1);
 
-        int positionFound = name2posn("Position_89", envFilename);
+        int name2posnErrorCode = name2posn("Position_89", envFilename);
 
-        ASSERT_EQ(positionFound, -1);
+        ASSERT_EQ(name2posnErrorCode, -1);
 
-        positionFound = getPosn(0, true, envFilename, position);
-        ASSERT_EQ(positionFound, -1);
+        int getPosnErrorCode = getPosn(0, true, envFilename, position);
+        ASSERT_EQ(getPosnErrorCode, -1);
+    }
+
+    TEST(setPoint, GIVEN_two_very_different_named_positions_WHEN_getPositions_called_THEN_returns_expected_string) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "short_name    42", "a_very_much_longer_name    39" };
+        MockFileIO mockFile;
+        double position;
+        std::string positions;
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename, 1);
+
+        getPositions(&positions, envFilename);
+
+        ASSERT_EQ(positions, "short_name                              a_very_much_longer_name                 ");
+    }
+
+    TEST(setPoint, GIVEN_two_very_different_named_positions_in_different_order_WHEN_getPositions_called_THEN_returns_expected_string) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = { "a_very_much_longer_name    42", "short_name    39" };
+        MockFileIO mockFile;
+        double position;
+        std::string positions;
+
+        createMockFile(&mockFile, testFilename, fileLines);
+
+        loadFile(&mockFile, testFilename, envFilename, 1);
+
+        getPositions(&positions, envFilename);
+
+        ASSERT_EQ(positions, "a_very_much_longer_name                 short_name                              ");
     }
 
 } // namespace

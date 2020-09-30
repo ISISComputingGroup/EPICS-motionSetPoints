@@ -118,16 +118,9 @@ record(ao, "$(P)RESET")
 {
 	field(DESC, "Reread the lookup file")
 	field(DTYP,"asynFloat64")
-	field(FLNK, "$(P)INT:RESET")
+	field(FLNK, "$(P)_POSITIONS")
 	field(OUT,"@asyn($(LOOKUP),0)RESET")
 	field(PINI,"YES")
-}
-
-record(fanout, "$(P)INT:RESET")
-{
-	field(DESC, "Propagate reset")
-	field(LNK1, "$(P)_POSITIONS")
-	field(LNK2, "$(P)INT:READ0")
 }
 
 record(ai, "$(P)NUMAXES")

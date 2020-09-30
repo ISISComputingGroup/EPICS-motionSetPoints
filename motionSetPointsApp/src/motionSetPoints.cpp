@@ -146,7 +146,6 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 	{
 		// Motor has moved
         m_currentCoordinates[coordinate] = value;
-		updateCurrPosn();
 	}
 	else if (function == P_reset)
 	{
@@ -159,7 +158,6 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
         // Tolerance changed
 		m_tol = value;
 		setDoubleParam(P_tol, value);
-		updateCurrPosn(); // as tolerance has changed, this may no longer count as a valid position 
 	}
 	else
 	{
@@ -168,6 +166,7 @@ asynStatus motionSetPoints::writeFloat64(asynUser *pasynUser, epicsFloat64 value
                   driverName, functionName, status, function, paramName, value, "unknown parameter");
 		status = asynError;
 	}
+    updateCurrPosn();
 	callParamCallbacks();
     asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, 
               "%s:%s: function=%d, name=%s, value=%f\n", 
