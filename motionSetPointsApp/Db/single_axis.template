@@ -39,7 +39,7 @@ alias("$(P)COORD$(AXIS_NUM):OFFSET", "$(P)COORD$(AXIS_NUM):OFFSET:SP")
 
 record(calc, "$(P)COORD$(AXIS_NUM)")
 {
-    field(DESC, "Position $(AXIS_NUM) with offset")
+    field(DESC, "Target position $(AXIS_NUM) with offset")
     field(INPA, "$(P)COORD$(AXIS_NUM):NO_OFF MS")
     field(INPB, "$(P)COORD$(AXIS_NUM):OFFSET")
     field(CALC, "A+B")
