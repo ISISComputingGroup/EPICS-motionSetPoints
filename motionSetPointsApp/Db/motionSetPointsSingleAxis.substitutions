@@ -5,8 +5,8 @@ file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
-	pattern{ AXIS_NUM, AXIS }
-	{ "0", "\$(AXIS0)" }
+	pattern{ AXIS_NUM, AXIS, NAME }
+	{ "0", "\$(AXIS0)", "\$(NAME0=$(AXIS0))"}
 }
 
 global {P=""}

@@ -5,17 +5,17 @@ file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
-	pattern{ AXIS_NUM, AXIS }
-	{ "0", "\$(AXIS0)" }
-	{ "1", "\$(AXIS1)" }
-	{ "2", "\$(AXIS2)" }
-	{ "3", "\$(AXIS3)" }
-	{ "4", "\$(AXIS4)" }
-	{ "5", "\$(AXIS5)" }
-	{ "6", "\$(AXIS6)" }
-	{ "7", "\$(AXIS7)" }
-	{ "8", "\$(AXIS8)" }
-	{ "9", "\$(AXIS9)" }
+	pattern{ AXIS_NUM, AXIS, NAME }
+	{ "0", "\$(AXIS0)", "\$(NAME0=$(AXIS0))" }
+	{ "1", "\$(AXIS1)", "\$(NAME1=$(AXIS1))" }
+	{ "2", "\$(AXIS2)", "\$(NAME2=$(AXIS2))" }
+	{ "3", "\$(AXIS3)", "\$(NAME3=$(AXIS3))" }
+	{ "4", "\$(AXIS4)", "\$(NAME4=$(AXIS4))" }
+	{ "5", "\$(AXIS5)", "\$(NAME5=$(AXIS5))" }
+	{ "6", "\$(AXIS6)", "\$(NAME6=$(AXIS6))" }
+	{ "7", "\$(AXIS7)", "\$(NAME7=$(AXIS7))" }
+	{ "8", "\$(AXIS8)", "\$(NAME8=$(AXIS8))" }
+	{ "9", "\$(AXIS9)", "\$(NAME9=$(AXIS9))" }
 }
 
 global {P=""}
