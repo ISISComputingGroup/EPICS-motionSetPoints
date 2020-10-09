@@ -19,6 +19,18 @@ record(ai, "$(P):MTR")
 alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD1:MTR")
 alias("$(TARGET_PV2=$(AXIS2=$(P)):MTR)","$(P)COORD2:MTR")
 
+record(ai, "$(P)COORD1:IN_POSITION") {
+    # Can't use CP MS as that would make input link >39 characters in cases like TE:NDWxxxx:MOT:SAMPLECHANGER:X:INPOS
+    field(SCAN, ".1 second")
+    field(INP, "$(TARGET_PV1=$(AXIS1)):INPOS")
+}
+
+record(ai, "$(P)COORD2:IN_POSITION") {
+    # Can't use CP MS as that would make input link >39 characters in cases like TE:NDWxxxx:MOT:SAMPLECHANGER:X:INPOS
+    field(SCAN, ".1 second")
+    field(INP, "$(TARGET_PV2=$(AXIS2)):INPOS")
+}
+
 record(stringin, "$(P)POSN:SP:RBV")
 {
 	field(DESC, "Current target")
