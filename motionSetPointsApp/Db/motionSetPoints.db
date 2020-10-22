@@ -20,15 +20,11 @@ alias("$(TARGET_PV1=$(AXIS1):MTR)","$(P)COORD1:MTR")
 alias("$(TARGET_PV2=$(AXIS2=$(P)):MTR)","$(P)COORD2:MTR")
 
 record(ai, "$(P)COORD1:IN_POSITION") {
-    # Can't use CP MS as that would make input link >39 characters in cases like TE:NDWxxxx:MOT:SAMPLECHANGER:X:INPOS
-    field(SCAN, ".1 second")
-    field(INP, "$(TARGET_PV1=$(AXIS1)):INPOS")
+    field(INP, "$(TARGET_PV1=$(AXIS1)):IN_POSITION CP MS")
 }
 
 record(ai, "$(P)COORD2:IN_POSITION") {
-    # Can't use CP MS as that would make input link >39 characters in cases like TE:NDWxxxx:MOT:SAMPLECHANGER:X:INPOS
-    field(SCAN, ".1 second")
-    field(INP, "$(TARGET_PV2=$(AXIS2)):INPOS")
+    field(INP, "$(TARGET_PV2=$(AXIS2)):IN_POSITION CP MS")
 }
 
 record(stringin, "$(P)POSN:SP:RBV")
@@ -49,6 +45,7 @@ record(stringout, "$(P)POSN:SP")
 	field(OUT,"@asyn($(LOOKUP),0,0)POSNSP")
     info(INTEREST, "HIGH")
     info(archive, "VAL")
+    field(UDFS, "NO_ALARM")
 }
 
 record(longin, "$(P)IPOSN:SP:RBV")
