@@ -10,9 +10,11 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------------------
 # Create and install (or just install) into <top>/db
 # databases, templates, substitutions like this
-DB += motionSetPoints.db
 DB += inPos.db
 DB += analyserPolariser.db
+DB += motionSetPointsSingleAxis.db
+DB += motionSetPointsDoubleAxis.db
+DB += motionSetPoints10Axis.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

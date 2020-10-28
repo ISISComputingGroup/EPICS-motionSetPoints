@@ -6,6 +6,17 @@ include $(TOP)/configure/CONFIG
 #=============================
 
 #=============================
+
+# Create test runner
+ifeq ($(findstring 10.0,$(VCVERSION)),)
+SRC_DIRS += $(TOP)/motionSetPointsApp/src/tests
+GTESTPROD_HOST += myTest
+myTest_SRCS += testSetPoint.cc setPoint.cpp
+myTest_LIBS += $(EPICS_BASE_IOC_LIBS)
+GTESTS += myTest 
+endif
+
+
 # Build the IOC application
 
 LIBRARY_IOC = motionSetPoints
@@ -30,4 +41,4 @@ motionSetPoints_LIBS += $(EPICS_BASE_IOC_LIBS)
 include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD RULES AFTER THIS LINE
-
+include $(GTEST)/cfg/compat.RULES_BUILD

@@ -1,0 +1,24 @@
+global {P="\$(P)", LOOKUP="\$(LOOKUP)"}
+file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
+	pattern{ AXIS0 }
+	{ "\$(AXIS0)" }
+}
+
+file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
+	pattern{ AXIS_NUM, AXIS, NAME }
+	{ "0", "\$(AXIS0)", "\$(NAME0=$(AXIS0))"}
+}
+
+global {P=""}
+file $(UTILITIES)/db/unit_setter.template { 
+  pattern 
+    { FROM, TO }
+
+    { "\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:SET:RBV" }
+	
+}

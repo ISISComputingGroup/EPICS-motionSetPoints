@@ -14,5 +14,3 @@ motionSetPointsTestApp_DEPEND_DIRS += motionSetPointsApp
 iocBoot_DEPEND_DIRS += $(filter %App,$(DIRS))
 
 include $(TOP)/configure/RULES_TOP
-
-

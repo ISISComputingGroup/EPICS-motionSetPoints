@@ -1,0 +1,95 @@
+global {P="\$(P)", LOOKUP="\$(LOOKUP)"}
+file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
+	pattern{ AXIS0, AXIS1, AXIS2, AXIS3, AXIS4, AXIS5, AXIS6, AXIS7, AXIS8, AXIS9 }
+	{ "\$(AXIS0)", "\$(AXIS1)", "\$(AXIS2)", "\$(AXIS3)", "\$(AXIS4)", "\$(AXIS5)", "\$(AXIS6)", "\$(AXIS7)", "\$(AXIS8)", "\$(AXIS9)" }
+}
+
+file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
+	pattern{ AXIS_NUM, AXIS, NAME }
+	{ "0", "\$(AXIS0)", "\$(NAME0=$(AXIS0))" }
+	{ "1", "\$(AXIS1)", "\$(NAME1=$(AXIS1))" }
+	{ "2", "\$(AXIS2)", "\$(NAME2=$(AXIS2))" }
+	{ "3", "\$(AXIS3)", "\$(NAME3=$(AXIS3))" }
+	{ "4", "\$(AXIS4)", "\$(NAME4=$(AXIS4))" }
+	{ "5", "\$(AXIS5)", "\$(NAME5=$(AXIS5))" }
+	{ "6", "\$(AXIS6)", "\$(NAME6=$(AXIS6))" }
+	{ "7", "\$(AXIS7)", "\$(NAME7=$(AXIS7))" }
+	{ "8", "\$(AXIS8)", "\$(NAME8=$(AXIS8))" }
+	{ "9", "\$(AXIS9)", "\$(NAME9=$(AXIS9))" }
+}
+
+global {P=""}
+file $(UTILITIES)/db/unit_setter.template { 
+  pattern 
+    { FROM, TO}
+
+    {"\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF"}
+    {"\$(AXIS0).EGU", "\$(P)COORD0:OFFSET"}
+	{"\$(AXIS0).EGU", "\$(P)COORD0"}
+	{"\$(AXIS0).EGU", "\$(P)COORD0:RBV"}
+	{"\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF"}
+	{"\$(AXIS0).EGU", "\$(P)COORD0:SET:RBV"}
+	
+	{"\$(AXIS1).EGU", "\$(P)COORD1:NO_OFF"}
+    {"\$(AXIS1).EGU", "\$(P)COORD1:OFFSET"}
+	{"\$(AXIS1).EGU", "\$(P)COORD1"}
+	{"\$(AXIS1).EGU", "\$(P)COORD1:RBV"}
+	{"\$(AXIS1).EGU", "\$(P)COORD1:RBV:OFF"}
+	{"\$(AXIS1).EGU", "\$(P)COORD1:SET:RBV"}
+	
+    {"\$(AXIS2).EGU", "\$(P)COORD2:NO_OFF"}
+    {"\$(AXIS2).EGU", "\$(P)COORD2:OFFSET"}
+	{"\$(AXIS2).EGU", "\$(P)COORD2"}
+	{"\$(AXIS2).EGU", "\$(P)COORD2:RBV"}
+	{"\$(AXIS2).EGU", "\$(P)COORD2:RBV:OFF"}
+	{"\$(AXIS2).EGU", "\$(P)COORD2:SET:RBV"}
+	
+	{"\$(AXIS3).EGU", "\$(P)COORD3:NO_OFF"}
+    {"\$(AXIS3).EGU", "\$(P)COORD3:OFFSET"}
+	{"\$(AXIS3).EGU", "\$(P)COORD3"}
+	{"\$(AXIS3).EGU", "\$(P)COORD3:RBV"}
+	{"\$(AXIS3).EGU", "\$(P)COORD3:RBV:OFF"}
+	{"\$(AXIS3).EGU", "\$(P)COORD3:SET:RBV"}
+	
+	{"\$(AXIS4).EGU", "\$(P)COORD4:NO_OFF"}
+    {"\$(AXIS4).EGU", "\$(P)COORD4:OFFSET"}
+	{"\$(AXIS4).EGU", "\$(P)COORD4"}
+	{"\$(AXIS4).EGU", "\$(P)COORD4:RBV"}
+	{"\$(AXIS4).EGU", "\$(P)COORD4:RBV:OFF"}
+	{"\$(AXIS4).EGU", "\$(P)COORD4:SET:RBV"}
+	               
+	{"\$(AXIS5).EGU", "\$(P)COORD5:NO_OFF"}
+    {"\$(AXIS5).EGU", "\$(P)COORD5:OFFSET"}
+	{"\$(AXIS5).EGU", "\$(P)COORD5"}
+	{"\$(AXIS5).EGU", "\$(P)COORD5:RBV"}
+	{"\$(AXIS5).EGU", "\$(P)COORD5:RBV:OFF"}
+	{"\$(AXIS5).EGU", "\$(P)COORD5:SET:RBV"}
+	
+    {"\$(AXIS6).EGU", "\$(P)COORD6:NO_OFF"}
+    {"\$(AXIS6).EGU", "\$(P)COORD6:OFFSET"}
+	{"\$(AXIS6).EGU", "\$(P)COORD6"}
+	{"\$(AXIS6).EGU", "\$(P)COORD6:RBV"}
+	{"\$(AXIS6).EGU", "\$(P)COORD6:RBV:OFF"}
+	{"\$(AXIS6).EGU", "\$(P)COORD6:SET:RBV"}
+	               
+	{"\$(AXIS7).EGU", "\$(P)COORD7:NO_OFF"}
+    {"\$(AXIS7).EGU", "\$(P)COORD7:OFFSET"}
+	{"\$(AXIS7).EGU", "\$(P)COORD7"}
+	{"\$(AXIS7).EGU", "\$(P)COORD7:RBV"}
+	{"\$(AXIS7).EGU", "\$(P)COORD7:RBV:OFF"}
+	{"\$(AXIS7).EGU", "\$(P)COORD7:SET:RBV"}
+	
+	{"\$(AXIS8).EGU", "\$(P)COORD8:NO_OFF"}
+    {"\$(AXIS8).EGU", "\$(P)COORD8:OFFSET"}
+	{"\$(AXIS8).EGU", "\$(P)COORD8"}
+	{"\$(AXIS8).EGU", "\$(P)COORD8:RBV"}
+	{"\$(AXIS8).EGU", "\$(P)COORD8:RBV:OFF"}
+	{"\$(AXIS8).EGU", "\$(P)COORD8:SET:RBV"}
+	
+	{"\$(AXIS9).EGU", "\$(P)COORD9:NO_OFF"}
+    {"\$(AXIS9).EGU", "\$(P)COORD9:OFFSET"}
+	{"\$(AXIS9).EGU", "\$(P)COORD9"}
+	{"\$(AXIS9).EGU", "\$(P)COORD9:RBV"}
+	{"\$(AXIS9).EGU", "\$(P)COORD9:RBV:OFF"}
+	{"\$(AXIS9).EGU", "\$(P)COORD9:SET:RBV"}
+}

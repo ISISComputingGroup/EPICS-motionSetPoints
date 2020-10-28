@@ -4,6 +4,13 @@
 #include <math.h>
 #include <string.h>
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iterator>
+#include <algorithm>
+#include <numeric>
+
 #include <map>
 #include <set>
 #include <string>
@@ -19,10 +26,32 @@
 
 #define ROW_LEN 200
 
+class FileIO : public FileIOInterface {
+public:
+    virtual void Open(const char* filename) {
+        m_file.open(filename);
+    }
+
+    virtual bool ReadLine(std::string &str) {
+        return (bool)std::getline(m_file, str);
+    }
+
+    virtual void Close() {
+        m_file.close();
+    }
+
+    virtual bool isOpen() {
+        return m_file.is_open();
+    }
+
+private:
+    std::ifstream m_file;
+};
+
+
 // Global map of lookup tables, keyed by their environment vars
 static std::map<const std::string, LookupTable> gTables;
 static epicsMutex g_lock;
-static std::map<const std::string, int> g_numCoords;
 
 // implementation of std::less<> for caseless string comparison
 struct CaselessCompare {
@@ -31,25 +60,27 @@ struct CaselessCompare {
 	}
 };
 
-/* Load the lookup file if it is not already loaded */
-void checkLoadFile(const char* env_fname) {
-	std::string key(env_fname);
-	if ( gTables.count(key)==0 ) {
-		loadDefFile(env_fname);
-	}
-}
-
-/* Load the lookup file named by the environment variable */
-void loadDefFile(const char* env_fname) {
+/* Load the lookup file named by the environment variable.
+   Arguments:
+     const char *env_fname              [in] The environment variable that contains the path to the file
+            int  expectedNumberOfCoords [in] The number of coordinates expected in the file
+ */
+void loadDefFile(const char* env_fname, int expectedNumberOfCoords) {
+    FileIO fileIO;
 	const char *fname = getenv(env_fname);
 	if ( fname==NULL ) {
 		errlogSevPrintf(errlogMajor, "motionSetPoints: Environment variable \"%s\" not set\n", env_fname);
 		return;
 	}
-	loadFile(fname, env_fname);
+	loadFile(&fileIO, fname, env_fname, expectedNumberOfCoords);
 }
 
-// Find the table structure for a key
+/* Get the table structure for a key.
+   Arguments:
+     const char *env_fname [in] Key to identify file
+   Return:
+     A reference to the lookup table
+ */
 LookupTable& getTable(const char *env_fname) {
 	std::string key(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry	
@@ -57,68 +88,89 @@ LookupTable& getTable(const char *env_fname) {
 	return table;
 }
 
-// Load a lookup file
-// Arguments
-//   const char *fname     [in] File to load
-//   const char *env_fname [in] Key to identify file
-void loadFile(const char *fname, const char *env_fname) {
+/* Create a table row from a line in the lookup file.
+   Arguments:
+     string fileLine [in] Line from file
+   Return:
+     The created row
+ */
+LookupRow createRowFromFileLine(std::string fileLine) {
+    LookupRow row;
+    std::stringstream ss(fileLine);
+    std::istream_iterator<std::string> begin(ss);
+    std::istream_iterator<std::string> end;
+    std::vector<std::string> vstrings(begin, end);
+    std::strcpy(row.name, vstrings[0].c_str());
+    std::transform(std::next(vstrings.begin()), vstrings.end(), std::back_inserter(row.coordinates),
+        [](std::string const& val) {
+            size_t numProcessed;
+            double value = std::stod(val, &numProcessed);
+            if (numProcessed != val.length()) {
+                throw std::runtime_error("Could not convert " + val + " into a decimal");
+            }
+            return value; 
+        });
+    return row;
+}
+
+/* Load a lookup file
+   Arguments:
+     FileIOInterface *fileIO                  [in] Interface to interact with the file system
+     const char      *fname                   [in] File to load
+     const char      *env_fname               [in] Key to identify file
+     int              expectedNumberOfCoords  [in] Expected number of coordinates
+ */
+void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname, int expectedNumberOfCoords) {
 	std::set<std::string, CaselessCompare> read_names; // for checking uniqueness
-	FILE *fptr = fopen(fname, "rt");
+	fileIO->Open(fname);
 	int rowCount = 0;
-	char buff[ROW_LEN];
-	if ( fptr==NULL ) {
+	std::string line;
+	if ( !fileIO->isOpen() ) {
 		errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to open lookup file \"%s\"\n", fname);
 		return;
 	}
 	LookupTable& table = getTable(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
-	
-    setNumCoords(env_fname, 0);
-    int numCoords = 0;
-	while ( fgets(buff, ROW_LEN, fptr) ) {
-		if ( buff[0]!='#' ) {
-			LookupRow row;
-			int count = sscanf(buff, "%39s %lf %lf", row.name, &row.x, &row.y);
-			if ( count<2 ) {
-				errlogSevPrintf(errlogMajor, "motionSetPoints: Error parsing %s line %d\n", fname, table.rows.size()+1);
-				fclose(fptr);
-				table.rows.clear();
-				return;
-			}
-            else if ( numCoords==0 ) {
-                numCoords = count - 1;
+
+	while ( fileIO->ReadLine(line) ) {
+		if ( line.rfind('#', 0) != 0 && line.length() > 0 ) {
+            try {
+                LookupRow row = createRowFromFileLine(line);
+                int numberOfCoordsInLine = row.coordinates.size();
+                if (numberOfCoordsInLine == 0) {
+                    throw std::runtime_error("Error parsing " + std::string(fname) + " line " + std::to_string(table.rows.size() + 1) + ": " + line);
+                }
+                if (numberOfCoordsInLine != expectedNumberOfCoords) {
+                    throw std::runtime_error("Unexpected number of columns in " + std::string(fname) + "line " + std::to_string(table.rows.size() + 1));
+                }
+                if (read_names.count(row.name) != 0)
+                {
+                    throw std::runtime_error("duplicate name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line " + std::to_string(table.rows.size() + 1));
+                }
+                for (int i = 0; i < table.rows.size(); ++i)
+                {
+                    bool rows_same = true;
+                    for (int j = 0; j < row.coordinates.size(); ++j) {
+                        rows_same &= row.coordinates[j] == table.rows[i].coordinates[j];
+                    }
+                    if (rows_same)
+                    {
+                        throw std::runtime_error("duplicate coordinates for name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line" + std::to_string(table.rows.size() + 1));
+                    }
+                }
+                table.rows.push_back(row);
+                read_names.insert(row.name);
             }
-            else if ( numCoords!=count-1 ) {
-				errlogSevPrintf(errlogMajor, "motionSetPoints: Inconsistent column count in %s line %d\n", fname, table.rows.size()+1);
-				fclose(fptr);
-				table.rows.clear();
-				return;
+            catch (std::runtime_error e) {
+                errlogSevPrintf(errlogMajor, "motionSetPoints: %s\n", e.what());
+                fileIO->Close();
+                table.rows.clear();
+                return;
             }
-			if (read_names.count(row.name) != 0)
-			{
-				errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-				fclose(fptr);
-				table.rows.clear();
-				return;
-			}
-			for(int i = 0; i < table.rows.size(); ++i)
-			{
-				if (row.x == table.rows[i].x && row.y == table.rows[i].y)
-				{
-					errlogSevPrintf(errlogMajor, "motionSetPoints: duplicate coordinates for name \"%s\" in %s line %d\n", row.name, fname, table.rows.size()+1);
-				    fclose(fptr);
-					table.rows.clear();
-					return;
-				}
-			}
-			table.rows.push_back(row);
-			read_names.insert(row.name);
 		}
 	}
-	fclose(fptr);
-    
-    setNumCoords(env_fname, numCoords);
+    fileIO->Close();
 
 	if ( table.rows.size()==0 ) {
 		errlogSevPrintf(errlogMinor, "motionSetPoints: Lookup file %s contains no rows\n", fname);
@@ -127,12 +179,12 @@ void loadFile(const char *fname, const char *env_fname) {
 	}
 }
 
-/* Get the position for a name - also sets the requested position row pointer
- * Arguments:
-//   const char *name      [in] Name to look up
-//   const char *env_fname [in] Key to identify file
- * Return:
- *   int - 0=OK, -1=Name not found
+/* Set the row RBV to the specified position, if the position exists.
+   Arguments:
+     const char *name      [in] Name to look up
+     const char *env_fname [in] Key to identify file
+   Return:
+     int - 0=OK, -1=Name not found
  */
 int name2posn(const char *name, const char* env_fname) {
 	LookupTable& table = getTable(env_fname);
@@ -145,7 +197,13 @@ int name2posn(const char *name, const char* env_fname) {
 	return (table.pRowRBV != NULL ? 0 : -1);
 }
 
-// return position, -1 if not found
+/* Return the index of the position with the given name
+   Arguments:
+     const char *name      [in]  The name of the position to search for
+     const char *env_fname [in]  Key to identify file
+   Return:
+         position index if found, -1 if none found
+ */
 int getPositionIndexByName(const char* name, const char* env_fname)
 {
 	LookupTable& table = getTable(env_fname);
@@ -158,83 +216,70 @@ int getPositionIndexByName(const char* name, const char* env_fname)
 	return -1;
 }
 
-
-/* Get the name that best corresponds to the current position, sets the current position row pointer
- * Arguments:
- *   double  x    [in]  Coord
- *   double  tol  [in]  Tolerence for match
-//   const char *env_fname [in] Key to identify file
+/* Get the name that best corresponds to the given position and sets the current position row pointer to this
+   Arguments:
+     vector<double>  searchCoords    [in]  The coordinates to find the position for
+     double          tol             [in]  Tolerence for match
+     const char *    env_fname       [in]  Key to identify file
+     double          pos_diff        [out] The difference between the searched for coordinates and the best match
+   Return:
+     0 if found, -1 if not
  */
-int posn2name(double x, double tol, const char* env_fname, double& pos_diff) {
-	double best = tol;
-	LookupTable &table = getTable(env_fname);
+int posn2name(std::vector<double> searchCoords, double tol, const char* env_fname, double& pos_diff) {
+    double best = tol * tol;
+    LookupTable& table = getTable(env_fname);
 
-	table.pRowCurr = NULL;
-	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
-		double diff = fabs(x - it->x);
-		if ( diff < best ) {
-			best = diff;
-			table.pRowCurr = &(*it);
-		}
-	}
-	if (table.pRowCurr != NULL) {
-	    pos_diff = best;
-		return 0;
-	} else {
-		return -1;
-	}
+    table.pRowCurr = NULL;
+    for (std::vector<LookupRow>::iterator it = table.rows.begin(); it != table.rows.end(); it++) {
+        std::vector<double> squaredDiffs;
+        std::transform(it->coordinates.begin(), it->coordinates.end(), searchCoords.begin(), std::back_inserter(squaredDiffs), 
+                       [](double val, double searchVal) -> double {return pow(searchVal - val, 2);});
+        double totalDiff = std::accumulate(squaredDiffs.begin(), squaredDiffs.end(), 0.0);
+
+        if (totalDiff < best) {
+            best = totalDiff;
+            table.pRowCurr = &(*it);
+        }
+    }
+    if (table.pRowCurr != NULL) {
+        pos_diff = sqrt(best);
+        return 0;
+    }
+    else {
+        return -1;
+    }
 }
 
-// Get the name that best corresponds to the current position 
-int posn2name(double x, double y, double tol, const char* env_fname, double& pos_diff) {
-	double best = tol * tol;
+/* Return the requested coordinate for the current or readback row.
+   Arguments:
+           int   coordinate [in] Which co-ordinate to get
+           bool   isRBV     [in] if true requesting the readback, else the current row
+     const char *env_fname  [in] Key to identify file
+        double   position   [out] The position of the requested co-ordinate
+   Return:
+     0 if found and position set, -1 if not
+ */   
+int getPosn(int coordinate, bool isRBV, const char* env_fname, double& position) {
 	LookupTable& table = getTable(env_fname);
-
-	table.pRowCurr = NULL;
-	for ( std::vector<LookupRow>::iterator it=table.rows.begin() ; it!=table.rows.end() ; it++ ) {
-		double diff1 = fabs(x - it->x);
-		double diff2 = fabs(y - it->y);
-		double diffsq = diff1 * diff1 + diff2 * diff2;
-		if ( diffsq < best ) {
-			best = diffsq;
-			table.pRowCurr = &(*it);
-		}
-	}
-	if (table.pRowCurr != NULL) {
-	    pos_diff = sqrt(best);
-		return 0;
-	} else {
-		return -1;
-	}
-}
-
-// Return the requested coordinate
-// Arguments:
-//         int   bFirst    [in] Whether to return the 1st coord (x)
-//   const char *env_fname [in] Key to identify file
-// Return:
-//   0 if found and position set, -1 if not
-//   
-int getPosn(int bFirst, int isRBV, const char* env_fname, double& position) {
-	LookupTable& table = getTable(env_fname);
-
 	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
 	if ( pRow == NULL ) {
 		return -1;
 	}
 	else {
-		position = bFirst ? pRow->x : pRow->y;
+		position = pRow->coordinates[coordinate];
 		return 0;
 	}
 }
 
-// Return the position name
-// Arguments:
-//         char *target    [out] Char array to which to write
-//         int   isRBV     [in]  Whether to return readback (or current)
-//   const char *env_fname [in]  Key to identify file
-// Return: 0
-int getPosnName(char *target, int isRBV, const char* env_fname) {
+/* Return the position name
+   Arguments:
+           char *target    [out] Char array to which to write
+           bool  isRBV     [in]  True to return readback, False to return current
+     const char *env_fname [in]  Key to identify file
+   Return: 
+     0 if found, -1 if not
+ */
+int getPosnName(char *target, bool isRBV, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
 
 	LookupRow *pRow = (isRBV ? table.pRowRBV : table.pRowCurr);
@@ -248,44 +293,28 @@ int getPosnName(char *target, int isRBV, const char* env_fname) {
 	}
 }
 
-// Return a list of available positions
-// Arguments:
-//         char *target    [out] Char array to which to write
-//         int   elem_size [in]  target is treated as a 2D array with each string of length elem_size
-//   const char *env_fname [in]  Key to identify file
-// Return: 0
-int getPositions(char *target, int elem_size, int max_count, const char* env_fname) {
+/* Return a list of available positions
+   Arguments:
+    std::string *target    [out] String to write the available positions into
+     const char *env_fname [in]  Key to identify file
+ */
+void getPositions(std::string *target, const char* env_fname) {
 	LookupTable &table = getTable(env_fname);
-	
-	// Initialise to spaces because nulls confuse caget and python
-	memset(target, ' ', elem_size*max_count);
-	
-	int count = 0;
-	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
-		if ( count==max_count ) {
-			errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to return all positions\n");
-			break;
-		}
-		size_t len = strlen(it->name);
-		if ( len>elem_size ) {
-			len = elem_size;
-		}
-		memcpy(target + elem_size*count, it->name, len);
-		count++;
-	}
-	
-	if ( count<max_count ) {
-		// Need to append an end marker because NORD is not being passed by the gateway
-		strcpy(target + elem_size*count, "END");
 
-		// Have to include END in the count, or it is lost
-		count++;
+	for ( std::vector<LookupRow>::iterator it = table.rows.begin() ; it != table.rows.end() ; ++it ) {
+        std::string name = std::string(it->name);
+        name += std::string(40-name.size(), ' ');
+        target->append(name);
 	}
-	
-	return count;
 }
 
-
+/* Return the name of the position at the given index
+   Arguments:
+            int pos        [in]  The index of the position that you want the name for
+     const char *env_fname [in]  Key to identify file
+   Return:
+         string, name of the position at requested index 
+ */
 std::string getPositionByIndex(int pos, const char* env_fname) 
 {
 	LookupTable &table = getTable(env_fname);
@@ -300,28 +329,14 @@ std::string getPositionByIndex(int pos, const char* env_fname)
     }
 }
 
+/* Return the number of positions available
+   Arguments:
+     const char *env_fname [in]  Key to identify file
+   Return:
+     size_t, the number of positions
+ */
 size_t numPositions(const char* env_fname)
 {
 	LookupTable &table = getTable(env_fname);
     return table.rows.size();
- }
-
-// Return the number of coordinates in the current lookup
-// Arguments:
-//   const char *env_fname [in]  Key to identify file
-int getNumCoords(const char *env_fname) {
-                std::string key(env_fname);
-                epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
-                int numCoords = g_numCoords[key];
-                return numCoords;
-}
-
-// Set the number of coordinates in the current lookup
-// Arguments:
-//   const char *env_fname [in]  Key to identify file
-//         int   numCoords [in]  Number of coordinates
-void setNumCoords(const char *env_fname, int numCoords) {
-                std::string key(env_fname);
-                epicsGuard<epicsMutex> _lock(g_lock); // need to protect map as this may create entry             
-                g_numCoords[key] = numCoords;
 }

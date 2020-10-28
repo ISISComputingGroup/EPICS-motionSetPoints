@@ -1,0 +1,294 @@
+record(stringin, "$(P)POSN:SP:RBV")
+{
+	field(DESC, "Current target")
+	field(DTYP,"asynOctetRead")
+	field(INP,"@asyn($(LOOKUP),0)POSNSPRBV")
+	field(SCAN, "I/O Intr")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(stringout, "$(P)POSN:SP")
+{
+	field(DESC, "Set target")
+	field(DTYP,"asynOctetWrite")
+	field(FLNK, "$(P)INT:POSN:SP_FANOUT")
+	field(OUT,"@asyn($(LOOKUP),0)POSNSP")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(longin, "$(P)IPOSN:SP:RBV")
+{
+	field(DESC, "Current target index")
+	field(DTYP,"asynInt32")
+	field(INP,"@asyn($(LOOKUP),0)IPOSNSPRBV")
+	field(EGU, "")
+	field(SCAN, "I/O Intr")
+}
+
+record(longout, "$(P)IPOSN:SP")
+{
+	field(DESC, "Set target by index")
+	field(DTYP,"asynInt32")
+	field(FLNK, "$(P)INT:POSN:SP_FANOUT")
+	field(OUT,"@asyn($(LOOKUP),0)IPOSNSP")
+	field(EGU, "")
+}
+
+record(fanout, "$(P)INT:POSN:SP_FANOUT")
+{
+	field(DESC, "Propagate set")
+	field(LNK1, "$(P)COORD0:NO_OFF.PROC")
+	field(LNK2, "$(P)COORD1:NO_OFF.PROC")
+	field(LNK3, "$(P)COORD2:NO_OFF.PROC")
+	field(LNK4, "$(P)COORD3:NO_OFF.PROC")
+	field(LNK5, "$(P)COORD4:NO_OFF.PROC")
+	field(LNK6, "$(P)INT:POSN:SP_FANOUT2.PROC")
+}
+
+record(fanout, "$(P)INT:POSN:SP_FANOUT2")
+{
+	field(DESC, "Propagate set")
+	field(LNK1, "$(P)COORD5:NO_OFF.PROC")
+	field(LNK2, "$(P)COORD6:NO_OFF.PROC")
+	field(LNK3, "$(P)COORD7:NO_OFF.PROC")
+	field(LNK4, "$(P)COORD8:NO_OFF.PROC")
+	field(LNK5, "$(P)COORD9:NO_OFF.PROC")
+}
+
+record(stringin, "$(P)POSN_NO_ERR")
+{
+	field(DESC, "Current position with no error")
+	field(SCAN, "1 second")
+	field(DTYP,"asynOctetRead")
+	field(INP,"@asyn($(LOOKUP),0)POSN")
+    field(FLNK, "$(P)POSN_CALC")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(scalcout, "$(P)POSN_CALC")
+{
+	field(DESC, "Add alarm to current position")
+	field(INAA, "$(P)POSN_NO_ERR")
+	field(INPA, "$(P)FORWARD_ALARM MS")
+	
+    field(CALC, "AA")
+    field(OUT, "$(P)POSN MS")
+    field(FLNK, "$(P)POSN")
+}
+
+record(stringin, "$(P)POSN")
+{
+	field(DESC, "Current position")
+	info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(stringin, "$(P)NPOSN")
+{
+	field(DESC, "Current nearest position")
+	field(DTYP,"asynOctetRead")
+	field(INP,"@asyn($(LOOKUP),0)NPOSN")
+	field(SCAN, "I/O Intr")
+	info(INTEREST, "HIGH")
+    info(archive, "VAL")
+}
+
+record(longin, "$(P)IPOSN")
+{
+	field(DESC, "Current position index")
+	field(DTYP,"asynInt32")
+	field(INP,"@asyn($(LOOKUP),0)IPOSN")
+	field(EGU, "")
+	field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)NIPOSN")
+{
+	field(DESC, "Current nearest position index")
+	field(DTYP,"asynInt32")
+	field(INP,"@asyn($(LOOKUP),0)NIPOSN")
+	field(EGU, "")
+	field(SCAN, "I/O Intr")
+}
+
+record(ao, "$(P)RESET")
+{
+	field(DESC, "Reread the lookup file")
+	field(DTYP,"asynFloat64")
+	field(FLNK, "$(P)_POSITIONS")
+	field(OUT,"@asyn($(LOOKUP),0)RESET")
+	field(PINI,"YES")
+}
+
+record(ai, "$(P)NUMAXES")
+{
+	field(DESC, "Number of axes")
+	field(DTYP,"asynFloat64")
+    field(SCAN, "I/O Intr")
+	field(EGU,"")
+	field(PREC,"1")
+	field(INP,"@asyn($(LOOKUP),0)NUMAXES")
+}
+
+record(longin, "$(P)POSN:NUM")
+{
+	field(DESC, "Number of positions")
+	field(DTYP,"asynInt32")
+    field(SCAN, "I/O Intr")
+	field(INP,"@asyn($(LOOKUP),0)NUMPOS")
+	field(EGU, "")
+}
+
+## how close we must be to a position to be considered at that position
+## we also wait for motion to stop, so a large value here will just mean we
+## are in positon once we have (1) stopped moving and the (2) the target position 
+## is the closest match out of all available positions. See POSITIONED below
+record(ao, "$(P)TOLERENCE")
+{
+    field(DESC, "Position tolerance")
+	field(DTYP,"asynFloat64")
+	field(VAL, "$(TOL=1e10)")
+	field(OUT,"@asyn($(LOOKUP),0)TOL")
+	field(EGU,"")
+	field(PREC,"3")
+	field(PINI, "YES")
+	field(FLNK, "$(P)POSITIONED")
+}
+
+record(ai, "$(P)POSDIFF")
+{
+	field(DESC, "distance from current position")
+	field(DTYP,"asynFloat64")
+	field(INP,"@asyn($(LOOKUP),0)POSDIFF")
+    field(SCAN, "I/O Intr")
+	field(EGU,"")
+	field(PREC,"3")
+}
+
+record(calc, "$(P)FORWARD_ALARM")
+{
+	# This record is just used for forwarding alarm statuses, we don't care about it's actual VAL
+	field(DESC, "Forwards the alarm from axes")
+	field(INPA, "$(AXIS0):MTR CP MS")
+	field(INPB, "$(AXIS1=$(AXIS0)):MTR CP MS")   
+	field(INPC, "$(AXIS2=$(AXIS0)):MTR CP MS")   
+	field(INPD, "$(AXIS3=$(AXIS0)):MTR CP MS")   
+	field(INPE, "$(AXIS4=$(AXIS0)):MTR CP MS")   
+	field(INPF, "$(AXIS5=$(AXIS0)):MTR CP MS")   
+	field(INPG, "$(AXIS6=$(AXIS0)):MTR CP MS")   
+	field(INPH, "$(AXIS7=$(AXIS0)):MTR CP MS")   
+	field(INPI, "$(AXIS8=$(AXIS0)):MTR CP MS")   
+	field(INPJ, "$(AXIS9=$(AXIS0)):MTR CP MS")  
+	
+}
+record(calc, "$(P)STATIONARY")
+{
+    field(DESC, "Is sample in position")
+	field(INPA, "$(AXIS0):DMOV")
+	field(INPB, "$(AXIS1=$(AXIS0)):DMOV")   
+	field(INPC, "$(AXIS2=$(AXIS0)):DMOV")   
+	field(INPD, "$(AXIS3=$(AXIS0)):DMOV")   
+	field(INPE, "$(AXIS4=$(AXIS0)):DMOV")   
+	field(INPF, "$(AXIS5=$(AXIS0)):DMOV")   
+	field(INPG, "$(AXIS6=$(AXIS0)):DMOV")   
+	field(INPH, "$(AXIS7=$(AXIS0)):DMOV")   
+	field(INPI, "$(AXIS8=$(AXIS0)):DMOV")   
+	field(INPJ, "$(AXIS9=$(AXIS0)):DMOV")   
+	field(CALC, "(A&&B&&C&&D&&E&&F&&G&&H&&I&&J)")
+	field(FLNK, "$(P)POSITIONED")
+	field(EGU, "")
+    info(INTEREST, "HIGH")
+}
+
+## when are we in position? When position names match and we have stopped moving
+record(calc, "$(P)POSITIONED")
+{
+	field(INPA, "$(P)STATIONARY")
+	field(INPB, "$(P)IPOSN:SP:RBV")
+	field(INPC, "$(P)IPOSN")
+	field(INPD, "$(P)FORWARD_ALARM MS")
+	field(CALC, "(B == C) && A")
+}
+# The DMOV for POSN is the same as POSITIONED
+alias("$(P)POSITIONED", "$(P)POSN:DMOV")
+
+# epics string is 40 characters, so NELM in char waveform _POSITIONS is 40 * NELM in POSITIONS
+# need intermediate char waveform as ASYN does not do currently handle string waveforms
+
+record(waveform,"$(P)POSITIONS") 
+{
+    field(DESC, "Available positions")
+	field(FTVL,"STRING")
+	field(NELM,"200")
+}
+
+record(waveform,"$(P)_POSITIONS") 
+{
+	field(DTYP,"asynOctetRead")
+	field(FTVL,"CHAR")
+	field(NELM,"8000")
+	field(INP,"@asyn($(LOOKUP),0)POSITIONS")
+	field(FLNK, "$(P)_WFCTOS")
+}
+alias("$(P)_POSITIONS", "$(P)POSITIONS_C")
+
+record(aSub, "$(P)_WFCTOS")
+{
+  field(SNAM, "charToStringWaveform")
+  field(INPA, "$(P)_POSITIONS")
+  field(FTA, "CHAR")
+  field(NOA, "8000")
+  field(INPB, "$(P)_POSITIONS.NORD")
+  field(FTB, "ULONG")
+  field(NOB, "1")
+  field(FTC, "STRING")
+  field(INPC, "$(P)WFSPLITSEP")
+  field(OUTA, "$(P)POSITIONS PP")
+  field(FTVA, "STRING")
+  field(NOVA, "200")
+  field(FLNK, "$(P)_SPLITPOSNS")
+} 
+
+record(stringin, "$(P)WFSPLITSEP") 
+{
+  field(VAL, " ")
+}
+
+record(aSub, "$(P)_SPLITPOSNS")
+{
+  field(SNAM, "splitCharWaveform")
+  field(INPA, "$(P)_POSITIONS")
+  field(FTA, "CHAR")
+  field(NOA, "8000")
+  field(INPB, "$(P)_POSITIONS.NORD")
+  field(FTB, "ULONG")
+  field(FTC, "ULONG")
+  field(INPC, "1")
+  field(FTD, "STRING")
+  field(INPD, "$(P)WFSPLITSEP")
+  field(FTE, "ULONG")
+  field(FTVA, "STRING")
+  field(FTVB, "STRING")
+  field(FTVC, "STRING")
+  field(FTVD, "STRING")
+  field(FTVE, "STRING")
+  field(FTVF, "STRING")
+  field(FTVG, "STRING")
+  field(FTVH, "STRING")
+  field(FTVI, "STRING")
+  field(FTVJ, "STRING")
+  field(FTVK, "STRING")
+  field(FTVL, "STRING")
+  field(FTVM, "STRING")
+  field(FTVN, "STRING")
+  field(FTVO, "STRING")
+  field(FTVP, "STRING")
+  field(FTVQ, "STRING")
+  field(FTVR, "STRING")
+  field(FTVS, "STRING")
+  field(FTVT, "STRING")
+  field(FTVU, "ULONG")
+}
