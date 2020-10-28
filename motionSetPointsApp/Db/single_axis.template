@@ -10,6 +10,10 @@ record(stringin, "$(P)COORD$(AXIS_NUM):MTRNAME")
 	field(VAL, "$(AXIS):MTR")
 }
 
+record(ai, "$(P)COORD$(AXIS_NUM):IN_POSITION") {
+	field(INP, "$(AXIS):DIFF_WITHIN_TOL CP MS")
+}
+
 record(ai, "$(P)COORD$(AXIS_NUM):NO_OFF")
 {
 	field(DESC, "Target position $(AXIS_NUM) no offset")
