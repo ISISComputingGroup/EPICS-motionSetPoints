@@ -33,7 +33,8 @@ public:
     }
 
     virtual bool ReadLine(std::string &str) {
-        return (bool)std::getline(m_file, str);
+        std::getline(m_file, str);
+        return m_file.good();
     }
 
     virtual void Close() {
@@ -102,11 +103,11 @@ LookupRow createRowFromFileLine(std::string fileLine) {
     std::vector<std::string> vstrings(begin, end);
     strcpy(row.name, vstrings[0].c_str());
     std::transform(std::next(vstrings.begin()), vstrings.end(), std::back_inserter(row.coordinates),
-        [](std::string const& val) {
+        [](std::string const& val) -> double {
             size_t numProcessed;
             double value = std::stod(val, &numProcessed);
             if (numProcessed != val.length()) {
-                throw std::runtime_error("Could not convert " + val + " into a decimal");
+                throw std::runtime_error(std::string("Could not convert ") + val + " into a decimal");
             }
             return value; 
         });
