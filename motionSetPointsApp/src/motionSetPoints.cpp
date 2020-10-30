@@ -109,7 +109,7 @@ asynStatus motionSetPoints::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	else
 	{
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize, 
-                  "%s:%s: status=%d, function=%d, name=%s, value=%f, error=%s", 
+                  "%s:%s: status=%d, function=%d, name=%s, value=%d, error=%s", 
                   driverName, functionName, status, function, paramName, value, "unknown parameter");
 		status = asynError;
 	}
