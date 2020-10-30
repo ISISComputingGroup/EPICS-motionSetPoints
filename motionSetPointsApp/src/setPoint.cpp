@@ -100,7 +100,7 @@ LookupRow createRowFromFileLine(std::string fileLine) {
     std::istream_iterator<std::string> begin(ss);
     std::istream_iterator<std::string> end;
     std::vector<std::string> vstrings(begin, end);
-    std::strcpy(row.name, vstrings[0].c_str());
+    strcpy(row.name, vstrings[0].c_str());
     std::transform(std::next(vstrings.begin()), vstrings.end(), std::back_inserter(row.coordinates),
         [](std::string const& val) {
             size_t numProcessed;
@@ -175,7 +175,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 	if ( table.rows.size()==0 ) {
 		errlogSevPrintf(errlogMinor, "motionSetPoints: Lookup file %s contains no rows\n", fname);
 	} else {
-	    errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s, %d rows\n", env_fname, table.rows.size());
+	    errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s, %u rows\n", env_fname, (unsigned)table.rows.size());
 	}
 }
 
