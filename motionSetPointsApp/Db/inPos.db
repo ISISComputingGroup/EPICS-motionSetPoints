@@ -1,10 +1,23 @@
+record(calc, "$(P)INPOS:_DMOV") {
+	field(DESC, "Combined values of all DMOVs")
+	field(INPA, "$(AXIS0):DMOV CP MS")
+    field(INPB, "$(AXIS1=$(AXIS0)):DMOV CP MS")
+	field(INPC, "$(AXIS2=$(AXIS1=$(AXIS0))):DMOV CP MS")
+    field(INPD, "$(AXIS3=$(AXIS1=$(AXIS0))):DMOV CP MS")
+	field(INPE, "$(AXIS4=$(AXIS1=$(AXIS0))):DMOV CP MS")
+    field(INPF, "$(AXIS5=$(AXIS1=$(AXIS0))):DMOV CP MS")
+	field(INPG, "$(AXIS6=$(AXIS1=$(AXIS0))):DMOV CP MS")
+    field(INPH, "$(AXIS7=$(AXIS1=$(AXIS0))):DMOV CP MS")
+	field(INPI, "$(AXIS8=$(AXIS1=$(AXIS0))):DMOV CP MS")
+    field(INPJ, "$(AXIS9=$(AXIS1=$(AXIS0))):DMOV CP MS")
+	field(CALC, "A&&B&&C&&D&&E&&F&&G&&H&&I&&J")
+}
+
 record(calc, "$(P)INPOS$(NUMPOS)")
 {
-    field(DESC, "Is motor at setpoint position $(NUMPOS)")
-	field(INPA, "$(AXIS1):DMOV) CP MS")
-    field(INPB, "$(AXIS2=$(AXIS1)):DMOV)) CP MS")   
-    field(INPC, "$(P)NUMAXES CP MS")
-	field(INPD, "$(NUMPOS)")
-	field(INPE, "$(P)IPOSN CP MS")
-	field(CALC, "(D==E)&&(C==1?A:A&&B)")    
+    field(DESC, "Are motors at setpoint position $(NUMPOS)")
+	field(INPA, "$(P)INPOS:_DMOV CP MS")
+	field(INPC, "$(NUMPOS)")
+	field(INPD, "$(P)IPOSN CP MS")
+	field(CALC, "(C==D)&&A")
 }
