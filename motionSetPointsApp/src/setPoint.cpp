@@ -140,14 +140,14 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                 LookupRow row = createRowFromFileLine(line);
                 int numberOfCoordsInLine = row.coordinates.size();
                 if (numberOfCoordsInLine == 0) {
-                    throw std::runtime_error("Error parsing " + std::string(fname) + " line " + std::to_string(table.rows.size() + 1) + ": " + line);
+                    throw std::runtime_error("Error parsing " + std::string(fname) + " line " + std::to_string((long double)table.rows.size() + 1) + ": " + line);
                 }
                 if (numberOfCoordsInLine != expectedNumberOfCoords) {
-                    throw std::runtime_error("Unexpected number of columns in " + std::string(fname) + "line " + std::to_string(table.rows.size() + 1));
+                    throw std::runtime_error("Unexpected number of columns in " + std::string(fname) + "line " + std::to_string((long double)table.rows.size() + 1));
                 }
                 if (read_names.count(row.name) != 0)
                 {
-                    throw std::runtime_error("duplicate name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line " + std::to_string(table.rows.size() + 1));
+                    throw std::runtime_error("duplicate name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line " + std::to_string((long double)table.rows.size() + 1));
                 }
                 for (int i = 0; i < table.rows.size(); ++i)
                 {
@@ -157,7 +157,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                     }
                     if (rows_same)
                     {
-                        throw std::runtime_error("duplicate coordinates for name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line" + std::to_string(table.rows.size() + 1));
+                        throw std::runtime_error("duplicate coordinates for name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line" + std::to_string((long double)table.rows.size() + 1));
                     }
                 }
                 table.rows.push_back(row);
