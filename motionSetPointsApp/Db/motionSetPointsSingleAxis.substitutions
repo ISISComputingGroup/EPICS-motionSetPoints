@@ -1,7 +1,7 @@
 global {P="\$(P)", LOOKUP="\$(LOOKUP)"}
 file "$(TOP)/motionSetPointsApp/Db/motionSetPointsHeader.template" {
-	pattern{ AXIS0 }
-	{ "\$(AXIS0)" }
+	pattern{ AXIS0, TOL }
+	{ "\$(AXIS0)", "\$(TOL=1e10)" }
 }
 
 file "$(TOP)/motionSetPointsApp/Db/single_axis.template" {
