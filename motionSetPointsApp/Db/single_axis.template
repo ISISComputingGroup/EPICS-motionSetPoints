@@ -11,7 +11,7 @@ record(stringin, "$(P)COORD$(AXIS_NUM):MTRNAME")
 }
 
 record(ai, "$(P)COORD$(AXIS_NUM):IN_POSITION") {
-	field(INP, "$(AXIS):DIFF_WITHIN_TOL CP MS")
+	field(INP, "$(AXIS):MTR:DIFF_WITHIN_TOL CP MS")
 }
 
 record(ai, "$(P)COORD$(AXIS_NUM):NO_OFF")
