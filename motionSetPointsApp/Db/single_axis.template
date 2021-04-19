@@ -41,26 +41,34 @@ record(ai, "$(P)COORD$(AXIS_NUM):OFFSET")
 
 alias("$(P)COORD$(AXIS_NUM):OFFSET", "$(P)COORD$(AXIS_NUM):OFFSET:SP")
 
-record(calc, "$(P)COORD$(AXIS_NUM)")
+record(calcout, "$(P)COORD$(AXIS_NUM)")
 {
     field(DESC, "Target position $(AXIS_NUM) with offset")
     field(INPA, "$(P)COORD$(AXIS_NUM):NO_OFF MS")
     field(INPB, "$(P)COORD$(AXIS_NUM):OFFSET")
     field(CALC, "A+B")
-    field(FLNK, "$(P)INT:WRITE$(AXIS_NUM)")
+	field(OUT, "$(P)COORD$(AXIS_NUM):SP PP")
   	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
     field(ASG, "READONLY")
-    info(INTEREST, "HIGH")
     info(archive, "VAL")
 }
 
+record(ao, "$(P)COORD$(AXIS_NUM):SP")
+{
+	field(DESC, "Target position $(AXIS_NUM) with offset")
+	field(EGU,"mm")
+	field(PREC,"1")
+    info(INTEREST, "HIGH")
+    info(archive, "VAL")
+    field(FLNK, "$(P)INT:WRITE$(AXIS_NUM)")
+}
 
 record(dfanout, "$(P)INT:WRITE$(AXIS_NUM)")
 {
 	field(DESC, "Pushes COORD$(AXIS_NUM) to motor")
-	field(DOL, "$(P)COORD$(AXIS_NUM)")
+	field(DOL, "$(P)COORD$(AXIS_NUM):SP")
 	field(OMSL, "closed_loop")
 	field(OUTA, "$(AXIS):SP")
 	field(SELM, "Mask")
