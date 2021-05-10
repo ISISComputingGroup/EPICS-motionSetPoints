@@ -9,3 +9,5 @@ $(IFIOC_GALIL_01) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX),AXIS=AXIS7
 
 $(IFIOC_GALIL_02) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX),AXIS=AXIS8,mAXIS=MOT:MTR0201")
 $(IFIOC_GALIL_02) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX),AXIS=AXIS9,mAXIS=MOT:MTR0202")
+
+$(IFIOC_LINMOT_01) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX),AXIS=LIN_AXIS0,mAXIS=MOT:MTR0101")

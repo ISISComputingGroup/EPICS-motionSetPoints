@@ -30,7 +30,6 @@ record(ai, "$(P)COORD$(AXIS_NUM):NO_OFF")
 record(ai, "$(P)COORD$(AXIS_NUM):OFFSET")
 {
     field(DESC, "Offset for coord $(AXIS_NUM)")
-    field(FLNK, "$(P)COORD$(AXIS_NUM)")
   	field(EGU,"mm")
 	field(PREC,"1")
 	field(VAL,"0")
@@ -39,7 +38,15 @@ record(ai, "$(P)COORD$(AXIS_NUM):OFFSET")
     info(autosaveFields, "VAL")
 }
 
-alias("$(P)COORD$(AXIS_NUM):OFFSET", "$(P)COORD$(AXIS_NUM):OFFSET:SP")
+record(ao, "$(P)COORD$(AXIS_NUM):OFFSET:SP")
+{
+    field(DESC, "Offset set point for coord $(AXIS_NUM)")
+  	field(EGU,"mm")
+	field(PREC,"1")
+    field(OUT, "$(P)COORD$(AXIS_NUM):OFFSET PP")
+    info(INTEREST, "HIGH")
+    field(FLNK, "$(P)COORD$(AXIS_NUM)")
+}
 
 record(calcout, "$(P)COORD$(AXIS_NUM)")
 {
