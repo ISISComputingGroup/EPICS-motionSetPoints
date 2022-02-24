@@ -69,7 +69,6 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
     setIntegerParam(P_iposnSP, -1);
     setIntegerParam(P_iposnSPRBV, -1);
     setIntegerParam(P_numpos, 0);
-    setDoubleParam(P_tol, m_tol);
 
     for (int i = 0; i < numberOfCoordinates; i++) {
         setDoubleParam(i, P_coord, 0.0);
