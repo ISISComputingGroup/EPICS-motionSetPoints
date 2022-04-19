@@ -125,6 +125,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 	std::set<std::string, CaselessCompare> read_names; // for checking uniqueness
 	fileIO->Open(fname);
 	int rowCount = 0;
+    bool allow_duplicate_coords = true;
 	std::string line;
 	if ( !fileIO->isOpen() ) {
 		errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to open lookup file \"%s\"\n", fname);
@@ -155,7 +156,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                     for (int j = 0; j < row.coordinates.size(); ++j) {
                         rows_same &= row.coordinates[j] == table.rows[i].coordinates[j];
                     }
-                    if (rows_same)
+                    if (rows_same && !allow_duplicate_coords)
                     {
                         throw std::runtime_error("duplicate coordinates for name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line" + std::to_string((unsigned long long)table.rows.size() + 1));
                     }
@@ -239,6 +240,10 @@ int posn2name(std::vector<double> searchCoords, double tol, const char* env_fnam
 
         if (totalDiff < best) {
             best = totalDiff;
+            table.pRowCurr = &(*it);
+        }
+        // tie break, if we have two matches take the one equal to current requested target
+        if (totalDiff == best && table.pRowRBV == &(*it)) {
             table.pRowCurr = &(*it);
         }
     }
