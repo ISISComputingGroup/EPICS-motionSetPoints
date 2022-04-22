@@ -241,9 +241,8 @@ int posn2name(std::vector<double> searchCoords, double tol, const char* env_fnam
         if (totalDiff < best) {
             best = totalDiff;
             table.pRowCurr = &(*it);
-        }
-        // tie break, if we have two matches take the one equal to current requested target
-        if (totalDiff == best && table.pRowRBV == &(*it)) {
+        } else if (table.pRowCurr != NULL && totalDiff == best && table.pRowRBV == &(*it)) {
+            // tie break, if we have two matches take the one equal to current requested target
             table.pRowCurr = &(*it);
         }
     }
