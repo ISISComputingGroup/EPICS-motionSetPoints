@@ -155,10 +155,6 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                     for (int j = 0; j < row.coordinates.size(); ++j) {
                         rows_same &= row.coordinates[j] == table.rows[i].coordinates[j];
                     }
-                    if (rows_same)
-                    {
-                        throw std::runtime_error("duplicate coordinates for name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line" + std::to_string((unsigned long long)table.rows.size() + 1));
-                    }
                 }
                 table.rows.push_back(row);
                 read_names.insert(row.name);
@@ -239,6 +235,9 @@ int posn2name(std::vector<double> searchCoords, double tol, const char* env_fnam
 
         if (totalDiff < best) {
             best = totalDiff;
+            table.pRowCurr = &(*it);
+        } else if (table.pRowCurr != NULL && totalDiff == best && table.pRowRBV == &(*it)) {
+            // tie break, if we have two matches take the one equal to current requested target
             table.pRowCurr = &(*it);
         }
     }

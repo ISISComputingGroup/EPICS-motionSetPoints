@@ -1,3 +1,5 @@
 # Lookup file for 1D motion setpoints
-In 3
-Out 1
+In     3
+InDup  3
+OutDup 1
+Out    1

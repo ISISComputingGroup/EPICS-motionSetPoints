@@ -1,5 +1,7 @@
 # Lookup file for 2D motion setpoints
-Sample1 3 -2
-Sample2 1  0
-Sample3 0 -4
-Sample4 1 -4
+Sample1     3 -2
+Sample2Dup1 1  0
+Sample2     1  0
+Sample2Dup2 1  0
+Sample3     0 -4
+Sample4     1 -4
