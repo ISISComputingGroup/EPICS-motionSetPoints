@@ -155,7 +155,6 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                     for (int j = 0; j < row.coordinates.size(); ++j) {
                         rows_same &= row.coordinates[j] == table.rows[i].coordinates[j];
                     }
-                    // Throw an exception here if rows_same==true we do not want the same coords having multiple names
                 }
                 table.rows.push_back(row);
                 read_names.insert(row.name);
