@@ -24,8 +24,6 @@
 
 #include "setPoint.hpp"
 
-#define ROW_LEN 200
-
 class FileIO : public FileIOInterface {
 public:
     virtual void Open(const char* filename) {
