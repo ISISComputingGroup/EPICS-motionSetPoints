@@ -59,6 +59,10 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
 	createParam(P_coordString, asynParamFloat64, &P_coord);
     createParam(P_coordRBVString, asynParamFloat64, &P_coordRBV);
 
+    // File information.
+    createParam(P_fileNameString, asynParamOctet, &P_fileName);
+    createParam(P_errorMsgString, asynParamOctet, &P_errorMsg);
+
 	// initial values
     setStringParam(P_posn, "");
     setStringParam(P_nearestPosn, "");
@@ -75,6 +79,11 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
         setDoubleParam(i, P_coordRBV, 0.0);
         m_currentCoordinates.push_back(0.0);
     }
+
+    setStringParam(P_errorMsg, "");
+    // m_fileName is the full path to the file, and as we have a limit of 40 characters we extract just the file name.
+    auto name = strrchr(m_fileName.c_str(), '/') ? strrchr(m_fileName.c_str(), '/') + 1 : m_fileName.c_str();
+    setStringParam(P_fileName, name);
 
     loadDefFile(m_fileName.c_str(), numberOfCoordinates);
 	updateAvailablePositions();
@@ -127,6 +136,7 @@ void motionSetPoints::updateAvailablePositions()
 	setStringParam(P_positions, buffer);
     setIntegerParam(P_numpos, static_cast<int>(numPositions(m_fileName.c_str())));
     setDoubleParam(P_numAxes, m_currentCoordinates.size());
+    setStringParam(P_errorMsg, getErrorMsg(m_fileName.c_str()));
 }
 
 /* Asyn driver entry point for any writeFloat64 PVs.

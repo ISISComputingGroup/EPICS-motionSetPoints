@@ -38,6 +38,10 @@ private:
 #define FIRST_MSP_PARAM P_positions
 #define LAST_MSP_PARAM P_coordRBV
 
+    // File information.
+    int P_fileName; // string - motio setpoints file name
+    int P_errorMsg; // string - error message
+
 	void updateAvailablePositions();
     void updateCurrPosn();
     int gotoPosition(const char* value);
@@ -62,5 +66,7 @@ private:
 #define P_numAxesString     "NUMAXES"
 #define P_tolString         "TOL"
 #define P_posDiffString     "POSDIFF"
+#define P_fileNameString    "FILENAME"
+#define P_errorMsgString    "ERRORMSG"
 
 #endif /* MOTIONSETPOINTS_H */

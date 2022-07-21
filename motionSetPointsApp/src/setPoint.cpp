@@ -24,28 +24,34 @@
 
 #include "setPoint.hpp"
 
-class FileIO : public FileIOInterface {
-public:
-    virtual void Open(const char* filename) {
-        m_file.open(filename);
-    }
+void FileIO::Open(const char* filename) {
+    m_file.open(filename);
+}
 
-    virtual bool ReadLine(std::string &str) {
-        std::getline(m_file, str);
-        return m_file.good();
-    }
+bool FileIO::ReadLine(std::string& str) {
+    std::getline(m_file, str);
+    return m_file.good();
+}
 
-    virtual void Close() {
-        m_file.close();
-    }
+void FileIO::Close() {
+    m_file.close();
+}
 
-    virtual bool isOpen() {
-        return m_file.is_open();
-    }
+bool FileIO::isOpen() {
+    return m_file.is_open();
+}
 
-private:
-    std::ifstream m_file;
-};
+bool FileIO::Verify() {
+    m_file.seekg(-1, std::ios::end);
+
+    if (m_file.get() == '\n') {
+        m_file.seekg(std::ios::beg);
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
 
 // Global map of lookup tables, keyed by their environment vars
@@ -120,17 +126,28 @@ LookupRow createRowFromFileLine(std::string fileLine) {
      int              expectedNumberOfCoords  [in] Expected number of coordinates
  */
 void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname, int expectedNumberOfCoords) {
+    errlogSevPrintf(errlogInfo, "motionSetPoints: Opened file %s.\n", fname);
+
+
 	std::set<std::string, CaselessCompare> read_names; // for checking uniqueness
 	fileIO->Open(fname);
 	int rowCount = 0;
 	std::string line;
 	if ( !fileIO->isOpen() ) {
-		errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to open lookup file \"%s\"\n", fname);
+		errlogSevPrintf(errlogMajor, "motionSetPoints: Unable to open lookup file \"%s\".\n", fname);
 		return;
 	}
 	LookupTable& table = getTable(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
+    table.error = "";
+
+    if (!fileIO->Verify()) {
+        table.error = "File does not end with new line";
+        errlogSevPrintf(errlogMajor, "motionSetPoints: File \"%s\" does not end with new line.\n", fname);
+        fileIO->Close();
+        return;
+    }
 
 	while ( fileIO->ReadLine(line) ) {
 		if ( line.rfind('#', 0) != 0 && line.length() > 0 ) {
@@ -138,13 +155,20 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                 LookupRow row = createRowFromFileLine(line);
                 int numberOfCoordsInLine = row.coordinates.size();
                 if (numberOfCoordsInLine == 0) {
+                    table.error = "Error parsing line " + std::to_string((unsigned long long)table.rows.size() + 1) + ".";
                     throw std::runtime_error("Error parsing " + std::string(fname) + " line " + std::to_string((unsigned long long)table.rows.size() + 1) + ": " + line);
                 }
+                errlogSevPrintf(errlogMajor, "NUMBER OF COORDS %d\n", numberOfCoordsInLine);
+                errlogSevPrintf(errlogMajor, "EXPECTED NUMBER OF COORDS %d\n", expectedNumberOfCoords);
                 if (numberOfCoordsInLine != expectedNumberOfCoords) {
+                    errlogSevPrintf(errlogMajor, "44444444444444444444444\n");
+                    table.error = "Num of cols/spc in name on line " + std::to_string((unsigned long long)table.rows.size() + 1);
                     throw std::runtime_error("Unexpected number of columns in " + std::string(fname) + "line " + std::to_string((unsigned long long)table.rows.size() + 1));
                 }
+
                 if (read_names.count(row.name) != 0)
                 {
+                    table.error = "Duplicate name \"" + std::string(row.name) + "\"";
                     throw std::runtime_error("duplicate name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line " + std::to_string((unsigned long long)table.rows.size() + 1));
                 }
                 for (int i = 0; i < table.rows.size(); ++i)
@@ -158,7 +182,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                 read_names.insert(row.name);
             }
             catch (std::runtime_error e) {
-                errlogSevPrintf(errlogMajor, "motionSetPoints: %s\n", e.what());
+                errlogSevPrintf(errlogMajor, "motionSetPoints: %s.\n", e.what());
                 fileIO->Close();
                 table.rows.clear();
                 return;
@@ -168,9 +192,9 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
     fileIO->Close();
 
 	if ( table.rows.size()==0 ) {
-		errlogSevPrintf(errlogMinor, "motionSetPoints: Lookup file %s contains no rows\n", fname);
+		errlogSevPrintf(errlogMinor, "motionSetPoints: Lookup file %s contains no rows.\n", fname);
 	} else {
-	    errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s, %u rows\n", env_fname, (unsigned)table.rows.size());
+	    errlogSevPrintf(errlogInfo, "motionSetPoints: Table %s, %u rows.\n", env_fname, (unsigned)table.rows.size());
 	}
 }
 
@@ -337,4 +361,9 @@ size_t numPositions(const char* env_fname)
 {
 	LookupTable &table = getTable(env_fname);
     return table.rows.size();
+}
+
+std::string getErrorMsg(const char* env_fname) {
+    LookupTable& table = getTable(env_fname);
+    return table.error;
 }
