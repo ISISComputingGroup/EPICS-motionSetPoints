@@ -140,10 +140,12 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 	LookupTable& table = getTable(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
-    table.error = "";
+    table.error.clear();
+    // "fname" is the full path to the file, and as we have a limit of 40 characters we extract just the file name.
+    table.fileName = strrchr(fname, '/') ? strrchr(fname, '/') + 1 : fname;
 
     if (!fileIO->Verify()) {
-        table.error = "File does not end with new line";
+        table.error = "NO NEW LINE";
         errlogSevPrintf(errlogMajor, "motionSetPoints: File \"%s\" does not end with new line.\n", fname);
         fileIO->Close();
         return;
@@ -155,20 +157,17 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                 LookupRow row = createRowFromFileLine(line);
                 int numberOfCoordsInLine = row.coordinates.size();
                 if (numberOfCoordsInLine == 0) {
-                    table.error = "Error parsing line " + std::to_string((unsigned long long)table.rows.size() + 1) + ".";
+                    table.error = "PARSING LINE " + std::to_string((unsigned long long)table.rows.size() + 1);
                     throw std::runtime_error("Error parsing " + std::string(fname) + " line " + std::to_string((unsigned long long)table.rows.size() + 1) + ": " + line);
                 }
-                errlogSevPrintf(errlogMajor, "NUMBER OF COORDS %d\n", numberOfCoordsInLine);
-                errlogSevPrintf(errlogMajor, "EXPECTED NUMBER OF COORDS %d\n", expectedNumberOfCoords);
                 if (numberOfCoordsInLine != expectedNumberOfCoords) {
-                    errlogSevPrintf(errlogMajor, "44444444444444444444444\n");
-                    table.error = "Num of cols/spc in name on line " + std::to_string((unsigned long long)table.rows.size() + 1);
+                    table.error = "NUM COLS/SPC IN NAME: " + std::to_string((unsigned long long)table.rows.size() + 1);
                     throw std::runtime_error("Unexpected number of columns in " + std::string(fname) + "line " + std::to_string((unsigned long long)table.rows.size() + 1));
                 }
 
                 if (read_names.count(row.name) != 0)
                 {
-                    table.error = "Duplicate name \"" + std::string(row.name) + "\"";
+                    table.error = "DUPLICATE: \"" + std::string(row.name) + "\"";
                     throw std::runtime_error("duplicate name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line " + std::to_string((unsigned long long)table.rows.size() + 1));
                 }
                 for (int i = 0; i < table.rows.size(); ++i)
@@ -181,7 +180,11 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                 table.rows.push_back(row);
                 read_names.insert(row.name);
             }
-            catch (std::runtime_error e) {
+            catch (std::exception e) {
+                if (table.error.empty()) {
+                    table.error = "CONVERTING";
+                }
+
                 errlogSevPrintf(errlogMajor, "motionSetPoints: %s.\n", e.what());
                 fileIO->Close();
                 table.rows.clear();
@@ -361,6 +364,11 @@ size_t numPositions(const char* env_fname)
 {
 	LookupTable &table = getTable(env_fname);
     return table.rows.size();
+}
+
+std::string getFileName(const char* env_fname) {
+    LookupTable& table = getTable(env_fname);
+    return table.fileName;
 }
 
 std::string getErrorMsg(const char* env_fname) {

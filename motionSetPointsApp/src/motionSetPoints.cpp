@@ -80,11 +80,6 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
         m_currentCoordinates.push_back(0.0);
     }
 
-    setStringParam(P_errorMsg, "");
-    // m_fileName is the full path to the file, and as we have a limit of 40 characters we extract just the file name.
-    auto name = strrchr(m_fileName.c_str(), '/') ? strrchr(m_fileName.c_str(), '/') + 1 : m_fileName.c_str();
-    setStringParam(P_fileName, name);
-
     loadDefFile(m_fileName.c_str(), numberOfCoordinates);
 	updateAvailablePositions();
 }
@@ -136,6 +131,7 @@ void motionSetPoints::updateAvailablePositions()
 	setStringParam(P_positions, buffer);
     setIntegerParam(P_numpos, static_cast<int>(numPositions(m_fileName.c_str())));
     setDoubleParam(P_numAxes, m_currentCoordinates.size());
+    setStringParam(P_fileName, getFileName(m_fileName.c_str()));
     setStringParam(P_errorMsg, getErrorMsg(m_fileName.c_str()));
 }
 

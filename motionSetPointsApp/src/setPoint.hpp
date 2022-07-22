@@ -43,6 +43,7 @@ typedef struct LookupTable {
 	LookupRow *pRowRBV;		// The requested row to move to
 	LookupRow *pRowCurr;	// The current row we are at as we move to above requested position
 
+    std::string fileName;
     std::string error;
 	
 	LookupTable() : pRowRBV(NULL), pRowCurr(NULL) {}
@@ -61,6 +62,7 @@ void getPositions(std::string *target, const char* env_fname);
 std::string getPositionByIndex(int pos, const char* env_fname);
 int getPositionIndexByName(const char* name, const char* env_fname);
 size_t numPositions(const char* env_fname);
+std::string getFileName(const char* env_fname);
 std::string getErrorMsg(const char* env_fname);
 
 #endif
