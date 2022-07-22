@@ -1,0 +1,5 @@
+# Convert sample position names to motor coordinates
+SMALL    04.000000
+MEDIUM   24.000000
+LARGE    46.000000
+XLARGE   70.500000

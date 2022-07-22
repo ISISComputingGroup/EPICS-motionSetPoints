@@ -1,0 +1,6 @@
+# Convert sample position names to motor coordinates
+LARGE    02.900000
+BLOCKER1 15.400000
+MEDIUM   27.900000
+BLOCKER2 40.400000
+SMALL    52.900000

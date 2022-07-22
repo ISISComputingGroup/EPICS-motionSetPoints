@@ -1,0 +1,10 @@
+$(IFIOC_GALIL_01) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX)MOT:,AXIS=APERTURE,mAXIS=MTR0101")
+
+$(IFIOC_GALIL_01) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX)MOT:,AXIS=HEIGHT,mAXIS=MTR0102")
+
+$(IFIOC_GALIL_01) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX)MOT:,AXIS=SAMPLE,mAXIS=MTR0103")
+
+$(IFIOC_GALIL_01) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX)MOT:,AXIS=TRANS_MON,mAXIS=MTR0104")
+
+$(IFIOC_GALIL_01) dbLoadRecords("$(AXIS)/db/axis.db","P=$(MYPVPREFIX)MOT:,AXIS=DLS,mAXIS=MTR0105")
+

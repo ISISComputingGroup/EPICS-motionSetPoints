@@ -1,0 +1,10 @@
+# For SANS2D/DLS sample changer - driven by SMC100
+#
+# Sample position	SMC100	SANS2D Height stage
+
+DLS2   86.00   310.40289
+DLS3   41.00   310.40289
+DLS4   -4.00   310.40289
+DLS5   -49.00   310.40289
+DLS6   -94.00   310.40289
+
