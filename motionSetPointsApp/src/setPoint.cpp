@@ -107,9 +107,16 @@ LookupRow createRowFromFileLine(std::string fileLine) {
     std::vector<std::string> vstrings(begin, end);
     strcpy(row.name, vstrings[0].c_str());
     std::transform(std::next(vstrings.begin()), vstrings.end(), std::back_inserter(row.coordinates),
-        [](std::string const& val) -> double {
+        [&fileLine](std::string const& val) -> double {
             size_t numProcessed;
-            double value = std::stod(val, &numProcessed);
+            double value;
+            try {
+                value = std::stod(val, &numProcessed);
+            }
+            catch (std::exception) {
+                throw std::runtime_error(std::string("Could not parse value: ") + val + std::string(" in line: ") + fileLine);
+            }
+             
             if (numProcessed != val.length()) {
                 throw std::runtime_error(std::string("Could not convert ") + val + " into a decimal");
             }
@@ -140,12 +147,12 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
 	LookupTable& table = getTable(env_fname);
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
-    table.error.clear();
+    table.error = "No error";
     // "fname" is the full path to the file, and as we have a limit of 40 characters we extract just the file name.
     table.fileName = strrchr(fname, '/') ? strrchr(fname, '/') + 1 : fname;
 
     if (!fileIO->Verify()) {
-        table.error = "NO NEW LINE";
+        table.error = "No new line at end of file.";
         errlogSevPrintf(errlogMajor, "motionSetPoints: File \"%s\" does not end with new line.\n", fname);
         fileIO->Close();
         return;
@@ -157,17 +164,17 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                 LookupRow row = createRowFromFileLine(line);
                 int numberOfCoordsInLine = row.coordinates.size();
                 if (numberOfCoordsInLine == 0) {
-                    table.error = "PARSING LINE " + std::to_string((unsigned long long)table.rows.size() + 1);
+                    table.error = "Parsing line " + std::to_string((unsigned long long)table.rows.size() + 1) + '.';
                     throw std::runtime_error("Error parsing " + std::string(fname) + " line " + std::to_string((unsigned long long)table.rows.size() + 1) + ": " + line);
                 }
                 if (numberOfCoordsInLine != expectedNumberOfCoords) {
-                    table.error = "NUM COLS/SPC IN NAME: " + std::to_string((unsigned long long)table.rows.size() + 1);
+                    table.error = "Num Cols/Spc in name: " + std::to_string((unsigned long long)table.rows.size() + 1) + '.';
                     throw std::runtime_error("Unexpected number of columns in " + std::string(fname) + "line " + std::to_string((unsigned long long)table.rows.size() + 1));
                 }
 
                 if (read_names.count(row.name) != 0)
                 {
-                    table.error = "DUPLICATE: \"" + std::string(row.name) + "\"";
+                    table.error = "Duplicate name: \"" + std::string(row.name) + "\".";
                     throw std::runtime_error("duplicate name \"" + std::string(row.name) + "\" in " + std::string(fname) + " line " + std::to_string((unsigned long long)table.rows.size() + 1));
                 }
                 for (int i = 0; i < table.rows.size(); ++i)
@@ -182,7 +189,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
             }
             catch (std::exception e) {
                 if (table.error.empty()) {
-                    table.error = "CONVERTING";
+                    table.error = "Error parsing file.";
                 }
 
                 errlogSevPrintf(errlogMajor, "motionSetPoints: %s.\n", e.what());
@@ -366,11 +373,23 @@ size_t numPositions(const char* env_fname)
     return table.rows.size();
 }
 
+/* Return the name of the motion setpoints file
+   Arguments:
+     const char *env_fname [in]  Key to identify file
+   Return:
+     string, the name of the file
+ */
 std::string getFileName(const char* env_fname) {
     LookupTable& table = getTable(env_fname);
     return table.fileName;
 }
 
+/* Return the current error message after parsing the motion setpoints file. Will indicate if there is no error
+   Arguments:
+     const char *env_fname [in]  Key to identify file
+   Return:
+     string, the current error message
+ */
 std::string getErrorMsg(const char* env_fname) {
     LookupTable& table = getTable(env_fname);
     return table.error;
