@@ -510,6 +510,8 @@ namespace {
         ASSERT_EQ(table.rows.size(), 0);
     }
 
+    // FileIO tests.
+
     TEST(setPoint, GIVEN_file_without_new_line_at_end_WHEN_Verify_called_THEN_returns_false) {
         auto testFilename = "my_file.txt";
         std::ofstream os(testFilename);
@@ -517,10 +519,42 @@ namespace {
 
         FileIO testFile;
         testFile.Open(testFilename);
-        
+
         std::remove(testFilename);
 
         ASSERT_FALSE(testFile.Verify());
+    }
+
+    TEST(setPoint, GIVEN_loaded_file_WHEN_getFileName_called_THEN_expected_name_string_set) {
+        auto testFilename = "my_file.txt";
+        auto envFilename = "TEST";
+        std::ofstream os(testFilename);
+        os << "Position 1\n";
+
+        FileIO testFile;
+        testFile.Open(testFilename);
+
+        std::remove(testFilename);
+
+        loadFile(&testFile, testFilename, envFilename, 1);
+
+        ASSERT_TRUE(getFileName(envFilename) == testFilename);
+    }
+
+    TEST(setPoint, GIVEN_file_with_invalid_contents_WHEN_loadFile_called_THEN_error_string_set) {
+        auto testFilename = "my_file.txt";
+        auto envFilename = "TEST";
+        std::ofstream os(testFilename);
+        os << "I have the wrong format.";
+
+        FileIO testFile;
+        testFile.Open(testFilename);
+
+        std::remove(testFilename);
+
+        loadFile(&testFile, testFilename, envFilename, 1);
+
+        ASSERT_FALSE(getErrorMsg(envFilename).empty());
     }
 
 } // namespace
