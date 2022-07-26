@@ -35,8 +35,6 @@ private:
     // Parameters for each coordinate, these will be set on each of the addresses
     int P_coord; // double - current position of co-ordinate
     int P_coordRBV;  // double - requested position of co-ordinate
-#define FIRST_MSP_PARAM P_positions
-#define LAST_MSP_PARAM P_coordRBV
 
     // File information.
     int P_fileName; // string - motio setpoints file name
@@ -47,8 +45,6 @@ private:
     int gotoPosition(const char* value);
 	
 };
-
-#define NUM_MSP_PARAMS (&LAST_MSP_PARAM - &FIRST_MSP_PARAM + 1)
 
 #define P_positionsString	"POSITIONS"
 #define P_posnSPRBVString	"POSNSPRBV"

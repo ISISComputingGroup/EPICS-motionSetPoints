@@ -30,8 +30,7 @@ static const char *driverName = "motionSetPoints";
 
 motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int numberOfCoordinates) 
    : asynPortDriver(portName, 
-                    numberOfCoordinates, /* maxAddr */ 
-                    NUM_MSP_PARAMS, /* num parameters */
+                    numberOfCoordinates, /* maxAddr */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask | asynDrvUserMask, /* Interface mask */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask,  /* Interrupt mask */
                     ASYN_CANBLOCK, /* asynFlags.  This driver can block but it is not multi-device */
