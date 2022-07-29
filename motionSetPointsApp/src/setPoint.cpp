@@ -193,7 +193,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
                 read_names.insert(row.name);
             }
             catch (std::exception e) {
-                if (table.error.empty()) {
+                if (table.error == "No error") {
                     table.error = "Error parsing file.";
                 }
 
