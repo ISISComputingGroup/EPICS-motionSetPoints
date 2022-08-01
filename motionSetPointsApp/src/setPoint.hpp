@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 
 #define NAME_LEN 40
 
@@ -13,6 +14,19 @@ public:
     virtual bool ReadLine(std::string &str) = 0;
     virtual void Close() = 0;
     virtual bool isOpen() = 0;
+    virtual bool Verify() = 0;
+};
+
+class FileIO : public FileIOInterface {
+public:
+    virtual void Open(const char* filename) override;
+    virtual bool ReadLine(std::string& str) override;
+    virtual void Close() override;
+    virtual bool isOpen() override;
+    virtual bool Verify() override;
+
+private:
+    std::ifstream m_file;
 };
 
 // A row in the lookup file
@@ -28,6 +42,9 @@ typedef struct LookupTable {
 
 	LookupRow *pRowRBV;		// The requested row to move to
 	LookupRow *pRowCurr;	// The current row we are at as we move to above requested position
+
+    std::string fileName;
+    std::string error;
 	
 	LookupTable() : pRowRBV(NULL), pRowCurr(NULL) {}
 } LookupTable;
@@ -45,5 +62,7 @@ void getPositions(std::string *target, const char* env_fname);
 std::string getPositionByIndex(int pos, const char* env_fname);
 int getPositionIndexByName(const char* name, const char* env_fname);
 size_t numPositions(const char* env_fname);
+std::string getFileName(const char* env_fname);
+std::string getErrorMsg(const char* env_fname);
 
 #endif

@@ -30,8 +30,7 @@ static const char *driverName = "motionSetPoints";
 
 motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int numberOfCoordinates) 
    : asynPortDriver(portName, 
-                    numberOfCoordinates, /* maxAddr */ 
-                    NUM_MSP_PARAMS, /* num parameters */
+                    numberOfCoordinates, /* maxAddr */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask | asynDrvUserMask, /* Interface mask */
                     asynInt32Mask | asynFloat64Mask | asynOctetMask,  /* Interrupt mask */
                     ASYN_CANBLOCK, /* asynFlags.  This driver can block but it is not multi-device */
@@ -58,6 +57,10 @@ motionSetPoints::motionSetPoints(const char *portName, const char* fileName, int
     // Parameters for each coordinate, these will be set on each of the addresses
 	createParam(P_coordString, asynParamFloat64, &P_coord);
     createParam(P_coordRBVString, asynParamFloat64, &P_coordRBV);
+
+    // File information.
+    createParam(P_fileNameString, asynParamOctet, &P_fileName);
+    createParam(P_errorMsgString, asynParamOctet, &P_errorMsg);
 
 	// initial values
     setStringParam(P_posn, "");
@@ -127,6 +130,8 @@ void motionSetPoints::updateAvailablePositions()
 	setStringParam(P_positions, buffer);
     setIntegerParam(P_numpos, static_cast<int>(numPositions(m_fileName.c_str())));
     setDoubleParam(P_numAxes, m_currentCoordinates.size());
+    setStringParam(P_fileName, getFileName(m_fileName.c_str()));
+    setStringParam(P_errorMsg, getErrorMsg(m_fileName.c_str()));
 }
 
 /* Asyn driver entry point for any writeFloat64 PVs.

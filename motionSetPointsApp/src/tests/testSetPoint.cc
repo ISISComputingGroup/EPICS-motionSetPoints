@@ -20,6 +20,7 @@ namespace {
         MOCK_METHOD1(ReadLine, bool(std::string &str));
         MOCK_METHOD0(Close, void());
         MOCK_METHOD0(isOpen, bool());
+        MOCK_METHOD0(Verify, bool());
     };
 
     TEST(setPoint, GIVEN_file_line_with_one_coord_WHEN_row_created_THEN_correct_name_and_coords) {
@@ -64,10 +65,11 @@ namespace {
         loadFile(&mockFile, testFilename, "TEST", 1);
     }
 
-    void createMockFile(MockFileIO* mockFile, std::string testFileName, std::vector<std::string> linesInFile, bool expectedToGetToEnd=true) {
+    void createMockFile(MockFileIO* mockFile, std::string testFileName, std::vector<std::string> linesInFile, bool expectedToGetToEnd=true, bool hasNewLine=true) {
         InSequence seq;
         EXPECT_CALL(*mockFile, Open(StrEq(testFileName)));
         EXPECT_CALL(*mockFile, isOpen()).WillOnce(Return(true));
+        EXPECT_CALL(*mockFile, Verify()).WillOnce(Return(hasNewLine));
 
         for (auto line : linesInFile) {
             EXPECT_CALL(*mockFile, ReadLine(_)).WillOnce(DoAll(SetArgReferee<0>(line), Return(true)));
@@ -491,6 +493,68 @@ namespace {
         getPositions(&positions, envFilename);
 
         ASSERT_EQ(positions, "a_very_much_longer_name                 short_name                              ");
+    }
+
+    TEST(setPoint, GIVEN_file_without_new_line_at_end_WHEN_loadFile_called_THEN_table_empty) {
+        auto testFilename = "my_file";
+        auto envFilename = "TEST";
+        std::vector<std::string> fileLines = {};
+        MockFileIO mockFile;
+
+        createMockFile(&mockFile, testFilename, fileLines, false, false);
+
+        loadFile(&mockFile, testFilename, envFilename, 1);
+
+        auto table = getTable(envFilename);
+
+        ASSERT_EQ(table.rows.size(), 0);
+    }
+
+    // FileIO tests.
+
+    TEST(setPoint, GIVEN_file_without_new_line_at_end_WHEN_Verify_called_THEN_returns_false) {
+        auto testFilename = "my_file.txt";
+        std::ofstream os(testFilename);
+        os << "Test data with no new line at end";
+
+        FileIO testFile;
+        testFile.Open(testFilename);
+
+        std::remove(testFilename);
+
+        ASSERT_FALSE(testFile.Verify());
+    }
+
+    TEST(setPoint, GIVEN_loaded_file_WHEN_getFileName_called_THEN_expected_name_string_set) {
+        auto testFilename = "my_file.txt";
+        auto envFilename = "TEST";
+        std::ofstream os(testFilename);
+        os << "Position 1\n";
+
+        FileIO testFile;
+        testFile.Open(testFilename);
+
+        std::remove(testFilename);
+
+        loadFile(&testFile, testFilename, envFilename, 1);
+
+        ASSERT_TRUE(getFileName(envFilename) == testFilename);
+    }
+
+    TEST(setPoint, GIVEN_file_with_invalid_contents_WHEN_loadFile_called_THEN_error_string_set) {
+        auto testFilename = "my_file.txt";
+        auto envFilename = "TEST";
+        std::ofstream os(testFilename);
+        os << "I have the wrong format.";
+
+        FileIO testFile;
+        testFile.Open(testFilename);
+
+        std::remove(testFilename);
+
+        loadFile(&testFile, testFilename, envFilename, 1);
+
+        ASSERT_FALSE(getErrorMsg(envFilename).empty());
     }
 
 } // namespace

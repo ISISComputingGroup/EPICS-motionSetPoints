@@ -145,6 +145,24 @@ record(longin, "$(P)POSN:NUM")
 	field(EGU, "")
 }
 
+record(stringin, "$(P)FILENAME")
+{
+	field(DESC, "The name of the motion setpoints file")
+	field(DTYP, "asynOctetRead")
+	field(INP,"@asyn($(LOOKUP),0)FILENAME")
+	field(SCAN, "I/O Intr")
+	field(UDFS, "NO_ALARM")
+}
+
+record(stringin, "$(P)ERRORMSG")
+{
+	field(DESC, "Current error message")
+	field(DTYP, "asynOctetRead")
+	field(INP,"@asyn($(LOOKUP),0)ERRORMSG")
+	field(SCAN, "I/O Intr")
+	field(UDFS, "NO_ALARM")
+}
+
 ## how close we must be to a position to be considered at that position
 ## we also wait for motion to stop, so a large value here will just mean we
 ## are in positon once we have (1) stopped moving and the (2) the target position 
