@@ -25,6 +25,7 @@ file $(UTILITIES)/db/unit_setter.template {
 
     {"\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF", "" }
     {"\$(AXIS0).EGU", "\$(P)COORD0:OFFSET", "" }
+    {"\$(AXIS0).EGU", "\$(P)COORD0:OFFSET:SP", "" }
 	{"\$(AXIS0).EGU", "\$(P)COORD0", "" }
 	{"\$(AXIS0).EGU", "\$(P)COORD0:RBV", "" }
 	{"\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF", "" }
@@ -32,6 +33,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	
 	{"\$(AXIS1).EGU", "\$(P)COORD1:NO_OFF", "" }
     {"\$(AXIS1).EGU", "\$(P)COORD1:OFFSET", "" }
+    {"\$(AXIS1).EGU", "\$(P)COORD1:OFFSET:SP", "" }
 	{"\$(AXIS1).EGU", "\$(P)COORD1", "" }
 	{"\$(AXIS1).EGU", "\$(P)COORD1:RBV", "" }
 	{"\$(AXIS1).EGU", "\$(P)COORD1:RBV:OFF", "" }
@@ -39,6 +41,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	
     {"\$(AXIS2).EGU", "\$(P)COORD2:NO_OFF", "" }
     {"\$(AXIS2).EGU", "\$(P)COORD2:OFFSET", "" }
+    {"\$(AXIS2).EGU", "\$(P)COORD2:OFFSET:SP", "" }
 	{"\$(AXIS2).EGU", "\$(P)COORD2", "" }
 	{"\$(AXIS2).EGU", "\$(P)COORD2:RBV", "" }
 	{"\$(AXIS2).EGU", "\$(P)COORD2:RBV:OFF", "" }
@@ -46,6 +49,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	
 	{"\$(AXIS3).EGU", "\$(P)COORD3:NO_OFF", "" }
     {"\$(AXIS3).EGU", "\$(P)COORD3:OFFSET", "" }
+    {"\$(AXIS3).EGU", "\$(P)COORD3:OFFSET:SP", "" }
 	{"\$(AXIS3).EGU", "\$(P)COORD3", "" }
 	{"\$(AXIS3).EGU", "\$(P)COORD3:RBV", "" }
 	{"\$(AXIS3).EGU", "\$(P)COORD3:RBV:OFF", "" }
@@ -53,6 +57,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	
 	{"\$(AXIS4).EGU", "\$(P)COORD4:NO_OFF", "" }
     {"\$(AXIS4).EGU", "\$(P)COORD4:OFFSET", "" }
+    {"\$(AXIS4).EGU", "\$(P)COORD4:OFFSET:SP", "" }
 	{"\$(AXIS4).EGU", "\$(P)COORD4", "" }
 	{"\$(AXIS4).EGU", "\$(P)COORD4:RBV", "" }
 	{"\$(AXIS4).EGU", "\$(P)COORD4:RBV:OFF", "" }
@@ -60,6 +65,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	               
 	{"\$(AXIS5).EGU", "\$(P)COORD5:NO_OFF", "" }
     {"\$(AXIS5).EGU", "\$(P)COORD5:OFFSET", "" }
+    {"\$(AXIS5).EGU", "\$(P)COORD5:OFFSET:SP", "" }
 	{"\$(AXIS5).EGU", "\$(P)COORD5", "" }
 	{"\$(AXIS5).EGU", "\$(P)COORD5:RBV"}
 	{"\$(AXIS5).EGU", "\$(P)COORD5:RBV:OFF", "" }
@@ -67,6 +73,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	
     {"\$(AXIS6).EGU", "\$(P)COORD6:NO_OFF", "" }
     {"\$(AXIS6).EGU", "\$(P)COORD6:OFFSET", "" }
+    {"\$(AXIS6).EGU", "\$(P)COORD6:OFFSET:SP", "" }
 	{"\$(AXIS6).EGU", "\$(P)COORD6", "" }
 	{"\$(AXIS6).EGU", "\$(P)COORD6:RBV", "" }
 	{"\$(AXIS6).EGU", "\$(P)COORD6:RBV:OFF", "" }
@@ -74,6 +81,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	               
 	{"\$(AXIS7).EGU", "\$(P)COORD7:NO_OFF", "" }
     {"\$(AXIS7).EGU", "\$(P)COORD7:OFFSET", "" }
+    {"\$(AXIS7).EGU", "\$(P)COORD7:OFFSET:SP", "" }
 	{"\$(AXIS7).EGU", "\$(P)COORD7", "" }
 	{"\$(AXIS7).EGU", "\$(P)COORD7:RBV", "" }
 	{"\$(AXIS7).EGU", "\$(P)COORD7:RBV:OFF", "" }
@@ -81,6 +89,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	
 	{"\$(AXIS8).EGU", "\$(P)COORD8:NO_OFF", "" }
     {"\$(AXIS8).EGU", "\$(P)COORD8:OFFSET", "" }
+    {"\$(AXIS8).EGU", "\$(P)COORD8:OFFSET:SP", "" }
 	{"\$(AXIS8).EGU", "\$(P)COORD8", "" }
 	{"\$(AXIS8).EGU", "\$(P)COORD8:RBV", "" }
 	{"\$(AXIS8).EGU", "\$(P)COORD8:RBV:OFF", "" }
@@ -88,6 +97,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	
 	{"\$(AXIS9).EGU", "\$(P)COORD9:NO_OFF", "" }
     {"\$(AXIS9).EGU", "\$(P)COORD9:OFFSET", "" }
+    {"\$(AXIS9).EGU", "\$(P)COORD9:OFFSET:SP", "" }
 	{"\$(AXIS9).EGU", "\$(P)COORD9", "" }
 	{"\$(AXIS9).EGU", "\$(P)COORD9:RBV", "" }
 	{"\$(AXIS9).EGU", "\$(P)COORD9:RBV:OFF", "" }
