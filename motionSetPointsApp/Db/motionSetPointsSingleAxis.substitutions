@@ -16,7 +16,7 @@ file $(UTILITIES)/db/unit_setter.template {
 
     { "\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF", "" }
     { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET", "" }
-    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET:SP", "" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET:SP", "NPP" }
 	{ "\$(AXIS0).EGU", "\$(P)COORD0", "" }
 	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV", "" }
 	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF", "" }

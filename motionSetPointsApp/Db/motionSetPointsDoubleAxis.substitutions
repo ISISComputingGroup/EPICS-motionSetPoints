@@ -17,7 +17,7 @@ file $(UTILITIES)/db/unit_setter.template {
 
     { "\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF", "" }
     { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET", "" }
-    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET:SP", "" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET:SP", "NPP" }
 	{ "\$(AXIS0).EGU", "\$(P)COORD0", "" }
 	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV", "" }
 	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF", "" }
@@ -25,7 +25,7 @@ file $(UTILITIES)/db/unit_setter.template {
 	                   
 	{ "\$(AXIS1).EGU", "\$(P)COORD1:NO_OFF", "" }
     { "\$(AXIS1).EGU", "\$(P)COORD1:OFFSET", "" }
-    { "\$(AXIS1).EGU", "\$(P)COORD1:OFFSET:SP", "" }
+    { "\$(AXIS1).EGU", "\$(P)COORD1:OFFSET:SP", "NPP" }
 	{ "\$(AXIS1).EGU", "\$(P)COORD1", "" }
 	{ "\$(AXIS1).EGU", "\$(P)COORD1:RBV", "" }
 	{ "\$(AXIS1).EGU", "\$(P)COORD1:RBV:OFF", "" }
