@@ -14,11 +14,12 @@ file $(UTILITIES)/db/unit_setter.template {
   pattern 
     { FROM, TO, PROCESS_FLAGS }
 
-    { "\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF", "" }
-    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0:SET:RBV", "" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF", "NPP" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET", "NPP" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET:SP", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:SET:RBV", "NPP" }
 	
 }

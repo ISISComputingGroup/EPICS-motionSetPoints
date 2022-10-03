@@ -15,17 +15,19 @@ file $(UTILITIES)/db/unit_setter.template {
   pattern 
     { FROM, TO, PROCESS_FLAGS}
 
-    { "\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF", "" }
-    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF", "" }
-	{ "\$(AXIS0).EGU", "\$(P)COORD0:SET:RBV", "" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:NO_OFF", "NPP" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET", "NPP" }
+    { "\$(AXIS0).EGU", "\$(P)COORD0:OFFSET:SP", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:RBV:OFF", "NPP" }
+	{ "\$(AXIS0).EGU", "\$(P)COORD0:SET:RBV", "NPP" }
 	                   
-	{ "\$(AXIS1).EGU", "\$(P)COORD1:NO_OFF", "" }
-    { "\$(AXIS1).EGU", "\$(P)COORD1:OFFSET", "" }
-	{ "\$(AXIS1).EGU", "\$(P)COORD1", "" }
-	{ "\$(AXIS1).EGU", "\$(P)COORD1:RBV", "" }
-	{ "\$(AXIS1).EGU", "\$(P)COORD1:RBV:OFF", "" }
-	{ "\$(AXIS1).EGU", "\$(P)COORD1:SET:RBV", "" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD1:NO_OFF", "NPP" }
+    { "\$(AXIS1).EGU", "\$(P)COORD1:OFFSET", "NPP" }
+    { "\$(AXIS1).EGU", "\$(P)COORD1:OFFSET:SP", "NPP" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD1", "NPP" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD1:RBV", "NPP" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD1:RBV:OFF", "NPP" }
+	{ "\$(AXIS1).EGU", "\$(P)COORD1:SET:RBV", "NPP" }
 }
