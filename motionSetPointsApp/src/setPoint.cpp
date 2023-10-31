@@ -148,13 +148,7 @@ void loadFile(FileIOInterface *fileIO, const char *fname, const char *env_fname,
     epicsGuard<epicsMutex> _lock(g_lock); // need to protect write access to map	
 	table.rows.clear();
     table.error = "No error";
-    // "fname" is the full path to the file, and as there is a limit of 40 characters, extract just the file name.
-    std::string fnameString = fname;
-    size_t lastSeparator = fnameString.find_last_of("\\/");
-    if (lastSeparator != std::string::npos) {
-        fnameString = fnameString.substr(lastSeparator + 1);
-    }
-    table.fileName = fnameString;
+    table.fileName = fname;
 
     if (!fileIO->Verify()) {
         table.error = "No new line at end of file.";

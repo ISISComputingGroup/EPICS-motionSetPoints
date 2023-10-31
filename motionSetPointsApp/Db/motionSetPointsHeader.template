@@ -145,12 +145,14 @@ record(longin, "$(P)POSN:NUM")
 	field(EGU, "")
 }
 
-record(stringin, "$(P)FILENAME")
+record(waveform, "$(P)FILENAME")
 {
 	field(DESC, "The name of the motion setpoints file")
 	field(DTYP, "asynOctetRead")
 	field(INP,"@asyn($(LOOKUP),0)FILENAME")
 	field(SCAN, "I/O Intr")
+	field(FTVL, "CHAR")
+	field(NELM, "100")
 	field(UDFS, "NO_ALARM")
 }
 
