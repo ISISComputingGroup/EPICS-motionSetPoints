@@ -16,3 +16,4 @@ test-reports
 .settings
 .cproject
 NULL
+dllCopy.bat
