@@ -137,3 +137,8 @@ record(longin, "$(P)STATIONARY$(AXIS_NUM)")
 	field(EGU, "")
     info(INTEREST, "HIGH")
 }
+
+record(longout, "$(P)COORD$(AXIS_NUM):HOMF") {
+    field(DESC, "Motor $(AXIS_NUM) home")
+	field(OUT, "$(AXIS):MTR.HOMF PP")
+}
