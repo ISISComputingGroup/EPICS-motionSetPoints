@@ -1,4 +1,4 @@
-$(IFIOC_GALIL_01) epicsEnvSet "LOOKUPFILE1" "$(MOTIONSETPOINTS/settings/setting_for_system_tests/instrument_scripts/loq/aperture.txt"
+$(IFIOC_GALIL_01) epicsEnvSet "LOOKUPFILE1" "$(MOTIONSETPOINTS)/settings/setting_for_system_tests/instrument_scripts/loq/aperture.txt"
 
 $(IFIOC_GALIL_01) epicsEnvSet "LOOKUPFILE2" "$(MOTIONSETPOINTS)/settings/setting_for_system_tests/instrument_scripts/loq/sample_changer.txt"
 
